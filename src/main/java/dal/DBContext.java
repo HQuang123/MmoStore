@@ -19,7 +19,7 @@ public class DBContext {
         try {
             String user = "sa";
             String pass = "sa123@@@";
-            String url = "jdbc:sqlserver://47.129.203.47:1433;databaseName=MmoStore;trustServerCertificate=true";
+            String url = "jdbc:sqlserver://47.129.203.47:3306;databaseName=MmoStore;trustServerCertificate=true";
             System.out.println(url);
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             connection = DriverManager.getConnection(url, user, pass);
