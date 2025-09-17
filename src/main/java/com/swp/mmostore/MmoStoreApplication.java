@@ -1,4 +1,4 @@
-package com.swp.mmo.mmostore;
+package com.swp.mmostore;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
