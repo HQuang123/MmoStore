@@ -4,7 +4,6 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 ##when deploy remove this file
-pom.xml
 .mvn/
 mvnw
 mvnw.cmd

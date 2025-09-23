@@ -10,12 +10,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger; // Import the logger
-import org.slf4j.LoggerFactory; // Import the logger factory
 import java.util.stream.Collectors;
 
 @Service
