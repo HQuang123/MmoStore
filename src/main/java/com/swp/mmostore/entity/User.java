@@ -4,7 +4,9 @@ import lombok.*;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -28,35 +30,60 @@ public class User {
     @Column(name = "Password", nullable = false, length = 255)
     private String password;
 
-    @Column(name = "UserRole", nullable = false, length = 255)
+    @Column(name = "Role", nullable = false, length = 255)
     private String userRole; // Note: ENUM might need a custom converter, but String works for now
 
     @Column(name = "Balance", precision = 10, scale = 2)
     private BigDecimal balance;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "ENUM('Active','Inactive')")
-    private Status status; // Note: ENUM might need a custom converter
+    @Column(name = "Status", columnDefinition = "ENUM('Active','Inactive')")
+    private UserStatus userStatus; // Note: ENUM might need a custom converter
 
-//    @Column(name = "CreatedAt")
-//    private Instant createdAt;
+    @Column(name = "CreateAt")
+    private LocalDateTime createdAt;
 
-    @Column(name = "CreatedBy")
-    private Integer createdBy; // FIX: The DB column is INT, so this must be Integer
+    @Column(name = "CreateBy")
+    private int createBy;
 
-    @Column(name = "UpdatedAt")
-    private Instant updatedAt; // FIX: This column exists in your DB, but not in your entity
+    @Column(name = "UpdateAt")
+    private LocalDateTime updateAt; //
 
-    @Column(name = "UpdatedBy")
-    private Integer updatedBy; // FIX: The DB column is INT, so this must be Integer
+    @Column(name = "UpdateBy")
+    private int updateBy; // FIX: The DB column is INT, so this must be Integer
 
     // Note: The isDeleted column name matches the Java field, no @Column annotation is needed here
     // as it follows the camelCase/camelCase convention.
+    @Column(name = "IsDeleted")
     private boolean isDeleted;
 
-    @Column(name = "DeletedBy")
-    private Integer deletedBy; // FIX: The DB column is INT, so this must be Integer
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Shop> shops = new ArrayList<>();
 
+    public void addShop(Shop shop) {
+        shops.add(shop);
+        shop.setUser(this);
+    }
+
+    public void removeShop(Shop shop){
+        shops.remove(shop);
+        shop.setUser(null);
+    }
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Order> orders = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Deposit> deposits = new ArrayList<>();
+
+    public void addDeposit(Deposit deposit) {
+        deposits.add(deposit);
+        deposit.setUser(this);
+    }
+    public void removeDeposit(Deposit deposit) {
+        deposits.remove(deposit);
+        deposit.setUser(null);
+    }
 
     // Constructor is fine
     public User(int userId, String username, String password,  String email, String userRole) {
