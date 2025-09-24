@@ -26,7 +26,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, DaoAuthenticationProvider authProvider) throws Exception {
-        http.authenticationProvider(authProvider).authorizeHttpRequests(auth -> auth.requestMatchers("/css/**", "/js/**","/images/**","/login").permitAll().anyRequest().authenticated()
+        http.authenticationProvider(authProvider).authorizeHttpRequests(auth -> auth.requestMatchers("/css/**", "/js/**","/images/**","/login","/home").permitAll().anyRequest().authenticated()
         ).formLogin(form -> form.loginPage("/login").loginProcessingUrl("/login").defaultSuccessUrl("/home",true).permitAll()
         ).logout(logout -> logout.logoutUrl("/logout").logoutSuccessUrl("/login?logout").permitAll()
         );
