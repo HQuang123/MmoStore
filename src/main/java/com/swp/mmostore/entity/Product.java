@@ -30,7 +30,7 @@ public class Product {
     private BigDecimal price;
 
     @Column(name = "Quantity", nullable = false)
-    private int quantity;
+    private Integer quantity;
 
     @Column(name = "isDeleted", nullable = false)
     private boolean isDeleted = false;
@@ -40,13 +40,13 @@ public class Product {
     private LocalDateTime createAt;
 
     @Column(name = "CreateBy")
-    private int createBy;
+    private Integer createBy;
 
     @Column(name = "UpdateAt")
     private LocalDateTime updateAt;
 
     @Column(name = "UpdateBy")
-    private int updateBy;
+    private Integer updateBy;
 
     @ManyToOne
     @JoinColumn(name = "ShopID", nullable = false)
@@ -72,7 +72,7 @@ public class Product {
         discount.setProduct(null);
     }
 
-    public Product(String title, String description, BigDecimal price, int quantity, Shop shop, Category category) {
+    public Product(String title, String description, BigDecimal price, Integer quantity, Shop shop, Category category) {
         this.title = title;
         this.description = description;
         this.price = price;

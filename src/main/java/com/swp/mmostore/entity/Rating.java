@@ -34,13 +34,13 @@ public class Rating {
     private LocalDateTime createAt;
 
     @Column(name = "CreateBy")
-    private int createBy;
+    private Integer createBy;
 
     @Column(name = "UpdateAt")
     private LocalDateTime updateAt;
 
     @Column(name = "UpdateBy")
-    private int updateBy;
+    private Integer updateBy;
 
     @ManyToOne
     @JoinColumn(name = "UserID", nullable = false)

@@ -1,6 +1,7 @@
 package com.swp.mmostore.entity;
 
 import jakarta.persistence.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -42,9 +43,8 @@ public class Shop {
     @Column(name = "UpdateAt")
     private LocalDateTime updateAt;
 
-    @ManyToOne
-    @JoinColumn(name = "UpdateBy")
-    private User updateBy;
+    @Column(name = "UpdateBy")
+    private Integer updateBy;
 
     @ManyToOne
     @JoinColumn(name = "UserID", nullable = false)

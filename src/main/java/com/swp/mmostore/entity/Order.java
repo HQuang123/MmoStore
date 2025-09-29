@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Order")
+@Table(name = "Orders")
 @Setter
 @Getter
 @AllArgsConstructor
@@ -34,15 +34,14 @@ public class Order {
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createAt;
 
-    @ManyToOne
-    @JoinColumn(name = "CreateBy")
-    private User createBy;
+    @Column(name = "CreateBy")
+    private Integer createBy;
 
     @Column(name = "UpdateAt")
     private LocalDateTime updateAt;
 
     @Column(name = "UpdateBy")
-    private int updateBy;
+    private Integer updateBy;
 
     @ManyToOne
     @JoinColumn(name = "UserID", nullable = false)
