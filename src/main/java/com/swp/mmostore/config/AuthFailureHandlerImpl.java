@@ -2,7 +2,7 @@ package com.swp.mmostore.config;
 
 import com.swp.mmostore.entity.User;
 import com.swp.mmostore.repository.UserRepository;
-import com.swp.mmostore.service.UserService;
+import com.swp.mmostore.service.LoginRegistrationService;
 import com.swp.mmostore.util.AppConstant;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
-import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
@@ -23,7 +22,7 @@ public class AuthFailureHandlerImpl extends SimpleUrlAuthenticationFailureHandle
     UserRepository userRepository;
 
     @Autowired
-    UserService userService;
+    LoginRegistrationService userService;
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {

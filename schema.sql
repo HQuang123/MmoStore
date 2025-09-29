@@ -17,9 +17,7 @@ CREATE TABLE User (
                       CreateAt                  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                       CreateBy                  INT,
                       UpdateAt                  TIMESTAMP NULL,
-                      UpdateBy                  INT,
-                      FOREIGN KEY (CreateBy) REFERENCES User(UserID),
-                      FOREIGN KEY (UpdateBy) REFERENCES User(UserID)
+                      UpdateBy                  INT
 );
 
 
@@ -33,10 +31,7 @@ CREATE TABLE Shop (
                       CreateBy   INT,
                       UpdateAt   TIMESTAMP NULL,
                       UpdateBy   INT,
-                      UserID     INT,
-                      FOREIGN KEY (CreateBy) REFERENCES User(UserID),
-                      FOREIGN KEY (UpdateBy) REFERENCES User(UserID),
-                      FOREIGN KEY (UserID)  REFERENCES User(UserID)
+                      UserID     INT
 );
 
 -- CATEGORY
@@ -48,9 +43,7 @@ CREATE TABLE Category (
                           CreateAt    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                           CreateBy    INT,
                           UpdateAt    TIMESTAMP NULL,
-                          UpdateBy    INT,
-                          FOREIGN KEY (CreateBy) REFERENCES User(UserID),
-                          FOREIGN KEY (UpdateBy) REFERENCES User(UserID)
+                          UpdateBy    INT
 );
 
 -- PRODUCT
@@ -67,8 +60,6 @@ CREATE TABLE Product (
                          UpdateBy    INT,
                          ShopID      INT,
                          CategoryID  INT,
-                         FOREIGN KEY (CreateBy)   REFERENCES User(UserID),
-                         FOREIGN KEY (UpdateBy)   REFERENCES User(UserID),
                          FOREIGN KEY (ShopID)     REFERENCES Shop(ShopID),
                          FOREIGN KEY (CategoryID) REFERENCES Category(CategoryID)
 );
@@ -85,8 +76,6 @@ CREATE TABLE Discount (
                           UpdateAt        TIMESTAMP NULL,
                           UpdateBy        INT,
                           ProductID       INT,
-                          FOREIGN KEY (CreateBy)  REFERENCES User(UserID),
-                          FOREIGN KEY (UpdateBy)  REFERENCES User(UserID),
                           FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
 );
 
@@ -102,8 +91,6 @@ CREATE TABLE `Orders` (
                           UpdateBy   INT,
                           UserID     INT,
                           ProductID  INT,
-                          FOREIGN KEY (CreateBy)  REFERENCES User(UserID),
-                          FOREIGN KEY (UpdateBy)  REFERENCES User(UserID),
                           FOREIGN KEY (UserID)    REFERENCES User(UserID),
                           FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
 );
@@ -120,8 +107,6 @@ CREATE TABLE Rating (
                         UpdateBy    INT,
                         UserID      INT,
                         ProductID   INT,
-                        FOREIGN KEY (CreateBy)  REFERENCES User(UserID),
-                        FOREIGN KEY (UpdateBy)  REFERENCES User(UserID),
                         FOREIGN KEY (UserID)    REFERENCES User(UserID),
                         FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
 );
@@ -138,8 +123,6 @@ CREATE TABLE Payouts (
                          UpdateAt       TIMESTAMP NULL,
                          UpdateBy       INT,
                          ShopID         INT,
-                         FOREIGN KEY (CreateBy) REFERENCES User(UserID),
-                         FOREIGN KEY (UpdateBy) REFERENCES User(UserID),
                          FOREIGN KEY (ShopID)   REFERENCES Shop(ShopID)
 );
 
@@ -156,8 +139,6 @@ CREATE TABLE Deposit (
                          UpdateAt      TIMESTAMP NULL,
                          UpdateBy      INT,
                          UserID        INT,
-                         FOREIGN KEY (CreateBy) REFERENCES User(UserID),
-                         FOREIGN KEY (UpdateBy) REFERENCES User(UserID),
                          FOREIGN KEY (UserID)   REFERENCES User(UserID)
 );
 
@@ -172,7 +153,5 @@ CREATE TABLE ActivityLog (
                              UpdateAt    TIMESTAMP NULL,
                              UpdateBy    INT,
                              UserID      INT,
-                             FOREIGN KEY (CreateBy) REFERENCES User(UserID),
-                             FOREIGN KEY (UpdateBy) REFERENCES User(UserID),
                              FOREIGN KEY (UserID)   REFERENCES User(UserID)
 );
