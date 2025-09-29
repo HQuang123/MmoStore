@@ -34,10 +34,11 @@ jobs:
 
       - name: Stop old container
         run: |
-          if [ "$(docker ps -q -f name=mmostore" ]; then
+          if [ "$(docker ps -q -f name=mmostore)" ]; then
             docker stop mmostore
             docker rm mmostore
           fi
+          
 
       - name: Run Docker container
         run: |
