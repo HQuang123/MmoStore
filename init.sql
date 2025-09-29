@@ -6,11 +6,12 @@
 -- user: charlie, password: hashpw4
 -- =====================
 
-INSERT INTO User (UserID, Username, Email, Password, Role, Status, Balance, PhoneNumber, isDeleted) VALUES
-(1, 'admin', 'admin@example.com', '$2a$12$PK6G.ISl7CYUVHBZEdmtzOeuYyq317tKsu9eHiStEDjROdjRO/HhW', 'admin', 'active', 1000.00, '123-456-7890', FALSE),
-(2, 'alice123', 'john.doe@example.com', '$2a$12$8iH7alLhKgxpYgGOwCyb6uldsSgRSZNjF/MWFKiudtJ/v2hSJpJnq', 'user', 'active', 50.00, '987-654-3210', FALSE),
-(3, 'bob123', 'owner1@example.com', '$2a$12$FHBRZgpfEiLCnTOEkppIyuldqiewSaewi7oRYP9m0Sz7bBzbVOuU2', 'user, seller', 'active', 250.00, '555-123-4567', FALSE),
-(4, 'charlie123', 'owner2@example.com', '$2a$12$rTVGGzmgLjNevXM1GM/aiua7LwDCafFNKUULuKHJ04gDrJoANOu6S', 'user, seller', 'active', 0.00, '555-987-6543', FALSE);
+INSERT INTO User (UserID, Name, Email, Password, Role, Balance, PhoneNumber) VALUES
+                                                                                     (1, 'admin - hashpw1', 'admin@example.com', '$2a$12$PK6G.ISl7CYUVHBZEdmtzOeuYyq317tKsu9eHiStEDjROdjRO/HhW', 'ROLE_ADMIN', 1000.00, '123-456-7890'),
+                                                                                     (2, 'alice - hashpw2', 'john.doe@example.com', '$2a$12$8iH7alLhKgxpYgGOwCyb6uldsSgRSZNjF/MWFKiudtJ/v2hSJpJnq', 'ROLE_USER', 50.00, '987-654-3210'),
+                                                                                     (3, 'bob - hashpw3', 'owner1@example.com', '$2a$12$FHBRZgpfEiLCnTOEkppIyuldqiewSaewi7oRYP9m0Sz7bBzbVOuU2', 'ROLE_USER', 250.00, '555-123-4567'),
+                                                                                     (4, 'charlie - hashpw4', 'owner2@example.com', '$2a$12$rTVGGzmgLjNevXM1GM/aiua7LwDCafFNKUULuKHJ04gDrJoANOu6S', 'ROLE_USER', 0.00, '555-987-6543');
+
 
 INSERT INTO Shop (ShopID, Name, Description, isDeleted, UserID, CreateBy) VALUES
                                                                               (1, 'Tech Gadgets', 'Your one-stop shop for the latest technology.', FALSE, 3, 3),
@@ -30,7 +31,7 @@ INSERT INTO Discount (ID, DiscountPercent, StartDate, EndDate, isDeleted, Produc
                                                                                                    (1, 10.00, '2025-09-25', '2025-10-31', FALSE, 1, 1),
                                                                                                    (2, 20.00, '2025-10-01', '2025-10-15', FALSE, 3, 1);
 
-INSERT INTO `Order` (OrderID, Quantity, TotalPrice, isDeleted, UserID, ProductID, CreateBy) VALUES
+INSERT INTO `Orders` (OrderID, Quantity, TotalPrice, isDeleted, UserID, ProductID, CreateBy) VALUES
                                                                                                 (1, 1, 499.99, FALSE, 2, 2, 2),
                                                                                                 (2, 2, 50.00, FALSE, 2, 3, 2);
 

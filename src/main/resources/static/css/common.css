@@ -1,0 +1,21 @@
+body {
+    background-color: #f4f4f4;
+    font-family: Arial, sans-serif;
+}
+.card {
+    border-radius: 12px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+}
+.card-header {
+    background: none;
+    border-bottom: none;
+}
+.btn {
+    border-radius: 4px;
+}
+.img-fluid, img {
+    object-fit: cover;
+}
+.text-center {
+    text-align: center;
+}

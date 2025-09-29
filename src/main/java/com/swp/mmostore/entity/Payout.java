@@ -34,16 +34,14 @@ public class Payout {
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createAt;
 
-    @ManyToOne
-    @JoinColumn(name = "CreateBy")
-    private User createBy;
+    @Column(name = "CreateBy")
+    private Integer createBy;
 
     @Column(name = "UpdateAt")
     private LocalDateTime updateAt;
 
-    @ManyToOne
-    @JoinColumn(name = "UpdateBy")
-    private User updateBy;
+    @Column(name = "UpdateBy")
+    private Integer updateBy;
 
     @Column(name = "isDeleted", nullable = false)
     private Boolean isDeleted = false;

@@ -45,10 +45,10 @@ public class Deposit {
     private LocalDateTime updateAt;
 
     @Column(name = "CreateBy")
-    private int createBy;
+    private Integer createBy;
 
     @Column(name = "UpdateBy")
-    private int updateBy;
+    private Integer updateBy;
 
     @ManyToOne
     @JoinColumn(name = "UserID")

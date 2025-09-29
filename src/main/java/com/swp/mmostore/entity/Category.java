@@ -21,7 +21,7 @@ public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "CategoryID")
-    private int categoryId;
+    private Integer categoryId;
 
     @Column(name = "Name", nullable = false, length = 255)
     private String name;
@@ -37,13 +37,13 @@ public class Category {
     private LocalDateTime createAt;
 
     @Column(name = "CreateBy")
-    private int createBy;
+    private Integer createBy;
 
     @Column(name = "UpdateAt")
     private LocalDateTime updateAt;
 
     @Column(name = "UpdateBy")
-    private int updateBy;
+    private Integer updateBy;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     private List<Product> products = new ArrayList<>();
