@@ -1,11 +1,9 @@
 package com.swp.mmostore.controller;
 
 import com.swp.mmostore.entity.User;
-import com.swp.mmostore.service.UserService;
+import com.swp.mmostore.service.LoginRegistrationService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnNotWarDeployment;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,13 +20,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.logging.Logger;
 
 @Controller
-public class HomeViewController {
+public class LoginRegistrationController {
 
     @Autowired
-    UserService userService;
+    LoginRegistrationService userService;
 
     @GetMapping("/signin")
     public String login(){
