@@ -8,6 +8,7 @@ target/
 mvnw
 mvnw.cmd
 .gitattributes
+.env
 
 ### STS ###
 .apt_generated
