@@ -46,7 +46,7 @@ jobs:
           -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
           -e DATABASE_USER=${{ secrets.DATABASE_USERNAME }} \
           -e DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} \
-          --name mmostore -p 80:8080 ***/mmostore:${SHORT_SHA}
+          --name mmostore -p 80:8080 ${{ secrets.DOCKER_USERNAME }}/mmostore:${SHORT_SHA}
 
       - name: Push Docker image
         run: |
