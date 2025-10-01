@@ -29,17 +29,17 @@ public class Rating {
     @Column(name = "IsDeleted", nullable = false)
     private Boolean isDeleted = false;
 
-    @Column(name = "CreateAt", nullable = false, updatable = false,
+    @Column(name = "CreateAt", updatable = false, insertable = false,
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createAt;
 
-    @Column(name = "CreateBy")
+    @Column(name = "CreateBy", insertable = false)
     private Integer createBy;
 
-    @Column(name = "UpdateAt")
+    @Column(name = "UpdateAt", insertable = false)
     private LocalDateTime updateAt;
 
-    @Column(name = "UpdateBy")
+    @Column(name = "UpdateBy", insertable = false)
     private Integer updateBy;
 
     @ManyToOne

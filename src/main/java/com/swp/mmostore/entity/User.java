@@ -28,7 +28,7 @@ public class User {
     @Column(name = "Email", nullable = false, length = 100, unique = true)
     private String email;
 
-    @Column(name = "PhoneNumber")
+    @Column(name = "PhoneNumber", nullable = false)
     private String phoneNumber;
 
     @Column(name = "Password", nullable = false, length = 255)
@@ -37,27 +37,27 @@ public class User {
     @Column(name = "Role", nullable = false, length = 255)
     private String role; // Note: ENUM might need a custom converter, but String works for now
 
-    @Column(name = "Balance", precision = 10, scale = 2)
+    @Column(name = "Balance", precision = 10, scale = 2, insertable = false)
     private BigDecimal balance;
 
-    @Column(name = "Status")
+    @Column(name = "Status", columnDefinition = "Boolean DEFAULT true", insertable = false)
     private Boolean status;
 
-    @Column(name = "CreateAt")
+    @Column(name = "CreateAt", insertable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "CreateBy")
+    @Column(name = "CreateBy", insertable = false)
     private Integer createBy;
 
-    @Column(name = "UpdateAt")
+    @Column(name = "UpdateAt", insertable = false)
     private LocalDateTime updateAt; //
 
-    @Column(name = "UpdateBy")
+    @Column(name = "UpdateBy", insertable = false)
     private Integer updateBy; // FIX: The DB column is Integer, so this must be Integereger
 
     // Note: The isDeleted column name matches the Java field, no @Column annotation is needed here
     // as it follows the camelCase/camelCase convention.
-    @Column(name = "IsDeleted")
+    @Column(name = "IsDeleted", insertable = false)
     private Boolean isDeleted;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
@@ -73,13 +73,13 @@ public class User {
         shop.setUser(null);
     }
 
-    @Column(name = "AccountStatusNonLocked")
+    @Column(name = "AccountStatusNonLocked", insertable = false)
     private Boolean accountStatusNonLocked;
 
-    @Column(name = "AccountFailedAttemptCount")
+    @Column(name = "AccountFailedAttemptCount", insertable = false)
     private Integer accountFailedAttempt;
 
-    @Column(name = "AccountLockTime")
+    @Column(name = "AccountLockTime", insertable = false)
     private Date accountLockTime;
 
     @Column(name = "ResetTokens")
