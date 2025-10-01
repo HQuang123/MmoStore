@@ -27,20 +27,20 @@ public class Order {
     @Column(name = "TotalPrice", nullable = false, precision = 15, scale = 2)
     private BigDecimal totalPrice;
 
-    @Column(name = "isDeleted", nullable = false)
-    private Boolean isDeleted = false;
+    @Column(name = "isDeleted", insertable = false)
+    private Boolean isDeleted;
 
-    @Column(name = "CreateAt", nullable = false, updatable = false,
+    @Column(name = "CreateAt", insertable = false, updatable = false,
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createAt;
 
-    @Column(name = "CreateBy")
+    @Column(name = "CreateBy", insertable = false)
     private Integer createBy;
 
-    @Column(name = "UpdateAt")
+    @Column(name = "UpdateAt", insertable = false)
     private LocalDateTime updateAt;
 
-    @Column(name = "UpdateBy")
+    @Column(name = "UpdateBy", insertable = false)
     private Integer updateBy;
 
     @ManyToOne

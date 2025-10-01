@@ -26,26 +26,26 @@ public class Discount {
     @Column(name = "DiscountPercent", nullable = false, precision = 5, scale = 2)
     private BigDecimal discountPercent;
 
-    @Column(name = "StartDate")
+    @Column(name = "StartDate", nullable = false)
     private LocalDate startDate;
 
-    @Column(name = "EndDate")
+    @Column(name = "EndDate", nullable = false)
     private LocalDate endDate;
 
-    @Column(name = "IsDeleted", nullable = false)
-    private Boolean isDeleted = false;
+    @Column(name = "IsDeleted", insertable = false)
+    private Boolean isDeleted;
 
-    @Column(name = "CreateAt", nullable = false, updatable = false,
+    @Column(name = "CreateAt", insertable = false, updatable = false,
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createAt;
 
-    @Column(name = "CreateBy")
+    @Column(name = "CreateBy", insertable = false)
     private Integer createBy;
 
-    @Column(name = "UpdateAt")
+    @Column(name = "UpdateAt", insertable = false)
     private LocalDateTime updateAt;
 
-    @Column(name = "UpdateBy")
+    @Column(name = "UpdateBy", insertable = false)
     private Integer updateBy;
 
     @ManyToOne

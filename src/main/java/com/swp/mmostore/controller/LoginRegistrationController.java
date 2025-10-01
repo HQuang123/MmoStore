@@ -47,7 +47,7 @@ public class LoginRegistrationController {
     throws IOException {
 
         String email = user.getEmail();
-        if(userService.getUserByEmail(email) != null){
+        if(userService.getUserByEmail(email) == null){
             //user not input image -> default image, if input, the name of file is the name of image file
             //user image will always be saved into the classes
             String profileImage = file.isEmpty() ? "default.jpg" : file.getOriginalFilename();

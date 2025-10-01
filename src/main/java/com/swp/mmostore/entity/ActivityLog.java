@@ -27,20 +27,20 @@ public class ActivityLog {
     @Column(name = "Description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "isDeleted")
-    private Boolean isDeleted = false;
+    @Column(name = "isDeleted", insertable = false)
+    private Boolean isDeleted;
 
-    @Column(name = "CreateAt", updatable = false)
+    @Column(name = "CreateAt", updatable = false, insertable = false)
     private LocalDateTime createAt;
 
-    @Column(name = "UpdateAt")
+    @Column(name = "UpdateAt", insertable = false)
     private LocalDateTime updateAt;
 
     // Relations
-    @Column(name = "CreateBy")
+    @Column(name = "CreateBy", insertable = false)
     private Integer createBy;
 
-    @Column(name = "UpdateBy")
+    @Column(name = "UpdateBy", insertable = false)
     private Integer updateBy;
 
     @ManyToOne
