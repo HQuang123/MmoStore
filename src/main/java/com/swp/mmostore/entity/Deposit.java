@@ -21,7 +21,7 @@ public class Deposit {
     @Column(name = "ID")
     private Integer id;
 
-    @Column(name = "Amount", nullable = false, precision = 15, scale = 2)
+    @Column(name = "Amount", precision = 15, scale = 2)
     private BigDecimal amount;
 
     @Column(name = "PaymentMethod", length = 100)
@@ -35,19 +35,19 @@ public class Deposit {
     @Column(name = "ActionType")
     private ActionType actionType;
 
-    @Column(name = "IsDeleted")
-    private Boolean isDeleted = false;
+    @Column(name = "IsDeleted", insertable = false)
+    private Boolean isDeleted;
 
-    @Column(name = "CreateAt", updatable = false)
+    @Column(name = "CreateAt", updatable = false, insertable = false)
     private LocalDateTime createAt;
 
-    @Column(name = "UpdateAt")
+    @Column(name = "UpdateAt", insertable = false)
     private LocalDateTime updateAt;
 
-    @Column(name = "CreateBy")
+    @Column(name = "CreateBy", insertable = false)
     private Integer createBy;
 
-    @Column(name = "UpdateBy")
+    @Column(name = "UpdateBy", insertable = false)
     private Integer updateBy;
 
     @ManyToOne

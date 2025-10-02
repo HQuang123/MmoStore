@@ -23,26 +23,26 @@ public class Category {
     @Column(name = "CategoryID")
     private Integer categoryId;
 
-    @Column(name = "Name", nullable = false, length = 255)
+    @Column(name = "Name", length = 255)
     private String name;
 
     @Column(name = "Description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "isDeleted", nullable = false)
+    @Column(name = "isDeleted", insertable = false)
     private Boolean isDeleted = false;
 
-    @Column(name = "CreateAt", nullable = false, updatable = false,
+    @Column(name = "CreateAt", insertable = false, updatable = false,
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createAt;
 
-    @Column(name = "CreateBy")
+    @Column(name = "CreateBy", insertable = false)
     private Integer createBy;
 
-    @Column(name = "UpdateAt")
+    @Column(name = "UpdateAt", insertable = false)
     private LocalDateTime updateAt;
 
-    @Column(name = "UpdateBy")
+    @Column(name = "UpdateBy", insertable = false)
     private Integer updateBy;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)

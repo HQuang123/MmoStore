@@ -23,17 +23,16 @@ public class Shop {
     @Column(name = "ShopID")
     private Integer shopId;
 
-    @Column(name = "Name", nullable = false, length = 255)
+    @Column(name = "Name")
     private String name;
 
     @Column(name = "Description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "isDeleted", nullable = false)
+    @Column(name = "isDeleted", insertable = false)
     private Boolean isDeleted = false;
 
-    @Column(name = "CreateAt", nullable = false, updatable = false,
-            columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "CreateAt", insertable = false)
     private LocalDateTime createAt;
 
     @ManyToOne
@@ -47,7 +46,7 @@ public class Shop {
     private Integer updateBy;
 
     @ManyToOne
-    @JoinColumn(name = "UserID", nullable = false)
+    @JoinColumn(name = "UserID")
     private User user;
 
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)

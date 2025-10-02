@@ -29,7 +29,7 @@
 
                     </div>
                     <div class="card-body">
-                        <form action="/save-user" method="post" enctype="multipart/form-data">
+                        <form id="registerForm" action="/save-user" method="post" enctype="multipart/form-data">
                             <div class="row">
                                 <div class="col">
                                     <label class="form-label">Tên</label> <input
@@ -57,6 +57,7 @@
                                 <div class="col">
                                     <label class="form-label">Nhập lại mật khẩu</label> <input
                                         class="form-control" name="confirmPassword" type="password" />
+                                    <div id="confirmPasswordHelp" class="form-text text-danger" style="display:none;">Mật khẩu không khớp.</div>
                                 </div>
                             </div>
 
@@ -67,7 +68,7 @@
 
 
 
-                            <button type="submit" class="btn bg-danger mt-3 text-white col-md-12">Register</button>
+                            <button id="submitBtn" type="submit" class="btn bg-danger mt-3 text-white col-md-12" disabled>Register</button>
                         </form>
 
 
@@ -81,7 +82,53 @@
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var form = document.getElementById('registerForm');
+            if (!form) return;
+            var passwordInput = form.querySelector('input[name="password"]');
+            var confirmInput = form.querySelector('input[name="confirmPassword"]');
+            var help = document.getElementById('confirmPasswordHelp');
+            var submitBtn = document.getElementById('submitBtn');
+
+            function validatePasswords() {
+                var pass = passwordInput ? passwordInput.value : '';
+                var confirm = confirmInput ? confirmInput.value : '';
+                var matched = confirm.length > 0 && pass === confirm;
+
+                if (matched) {
+                    if (confirmInput) confirmInput.setCustomValidity('');
+                    if (help) { help.style.display = 'none'; help.textContent = ''; }
+                } else {
+                    if (confirmInput) confirmInput.setCustomValidity('Passwords do not match');
+                    //confirm length == 0-> false, help.style.display = 'none'
+                    if (help) { help.style.display = confirm.length ? 'block' : 'none';
+                        help.textContent = 'Mật khẩu không khớp.';
+                        help.style.color = 'red';}
+                }
+
+                if (submitBtn) submitBtn.disabled = !matched;
+            }
+
+            if (passwordInput) passwordInput.addEventListener('input', validatePasswords);
+            if (confirmInput) confirmInput.addEventListener('input', validatePasswords);
+
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    validatePasswords();
+                    if (!form.checkValidity()) {
+                        e.preventDefault();
+                        if (confirmInput) confirmInput.reportValidity();
+                    }
+                });
+            }
+
+            // Initialize UI state on load
+            validatePasswords();
+        });
+    </script>
 </section>
+
 
 </body>
 </html>

@@ -1,11 +1,11 @@
 -- USER
 CREATE TABLE User (
-                      UserID                    INT PRIMARY KEY AUTO_INCREMENT,
+                      UserID                INT PRIMARY KEY AUTO_INCREMENT,
                       Name                  VARCHAR(100) NOT NULL,
                       Email                     VARCHAR(100) NOT NULL,
                       Password                  VARCHAR(255) NOT NULL,
                       Role                      VARCHAR(50),
-                      Status                    BOOLEAN NOT NULL DEFAULT TRUE,   -- TRUE = active, FALSE = inactive
+                      Status                    BOOLEAN DEFAULT TRUE,   -- TRUE = active, FALSE = inactive
                       Balance                   DECIMAL(15,2) DEFAULT 0,
                       PhoneNumber               VARCHAR(20),
                       ProfileImage              VARCHAR(500),

@@ -34,7 +34,7 @@ jobs:
 
       - name: Stop old container
         run: |
-          if [ "$(docker ps -q -f name=mmostore)" ]; then
+          if [ "$(docker ps -a -q -f name=mmostore)" ]; then
             docker stop mmostore
             docker rm mmostore
           fi
@@ -42,7 +42,7 @@ jobs:
 
       - name: Run Docker container
         run: |
-          docker run -d --name mmostore -p 80:8080 ${{ secrets.DOCKER_USERNAME }}/mmostore:${SHORT_SHA}
+          docker run -d -e "DATABASE_URL=${{ secrets.DATABASE_URL }}" -e DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }} -e DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }} --name mmostore -p 80:8080 ${{ secrets.DOCKER_USERNAME }}/mmostore:${SHORT_SHA}
 
       - name: Push Docker image
         run: |

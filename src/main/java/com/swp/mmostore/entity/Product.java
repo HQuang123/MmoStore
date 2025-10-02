@@ -20,40 +20,40 @@ public class Product {
     @Column(name = "ProductID")
     private Integer productId;
 
-    @Column(name = "Title", nullable = false, length = 255)
+    @Column(name = "Title", length = 255)
     private String title;
 
     @Column(name = "Description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "Price", nullable = false, precision = 15, scale = 2)
+    @Column(name = "Price", precision = 15, scale = 2)
     private BigDecimal price;
 
-    @Column(name = "Quantity", nullable = false)
+    @Column(name = "Quantity")
     private Integer quantity;
 
-    @Column(name = "isDeleted", nullable = false)
+    @Column(name = "isDeleted")
     private boolean isDeleted = false;
 
-    @Column(name = "CreateAt", nullable = false, updatable = false,
+    @Column(name = "CreateAt", updatable = false, insertable = false,
             columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createAt;
 
-    @Column(name = "CreateBy")
+    @Column(name = "CreateBy", insertable = false)
     private Integer createBy;
 
-    @Column(name = "UpdateAt")
+    @Column(name = "UpdateAt", insertable = false)
     private LocalDateTime updateAt;
 
-    @Column(name = "UpdateBy")
+    @Column(name = "UpdateBy", insertable = false)
     private Integer updateBy;
 
     @ManyToOne
-    @JoinColumn(name = "ShopID", nullable = false)
+    @JoinColumn(name = "ShopID")
     private Shop shop;
 
     @ManyToOne
-    @JoinColumn(name = "CategoryID", nullable = false)
+    @JoinColumn(name = "CategoryID")
     private Category category;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
