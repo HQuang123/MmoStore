@@ -1,5 +1,5 @@
 # MMOStore
-<img src="/src/main/resources/static/images/mmo-banner.png" alt="alt text" width="100%" height="100%">
+<img src="src/main/resources/static/images/mmo-banner.png" alt="alt text" width="100%" height="100%">
 
 MMOStore is a web application built with **Spring Boot** and **MySQL** that serves as a simple e-commerce platform for MMORPG-related items.
 The app provides functionality for managing products, categories, and customers while supporting CRUD operations and a MySQL-backed database.
