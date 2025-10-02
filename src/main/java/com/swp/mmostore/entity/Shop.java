@@ -23,7 +23,7 @@ public class Shop {
     @Column(name = "ShopID")
     private Integer shopId;
 
-    @Column(name = "Name", nullable = false)
+    @Column(name = "Name")
     private String name;
 
     @Column(name = "Description", columnDefinition = "TEXT")
@@ -46,7 +46,7 @@ public class Shop {
     private Integer updateBy;
 
     @ManyToOne
-    @JoinColumn(name = "UserID", nullable = false)
+    @JoinColumn(name = "UserID")
     private User user;
 
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)

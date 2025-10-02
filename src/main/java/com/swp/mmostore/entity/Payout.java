@@ -21,7 +21,7 @@ public class Payout {
     @Column(name = "PayoutID")
     private Integer payoutId;
 
-    @Column(name = "Amount", nullable = false, precision = 15, scale = 2)
+    @Column(name = "Amount", precision = 15, scale = 2)
     private BigDecimal amount;
 
     @Column(name = "Status", length = 50)
@@ -47,7 +47,7 @@ public class Payout {
     private Boolean isDeleted;
 
     @ManyToOne
-    @JoinColumn(name = "ShopID", nullable = false)
+    @JoinColumn(name = "ShopID")
     private Shop shop;
 
 

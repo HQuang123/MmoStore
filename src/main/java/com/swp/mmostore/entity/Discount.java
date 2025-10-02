@@ -23,13 +23,13 @@ public class Discount {
     @Column(name = "ID")
     private Integer id;
 
-    @Column(name = "DiscountPercent", nullable = false, precision = 5, scale = 2)
+    @Column(name = "DiscountPercent", precision = 5, scale = 2)
     private BigDecimal discountPercent;
 
-    @Column(name = "StartDate", nullable = false)
+    @Column(name = "StartDate")
     private LocalDate startDate;
 
-    @Column(name = "EndDate", nullable = false)
+    @Column(name = "EndDate")
     private LocalDate endDate;
 
     @Column(name = "IsDeleted", insertable = false)
@@ -49,7 +49,7 @@ public class Discount {
     private Integer updateBy;
 
     @ManyToOne
-    @JoinColumn(name = "ProductID", nullable = false)
+    @JoinColumn(name = "ProductID")
     private Product product;
 
     public Discount(BigDecimal discountPercent, LocalDate startDate, LocalDate endDate, Product product) {
