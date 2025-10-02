@@ -22,19 +22,19 @@ public class User {
     @Column(name="UserID")
     private Integer userId;
 
-    @Column(name = "Name", nullable = false, length = 50)
+    @Column(name = "Name", length = 50)
     private String name;
 
-    @Column(name = "Email", nullable = false, length = 100, unique = true)
+    @Column(name = "Email", length = 100, unique = true)
     private String email;
 
-    @Column(name = "PhoneNumber", nullable = false)
+    @Column(name = "PhoneNumber")
     private String phoneNumber;
 
-    @Column(name = "Password", nullable = false, length = 255)
+    @Column(name = "Password", length = 255)
     private String password;
 
-    @Column(name = "Role", nullable = false, length = 255)
+    @Column(name = "Role", length = 255)
     private String role; // Note: ENUM might need a custom converter, but String works for now
 
     @Column(name = "Balance", precision = 10, scale = 2, insertable = false)

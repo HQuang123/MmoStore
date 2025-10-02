@@ -21,7 +21,7 @@ public class Deposit {
     @Column(name = "ID")
     private Integer id;
 
-    @Column(name = "Amount", nullable = false, precision = 15, scale = 2)
+    @Column(name = "Amount", precision = 15, scale = 2)
     private BigDecimal amount;
 
     @Column(name = "PaymentMethod", length = 100)

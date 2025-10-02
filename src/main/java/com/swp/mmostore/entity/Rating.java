@@ -20,13 +20,13 @@ public class Rating {
     @Column(name = "ID")
     private Integer id;
 
-    @Column(name = "RatingPoint", nullable = false)
+    @Column(name = "RatingPoint")
     private Integer ratingPoint; // value between 1 and 5
 
     @Column(name = "Feedback", columnDefinition = "TEXT")
     private String feedback;
 
-    @Column(name = "IsDeleted", nullable = false)
+    @Column(name = "IsDeleted")
     private Boolean isDeleted = false;
 
     @Column(name = "CreateAt", updatable = false, insertable = false,
@@ -43,10 +43,10 @@ public class Rating {
     private Integer updateBy;
 
     @ManyToOne
-    @JoinColumn(name = "UserID", nullable = false)
+    @JoinColumn(name = "UserID")
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "ProductID", nullable = false)
+    @JoinColumn(name = "ProductID")
     private Product product;
 }

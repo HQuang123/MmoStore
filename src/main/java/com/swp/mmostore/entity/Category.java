@@ -23,7 +23,7 @@ public class Category {
     @Column(name = "CategoryID")
     private Integer categoryId;
 
-    @Column(name = "Name", nullable = false, length = 255)
+    @Column(name = "Name", length = 255)
     private String name;
 
     @Column(name = "Description", columnDefinition = "TEXT")
