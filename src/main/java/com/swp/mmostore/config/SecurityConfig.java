@@ -23,6 +23,11 @@ public class SecurityConfig {
     @Lazy
     AuthenticationFailureHandler authenticationFailureHandler;
 
+
+    @Autowired
+    @Lazy
+    CustomOAuth2UserService customOAuth2UserService;
+
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
@@ -38,7 +43,26 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, DaoAuthenticationProvider authProvider) throws Exception {
-        http.csrf(csrf -> csrf.disable()).cors(cors -> cors.disable()).authorizeHttpRequests(req -> req.requestMatchers("/user/**").hasRole("USER").requestMatchers("/admin/**").hasRole("ADMIN").requestMatchers("/**").permitAll()).formLogin(form -> form.loginPage("/signin").loginProcessingUrl("/login").failureHandler(authenticationFailureHandler).successHandler(authenticationSuccessHandler)).logout(logout -> logout.permitAll());
+        http
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.disable())
+            .authorizeHttpRequests(req -> req
+                .requestMatchers("/user/**").hasRole("USER")
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/**").permitAll()
+            )
+            .authenticationProvider(authProvider)
+            .formLogin(form -> form
+                .loginPage("/signin")
+                .loginProcessingUrl("/login")
+                .failureHandler(authenticationFailureHandler)
+                .successHandler(authenticationSuccessHandler)
+            )
+            .oauth2Login(oauth -> oauth
+                .loginPage("/signin")
+                .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+            )
+            .logout(logout -> logout.permitAll());
         return http.build();
     }
 }

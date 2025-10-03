@@ -34,7 +34,7 @@ public class User {
     @Column(name = "Password", length = 255)
     private String password;
 
-    @Column(name = "Role", length = 255)
+    @Column(name = "Role", length = 255, insertable = false)
     private String role; // Note: ENUM might need a custom converter, but String works for now
 
     @Column(name = "Balance", precision = 10, scale = 2, insertable = false)
@@ -59,6 +59,12 @@ public class User {
     // as it follows the camelCase/camelCase convention.
     @Column(name = "IsDeleted", insertable = false)
     private Boolean isDeleted;
+
+    @Column(name = "Provider")
+    private String provider;
+
+    @Column(name = "ProviderId")
+    private String providerId;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Shop> shops = new ArrayList<>();
@@ -88,9 +94,6 @@ public class User {
     @Column(name = "ProfileImage")
     private String profileImage;
 
-
-
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Order> orders = new ArrayList<>();
 
@@ -114,5 +117,14 @@ public class User {
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.password = password;
+    }
+
+    public User(String name, String email, String phoneNumber, String password, String provider, String providerId) {
+        this.name = name;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.password = password;
+        this.provider = provider;
+        this.providerId = providerId;
     }
 }
