@@ -42,12 +42,18 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String providerId = oAuth2User.getAttribute("sub");
         String provider = "google";
         String password =   UUID.randomUUID().toString();
+        String profileImg = oAuth2User.getAttribute("picture");
         User user = userService.findByProviderId(providerId);
         if (user == null){
             user = new User(name, email,phone,password,provider,providerId);
+            user.setProfileImage(profileImg);
         }
         userService.saveUser(user);
-        return oAuth2User;
+        return new DefaultOAuth2User(
+                oAuth2User.getAuthorities(),
+                oAuth2User.getAttributes(),
+                "email"
+        );
     }
 
 }
