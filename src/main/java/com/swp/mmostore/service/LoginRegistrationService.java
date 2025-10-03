@@ -23,7 +23,6 @@ public class LoginRegistrationService {
     }
 
     public User saveUser(User user) {
-        user.setRole("User");
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
         try{
@@ -93,7 +92,9 @@ public class LoginRegistrationService {
         return userRepository.save(user);
     }
 
-
+    public User findByProviderId(String providerId){
+        return userRepository.findByProviderId(providerId);
+    }
 
 
 

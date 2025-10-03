@@ -23,7 +23,9 @@ public class SecurityConfig {
     @Lazy
     AuthenticationFailureHandler authenticationFailureHandler;
 
+
     @Autowired
+    @Lazy
     CustomOAuth2UserService customOAuth2UserService;
 
     @Bean
@@ -59,8 +61,6 @@ public class SecurityConfig {
             .oauth2Login(oauth -> oauth
                 .loginPage("/signin")
                 .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                .failureHandler(authenticationFailureHandler)
-                .successHandler(authenticationSuccessHandler)
             )
             .logout(logout -> logout.permitAll());
         return http.build();
