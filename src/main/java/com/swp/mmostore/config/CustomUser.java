@@ -41,8 +41,8 @@ public class CustomUser implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        // TODO Auto-generated method stub
-        return user.getAccountStatusNonLocked();
+        // null hoặc true => cho phép đăng nhập
+        return user.getAccountStatusNonLocked() == null || user.getAccountStatusNonLocked();
     }
 
     @Override
@@ -53,8 +53,8 @@ public class CustomUser implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        // TODO Auto-generated method stub
-        return user.getStatus();
+        // null hoặc true => coi như enable
+        return user.getStatus() == null || user.getStatus();
     }
 
 }

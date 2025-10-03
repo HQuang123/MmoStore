@@ -3,6 +3,8 @@ package com.swp.mmostore.controller;
 import com.swp.mmostore.entity.User;
 import com.swp.mmostore.service.LoginRegistrationService;
 import jakarta.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
@@ -23,6 +25,11 @@ import java.nio.file.StandardCopyOption;
 
 @Controller
 public class LoginRegistrationController {
+    private static final Logger logger = LoggerFactory.getLogger(LoginRegistrationController.class);
+
+    private static final String ERROR_MSG = "errorMsg";
+
+    private static final String LOGIN_VIEW = "login";
 
     @Autowired
     LoginRegistrationService userService;
@@ -79,5 +86,78 @@ public class LoginRegistrationController {
         }
         return "redirect:/register";
     }
+    @PostMapping("/login")
+    public String loginUser(@RequestParam("username") String email,
+                            @RequestParam("password") String password,
+                            HttpSession session,
+                            Model model) {
+        if (userService.validateUser(email, password)) {
+            User user = userService.getUserByEmail(email);
+            session.setAttribute("loggedUser", user);
+            return "redirect:/"; // về trang chủ
+        } else {
+            model.addAttribute(ERROR_MSG, "Sai email hoặc mật khẩu!");
+            return LOGIN_VIEW;
+        }
+    }
 
+    // ----------------- Bước 1: Nhập email để gửi token -----------------
+    @GetMapping("/forgot-password")
+    public String forgotPasswordPage() {
+        return "Forgot-password"; // form nhập email
+    }
+
+    @PostMapping("/forgot-password")
+    public String processForgotPassword(@RequestParam("email") String email, Model model) {
+        boolean sent = userService.generateResetTokenAndSendEmail(email);
+        if (sent) {
+            model.addAttribute("email", email);
+            return "confirm-token"; // form nhập token
+        } else {
+            model.addAttribute("error", "Email không tồn tại hoặc gửi email thất bại!");
+            return "forgot-password";
+        }
+    }
+
+    // ----------------- Bước 2: Xác thực token -----------------
+    @PostMapping("/confirm-token")
+    public String confirmToken(@RequestParam("email") String email,
+                               @RequestParam("token") String token,
+                               Model model) {
+        if (userService.verifyResetToken(email, token)) {
+            model.addAttribute("email", email);
+            model.addAttribute("token", token);
+            return "reset-password"; // form nhập password mới
+        } else {
+            model.addAttribute("error", "Token không hợp lệ!");
+            model.addAttribute("email", email);
+            return "confirm-token";
+        }
+    }
+
+    // ----------------- Bước 3: Reset mật khẩu -----------------
+    @PostMapping("/reset-password")
+    public String resetPassword(@RequestParam("email") String email,
+                                @RequestParam("token") String token,
+                                @RequestParam("password") String password,
+                                @RequestParam("confirmPassword") String confirmPassword,
+                                Model model) {
+
+        if (!password.equals(confirmPassword)) {
+            model.addAttribute("error", "Mật khẩu xác nhận không khớp.");
+            model.addAttribute("email", email);
+            model.addAttribute("token", token);
+            return "reset-password";
+        }
+
+        boolean success = userService.resetPassword(email, token, password);
+        if (success) {
+            return LOGIN_VIEW;
+        } else {
+            model.addAttribute("error", "Token không hợp lệ!");
+            model.addAttribute("email", email);
+            model.addAttribute("token", token);
+            return "reset-password";
+        }
+    }
 }

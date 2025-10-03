@@ -3,13 +3,16 @@ package com.swp.mmostore.service;
 import com.swp.mmostore.entity.User;
 import com.swp.mmostore.repository.UserRepository;
 import com.swp.mmostore.util.AppConstant;
+import com.swp.mmostore.util.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 public class LoginRegistrationService {
@@ -21,7 +24,8 @@ public class LoginRegistrationService {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
-
+    @Autowired
+    private EmailService emailService;
     public User saveUser(User user) {
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
@@ -54,6 +58,18 @@ public class LoginRegistrationService {
     public void userFailedAttemptIncrease(User user){
             user.setAccountFailedAttempt(user.getAccountFailedAttempt()+1);
             userRepository.save(user);
+    }
+    public boolean validateUser(String email, String password) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) return false;
+
+        // check password match
+        boolean passwordMatch = passwordEncoder.matches(password, user.getPassword());
+        if (!passwordMatch) return false;
+
+        // check locked status
+        return user.getAccountStatusNonLocked() == null
+                || Boolean.TRUE.equals(user.getAccountStatusNonLocked());
     }
 
     public void userAccountLock(User user) {
@@ -95,6 +111,54 @@ public class LoginRegistrationService {
     public User findByProviderId(String providerId){
         return userRepository.findByProviderId(providerId);
     }
+
+    private static final Random RANDOM = new Random();
+    //Tạo token và gửi email
+    public boolean generateResetTokenAndSendEmail(String email) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) return false;
+
+        // Tạo token ngẫu nhiên 5 số
+        String token = String.format("%05d", RANDOM.nextInt(100_000));
+
+
+        // Gửi email
+        String subject = "Mã xác thực đặt lại mật khẩu";
+        String content = "Mã xác thực của bạn là: " + token;
+        try {
+            emailService.sendEmail(email, subject, content);
+            user.setResetToken(token);
+            userRepository.save(user);
+            return true;
+        } catch (MailException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Xác thực token
+    public boolean verifyResetToken(String email, String token) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) return false;
+
+        return token.equals(user.getResetToken());
+    }
+
+    // Cập nhật mật khẩu
+    public boolean resetPassword(String email, String token, String newPassword) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) return false;
+
+        if (token.equals(user.getResetToken())) {
+            user.setPassword(passwordEncoder.encode(newPassword));
+            user.setResetToken(null); // xóa token sau khi đổi thành công
+            userRepository.save(user);
+            return true;
+        }
+
+        return false;
+    }
+
 
 
 
