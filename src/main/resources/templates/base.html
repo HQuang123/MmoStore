@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
-      th:fragment="layout(content)">
+      th:fragment="layout(content, cssFragment, jsFragment)">
 <head>
     <meta charset="UTF-8">
     <title>Tạp hóa SWP391</title>
@@ -15,7 +15,8 @@
           crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <link rel="stylesheet" href="/css/style.css">
-
+    <th:block th:replace="${cssFragment}"></th:block>
+    <th:block th:replace="${jsFragment}"></th:block>
     <!-- DataTables CSS -->
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
     <!-- jQuery -->

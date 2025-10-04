@@ -44,11 +44,6 @@ public class LoginRegistrationController {
         return "register";
     }
 
-    @GetMapping("/")
-    public String homeIndex(){
-        return "index";
-    }
-
     @PostMapping("/save-user")
     public String saveUserDetails(@ModelAttribute User user, @RequestParam("file") MultipartFile file, Model model, HttpSession session)
     throws IOException {
