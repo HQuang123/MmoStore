@@ -53,13 +53,13 @@ public class SecurityConfig {
             )
             .authenticationProvider(authProvider)
             .formLogin(form -> form
-                .loginPage("/signin")
+                .loginPage("/login")
                 .loginProcessingUrl("/login")
                 .failureHandler(authenticationFailureHandler)
                 .successHandler(authenticationSuccessHandler)
             )
             .oauth2Login(oauth -> oauth
-                .loginPage("/signin")
+                .loginPage("/login")
                 .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
             )
             .logout(logout -> logout.permitAll());

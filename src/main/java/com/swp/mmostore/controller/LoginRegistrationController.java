@@ -34,7 +34,7 @@ public class LoginRegistrationController {
     @Autowired
     LoginRegistrationService userService;
 
-    @GetMapping("/signin")
+    @GetMapping("/login")
     public String login(){
         return "login";
     }
@@ -86,25 +86,11 @@ public class LoginRegistrationController {
         }
         return "redirect:/register";
     }
-    @PostMapping("/login")
-    public String loginUser(@RequestParam("username") String email,
-                            @RequestParam("password") String password,
-                            HttpSession session,
-                            Model model) {
-        if (userService.validateUser(email, password)) {
-            User user = userService.getUserByEmail(email);
-            session.setAttribute("loggedUser", user);
-            return "redirect:/"; // về trang chủ
-        } else {
-            model.addAttribute(ERROR_MSG, "Sai email hoặc mật khẩu!");
-            return LOGIN_VIEW;
-        }
-    }
 
     // ----------------- Bước 1: Nhập email để gửi token -----------------
     @GetMapping("/forgot-password")
     public String forgotPasswordPage() {
-        return "Forgot-password"; // form nhập email
+        return "forgot-password"; // form nhập email
     }
 
     @PostMapping("/forgot-password")

@@ -17,6 +17,8 @@ import java.util.Random;
 @Service
 public class LoginRegistrationService {
     private UserRepository userRepository;
+    //passwordEncoder bean here must depend on the securityConfig bean -> which also depends on loginRegistrationService bean --> circular dependency
+    //--> must use @Lazy annotation
     private PasswordEncoder passwordEncoder;
 
     @Autowired
