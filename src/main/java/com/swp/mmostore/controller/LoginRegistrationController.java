@@ -34,7 +34,7 @@ public class LoginRegistrationController {
     @Autowired
     LoginRegistrationService userService;
 
-    @GetMapping("/login")
+    @GetMapping("/sign-in")
     public String login(){
         return "login";
     }

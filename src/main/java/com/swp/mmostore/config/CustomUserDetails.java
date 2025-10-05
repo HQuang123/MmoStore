@@ -8,10 +8,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Arrays;
 import java.util.Collection;
 
-public class CustomUser implements UserDetails {
+public class CustomUserDetails implements UserDetails {
     private User user;
 
-    public CustomUser(User user) {
+    public CustomUserDetails(User user) {
         this.user = user;
     }
     //provide authentication object know the role - authority
