@@ -4,13 +4,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     productDiv.forEach(product => {
         product.style.cursor = "pointer"; // show hand cursor
+        let productName = product.getAttribute("name");
         product.addEventListener("click", function () {
-            window.location.href = "/product?" + "id=" + product.name.split("-")[1];
+            window.location.href = "/product?" + "id=" + productName.split("-")[1];
         });
     });
 
     document.querySelector(".shop-register").onclick = function () {
-        alert("convit");
-        window.location.href = "#";
+        window.location.href = "/product";
     }
 });
