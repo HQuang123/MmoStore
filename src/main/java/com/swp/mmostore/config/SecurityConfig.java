@@ -53,7 +53,7 @@ public class SecurityConfig {
             )
             .authenticationProvider(authProvider)
             .formLogin(form -> form
-                .loginPage("/login")
+                .loginPage("/sign-in")
                 .loginProcessingUrl("/login")
                 .failureHandler(authenticationFailureHandler)
                 .successHandler(authenticationSuccessHandler)
