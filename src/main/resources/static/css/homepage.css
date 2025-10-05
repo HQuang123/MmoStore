@@ -1,0 +1,50 @@
+/* Product section */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.section-header h2 {
+    font-size: 1.3em;
+}
+
+.section-header a {
+    /*text-decoration: none;*/
+    font-size: 0.9em;
+    color: #333;
+    font-weight: bold;
+}
+
+.register-section {
+    background-color: #f7f7f7;
+    text-align: center;
+    padding: 40px 20px;
+    margin-top: 50px;
+}
+
+.register-section h2 {
+    margin-bottom: 10px;
+}
+
+.register-section p {
+    max-width: 500px;
+    margin: auto;
+    color: #555;
+}
+
+.register-section button {
+    background-color: #333;
+    color: #fff;
+    border: none;
+    padding: 12px 30px;
+    margin-top: 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.register-section button:hover {
+    background-color: #000;
+}

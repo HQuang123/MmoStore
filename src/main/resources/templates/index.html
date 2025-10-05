@@ -1,10 +1,89 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base::layout(~{::section}, ~{::cssFragment}, ~{::jsFragment})}">
+
+<th:block th:fragment="cssFragment">
+    <link rel="stylesheet" th:href="@{/css/homepage.css}">
+<!--    <link rel="stylesheet" th:href="@{/css/homepage.css}">-->
+</th:block>
+
+<th:block th:fragment="jsFragment">
+    <script src="/javascript/homepage.js"></script>
+</th:block>
+
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
 </head>
 <body>
-    <h1>Homepage </h1>
+    <section>
+        <!-- Start Carousel -->
+        <div id="carouselExample" class="carousel slide">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img height="550px" src="/images/banner1.jpg" class="d-block w-100" alt="...">
+                </div>
+                <div class="carousel-item">
+                    <img style="height:550px;" src="/images/banner2.jpg" class="d-block w-100" alt="...">
+                </div>
+                <div class="carousel-item">
+                    <img style="height:550px;" src="/images/banner3.jpg" class="d-block w-100" alt="...">
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button"
+                    data-bs-target="#carouselExample" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button"
+                    data-bs-target="#carouselExample" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+        <!-- End of Carousel -->
+
+        <div class="container">
+            <div class="row">
+                <p class="text-center fs-4 mt-5 mb-5">Danh mục</p>
+                <div class="col-md-2" th:each="category: ${latestSixActiveCategory}">
+                    <div class="card rounded-circle shadow-sm p-3 mb-5 bg-white rounded">
+                        <div class="card-body text-center">
+                            <img alt="cataImg" width="100%" height="130px">
+                            <p><b th:text="${category.name}">[[${category.categoryName}]]</b></p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Latest Product for Clothing Store -->
+
+        <div class="container-fluid bg-light p-3">
+            <div class="section-header">
+                <h2>Sản phẩm mới</h2>
+                <a href="#" th:href="@{/products}">Xem tất cả sản phẩm</a>
+            </div>
+
+            <div class="row">
+                <div class="col-md-2" th:each="product: ${twelveLastestProducts}">
+                    <div class="card shadow-sm p-3 mb-5 bg-white rounded">
+                        <div class="card-body text-center product" th:name="'product-' + ${product.getProductId()}">
+                            <img alt="productImg"  width="60%" height="140px">
+                            <p class="text-center"><b th:text="${product.getTitle()}"></b></p>
+                            <div style="text-align: left" th:text="${product.price} + '$'"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="register-section">
+            <h2>Đăng ký bán hàng</h2>
+            <p>Tạo một gian hàng của bạn trên trang của chúng tôi. Đội ngũ hỗ trợ sẽ liên lạc để giúp bạn tối ưu khả năng bán hàng.</p>
+            <button class="shop-register">ĐĂNG KÝ</button>
+        </div>
+    </section>
 </body>
 </html>
