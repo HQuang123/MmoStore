@@ -1,9 +1,17 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{base::layout(~{::section})}">
+      th:replace="~{base::layout(~{::section}, ~{::cssFragment}, ~{::jsFragment})}">
 <head>
     <meta charset="UTF-8">
     <title>Register</title>
+
+    <th:block th:fragment="cssFragment">
+        <link rel="stylesheet" href="#">
+    </th:block>
+
+    <th:block th:fragment="jsFragment">
+        <script src="#"></script>
+    </th:block>
 </head>
 <body>
 <section>
