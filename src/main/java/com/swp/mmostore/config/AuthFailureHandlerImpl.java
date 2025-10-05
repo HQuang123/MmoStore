@@ -55,9 +55,9 @@ public class AuthFailureHandlerImpl extends SimpleUrlAuthenticationFailureHandle
             }
         }
         else{
-            exception = new LockedException("Your account is not exist! Please register first");
+            exception = new LockedException("Your account does not exist! Please register first");
         }
-        super.setDefaultFailureUrl("/sign-in?error");
+        super.setDefaultFailureUrl("/login?error");
         //cai nay modify AuthenticationException (LockedException) -> dua vao SpringSecurity_LastException
         super.onAuthenticationFailure(request, response, exception);
         //Comment this line to redirect to login page when login failed to avoid resubmission
