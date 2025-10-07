@@ -34,7 +34,6 @@ jobs:
           SECRET_NAME="mmostore"
           touch secret-file
           gcloud secrets versions access latest --secret=$SECRET_NAME >> secret-file
-          cat secret-file
           
       - name: Log in to Docker Hub
         run: |
@@ -54,18 +53,15 @@ jobs:
             docker rm mmostore
           fi
           
-      - name: Create temp env file
-        run: |
-          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .env.docker
-          echo "DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}" >> .env.docker
-          echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env.docker
-          
-      - name: Print raw env file
-        run: cat .env.docker
+      # - name: Create temp env file
+      #   run: |
+      #     echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .env.docker
+      #     echo "DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}" >> .env.docker
+      #     echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env.docker
         
       - name: Run Docker container
         run: |
-          docker run -d --env-file .env.docker --name mmostore -p 80:8080 ${{ secrets.DOCKER_USERNAME }}/mmostore:${SHORT_SHA}
+          docker run -d --env-file secret-file --name mmostore -p 80:8080 ${{ secrets.DOCKER_USERNAME }}/mmostore:${SHORT_SHA}
 
       - name: Push Docker image
         run: |
