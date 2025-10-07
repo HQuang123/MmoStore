@@ -20,7 +20,23 @@ jobs:
 
       - name: Print environment
         run: printenv | sort
-        
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+          
+      - name: Load secrets
+        run: |
+          touch secret-file
+          secrets=$(gcloud secrets list --format="value(name)")
+          for s in $secrets; do
+            value=$(gcloud secrets versions access latest --secret=$s)
+            echo "$s=$value" >> secret-file
+          done
+          cat secret-file
+          
       - name: Log in to Docker Hub
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
