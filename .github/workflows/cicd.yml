@@ -31,12 +31,9 @@ jobs:
           
       - name: Load secrets
         run: |
+          SECRET_NAME="mmostore"
           touch secret-file
-          secrets=$(gcloud secrets list --format="value(name)")
-          for s in $secrets; do
-            value=$(gcloud secrets versions access latest --secret=$s)
-            echo "$s=$value" >> secret-file
-          done
+          gcloud secrets versions access latest --secret=$SECRET_NAME >> secret-file
           cat secret-file
           
       - name: Log in to Docker Hub
