@@ -9,7 +9,9 @@ on:
 jobs:
   build-and-run:
     runs-on: self-hosted  
-
+    permissions:
+      contents: 'read'
+      id-token: 'write'   
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
