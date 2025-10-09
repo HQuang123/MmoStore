@@ -17,6 +17,8 @@ import java.util.Random;
 @Service
 public class LoginRegistrationService {
     private UserRepository userRepository;
+    //passwordEncoder bean here must depend on the securityConfig bean -> which also depends on loginRegistrationService bean --> circular dependency
+    //--> must use @Lazy annotation
     private PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -27,7 +29,6 @@ public class LoginRegistrationService {
     @Autowired
     private EmailService emailService;
     public User saveUser(User user) {
-        user.setRole("User");
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
         try{
@@ -109,7 +110,9 @@ public class LoginRegistrationService {
         return userRepository.save(user);
     }
 
-
+    public User findByProviderId(String providerId){
+        return userRepository.findByProviderId(providerId);
+    }
 
     private static final Random RANDOM = new Random();
     //Tạo token và gửi email

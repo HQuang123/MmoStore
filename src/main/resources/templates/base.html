@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
-      th:fragment="layout(content)">
+      th:fragment="layout(content, cssFragment, jsFragment)">
 <head>
     <meta charset="UTF-8">
     <title>Tạp hóa SWP391</title>
@@ -14,7 +14,7 @@
           integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
           crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    <link rel="stylesheet" href="/css/homepage.css">
+    <link rel="stylesheet" href="/css/style.css">
     <th:block th:replace="${cssFragment}"></th:block>
     <th:block th:replace="${jsFragment}"></th:block>
     <!-- DataTables CSS -->
@@ -71,7 +71,7 @@
 
                 <th:block th:if="${currentLoggedInUserDetails == null}">
                     <li class="nav-item"><a class="nav-link active"
-                                            aria-current="page" href="/signin"><i class="fa-solid fa-right-to-bracket"></i> LOGIN</a></li>
+                                            aria-current="page" href="/login"><i class="fa-solid fa-right-to-bracket"></i> LOGIN</a></li>
                     <li class="nav-item"><a class="nav-link active"
                                             aria-current="page" href="/register">REGISTER</a></li>
                     <li class="nav-item"><a class="nav-link active"

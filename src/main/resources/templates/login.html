@@ -1,9 +1,18 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{base::layout(~{::section})}">
+      th:replace="~{base::layout(~{::section}, ~{::cssFragment}, ~{::jsFragment})}">
 <head>
     <meta charset="UTF-8">
     <title>Insert title here</title>
+
+
+    <th:block th:fragment="cssFragment">
+        <link rel="stylesheet" href="#">
+    </th:block>
+
+    <th:block th:fragment="jsFragment">
+        <script src="#"></script>
+    </th:block>
 </head>
 <body>
 <section>
@@ -24,7 +33,7 @@
 
                     </div>
                     <div class="card-body">
-                        <form action="/login" method="post">
+                        <form action="/login-process" method="post">
                             <div class="mb-3">
                                 <label class="form-label">Email</label> <input
                                     class="form-control" name="username" type="email" />
@@ -37,6 +46,9 @@
                             <button type="submit" class="btn bg-danger text-white col-md-12">Submit</button>
                         </form>
 
+                        <div class="text-center mt-3">
+                            <a class="btn btn-outline-primary col-md-12" href="/oauth2/authorization/google">Continue with Google</a>
+                        </div>
 
                     </div>
                     <div class="card-footer text-center">

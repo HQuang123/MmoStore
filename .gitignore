@@ -9,6 +9,7 @@ mvnw
 mvnw.cmd
 .gitattributes
 .env
+service-account-upload-image.json
 
 ### STS ###
 .apt_generated

@@ -1,6 +1,7 @@
 package com.swp.mmostore.controller;
 
 import com.swp.mmostore.entity.User;
+import com.swp.mmostore.service.CloudStorageService;
 import com.swp.mmostore.service.LoginRegistrationService;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
@@ -32,9 +33,12 @@ public class LoginRegistrationController {
     private static final String LOGIN_VIEW = "login";
 
     @Autowired
+    CloudStorageService cloudStorageService;
+
+    @Autowired
     LoginRegistrationService userService;
 
-    @GetMapping("/signin")
+    @GetMapping("/login")
     public String login(){
         return "login";
     }
@@ -44,67 +48,81 @@ public class LoginRegistrationController {
         return "register";
     }
 
-    @GetMapping("/")
-    public String homeIndex(){
-        return "index";
-    }
+//    @PostMapping("/save-user")
+//    public String saveUserDetails(@ModelAttribute User user, @RequestParam("file") MultipartFile file, Model model, HttpSession session)
+//    throws IOException {
+//
+//        String email = user.getEmail();
+//        if(userService.getUserByEmail(email) == null){
+//            //user not input image -> default image, if input, the name of file is the name of image file
+//            //user image will always be saved into the classes
+//            String profileImage = file.isEmpty() ? "default.jpg" : file.getOriginalFilename();
+//            user.setProfileImage(profileImage);
+//            User saveUser = userService.saveUser(user);
+//
+//            if(!ObjectUtils.isEmpty(saveUser)){
+//                if(!file.isEmpty()){
+//                    File saveFile = new ClassPathResource("/static/images").getFile();
+//                    System.out.println("Save file is " + saveFile);
+//
+//                    //full-path
+//                    //remember that intelliij does not copy an empty directory from src/resources to target/classes in exploded build mode- which is a mode instead of using fat jar, it launch main class from target folder
+//                    Path path = Paths.get(saveFile.getAbsolutePath()+File.separator+"profile_img"+File.separator+file.getOriginalFilename());
+//                    System.out.println("Path for Profile Image :"+path);
+//
+//                    //now: if same file with name exist -> replace existing
+//                    Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+//                }
+//                session.setAttribute("successMsg","Bạn đã đăng ký thành công");
+//            }
+//            else{
+//                session.setAttribute("errorMsg","500 error");
+//            }
+//            //avoid resubmission -> change the url
+//        }
+//        else{
+//            session.setAttribute("errorMsg","Email is already exist");
+//        }
+//        return "redirect:/register";
+//    }
 
     @PostMapping("/save-user")
     public String saveUserDetails(@ModelAttribute User user, @RequestParam("file") MultipartFile file, Model model, HttpSession session)
-    throws IOException {
+            throws IOException {
 
         String email = user.getEmail();
-        if(userService.getUserByEmail(email) == null){
-            //user not input image -> default image, if input, the name of file is the name of image file
-            //user image will always be saved into the classes
-            String profileImage = file.isEmpty() ? "default.jpg" : file.getOriginalFilename();
-            user.setProfileImage(profileImage);
-            User saveUser = userService.saveUser(user);
-
-            if(!ObjectUtils.isEmpty(saveUser)){
-                if(!file.isEmpty()){
-                    File saveFile = new ClassPathResource("/static/images").getFile();
-                    System.out.println("Save file is " + saveFile);
-
-                    //full-path
-                    //remember that intelliij does not copy an empty directory from src/resources to target/classes in exploded build mode- which is a mode instead of using fat jar, it launch main class from target folder
-                    Path path = Paths.get(saveFile.getAbsolutePath()+File.separator+"profile_img"+File.separator+file.getOriginalFilename());
-                    System.out.println("Path for Profile Image :"+path);
-
-                    //now: if same file with name exist -> replace existing
-                    Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-                }
-                session.setAttribute("successMsg","Bạn đã đăng ký thành công");
+        if(userService.getUserByEmail(email) != null){
+            session.setAttribute("errorMsg","Email đã tồn tại");
+            return "redirect:/register";
+        }
+        String profileImageUrl;
+        if(file != null && !file.isEmpty()){
+            try{
+                profileImageUrl = cloudStorageService.uploadFile(file);
+            } catch (Exception e){
+                e.printStackTrace();
+                session.setAttribute("errorMsg","Lỗi khi up ảnh");
+                return "redirect:/register";
             }
-            else{
-                session.setAttribute("errorMsg","500 error");
-            }
-            //avoid resubmission -> change the url
         }
         else{
-            session.setAttribute("errorMsg","Email is already exist");
+            profileImageUrl = "https://storage.googleapis.com/mmostore/default.jpg";
         }
-        return "redirect:/register";
-    }
-    @PostMapping("/login")
-    public String loginUser(@RequestParam("username") String email,
-                            @RequestParam("password") String password,
-                            HttpSession session,
-                            Model model) {
-        if (userService.validateUser(email, password)) {
-            User user = userService.getUserByEmail(email);
-            session.setAttribute("loggedUser", user);
-            return "redirect:/"; // về trang chủ
+        user.setProfileImage(profileImageUrl);
+        User savedUser = userService.saveUser(user);
+        if (!ObjectUtils.isEmpty(savedUser)) {
+            session.setAttribute("successMsg", "Bạn đã đăng ký thành công");
         } else {
-            model.addAttribute(ERROR_MSG, "Sai email hoặc mật khẩu!");
-            return LOGIN_VIEW;
+            session.setAttribute("errorMsg", "Hiện tại dịch vụ đang gián đoạn, hãy thử lại sau");
         }
+
+        return "redirect:/register";
     }
 
     // ----------------- Bước 1: Nhập email để gửi token -----------------
     @GetMapping("/forgot-password")
     public String forgotPasswordPage() {
-        return "Forgot-password"; // form nhập email
+        return "forgot-password"; // form nhập email
     }
 
     @PostMapping("/forgot-password")
