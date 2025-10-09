@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base :: layout(~{::section}, ~{::#css}, ~{::#js})}">
+<head>
+    <meta charset="UTF-8">
+    <title>User Profile</title>
+    <th:block id="css"></th:block>
+</head>
+<body>
+<section>
+    <div class="container mt-5 p-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow p-4 mb-5 bg-body rounded">
+                    <div class="card-header text-center bg-primary text-white">
+                        <h4>User Profile</h4>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-4 text-center">
+                                <img th:src="@{/images/user_avatar.png}" alt="User Avatar" width="150" class="rounded-circle border">
+                            </div>
+                            <div class="col-md-8">
+                                <p><strong>User ID:</strong> <span th:text="${user.userId}"></span></p>
+                                <p><strong>Name:</strong> <span th:text="${user.name}"></span></p>
+                                <p><strong>Email:</strong> <span th:text="${user.email}"></span></p>
+                                <p><strong>Phone Number:</strong> <span th:text="${user.phoneNumber}"></span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer text-center">
+
+                        <a href="/user/edit" class="btn btn-primary ms-2">Edit Profile</a>
+                        <a href="#" class="btn btn-danger ms-2">DELETE</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<th:block id="js"></th:block>
+</body>
+</html>

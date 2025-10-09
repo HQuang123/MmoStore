@@ -159,6 +159,9 @@ public class LoginRegistrationService {
     }
 
 
+    public void updateUser(User user) {
+        userRepository.save(user);
+    }
 
 
 
