@@ -1,0 +1,28 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.sidebar {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.card-product {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.card-product img {
+    width: 100%;
+    border-radius: 10px;
+}
+
+.filter-title {
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
