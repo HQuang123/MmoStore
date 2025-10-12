@@ -72,6 +72,14 @@ public class Product {
         discount.setProduct(null);
     }
 
+    public Double getAvgRating() {
+        double result = 0;
+        for (Rating rating : ratings) {
+            result += rating.getRatingPoint();
+        }
+        return result / ratings.size();
+    }
+
     public Product(String title, String description, BigDecimal price, Integer quantity, Shop shop, Category category) {
         this.title = title;
         this.description = description;
