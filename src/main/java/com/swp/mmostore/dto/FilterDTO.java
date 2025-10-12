@@ -2,7 +2,7 @@ package com.swp.mmostore.dto;
 
 import java.util.List;
 
-public record FilterDTO(List<String> CategoryId, String sortBy, String sortOrder, int page, int pageSize) {
+public record FilterDTO(List<String> categories, String sortBy, String sortOrder, int page, int pageSize) {
     public FilterDTO{
         if (pageSize == 0) pageSize = 8;
     }

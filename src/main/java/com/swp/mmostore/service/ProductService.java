@@ -5,12 +5,11 @@ import com.swp.mmostore.dto.ProductSummaryDTO;
 import com.swp.mmostore.entity.Product;
 import com.swp.mmostore.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -27,7 +26,9 @@ public class ProductService {
         return productRepository.findByCategoryId(categoryId);
     }
 
-    public List<ProductSummaryDTO> findFilteredProduct(FilterDTO filterDTO) {
+    public Page<ProductSummaryDTO> findFilteredProduct(FilterDTO filterDTO) {
+        List<ProductSummaryDTO> productList;
+        Pageable pageable = PageRequest.of(filterDTO.page(), filterDTO.pageSize());
         // If sort filterd
         if (filterDTO.sortBy() != null) {
             Sort sort;
@@ -36,10 +37,15 @@ public class ProductService {
             } else {
                 sort = Sort.by(Sort.Direction.ASC, filterDTO.sortBy());
             }
-            return productRepository.findAllAndFilterProduct(filterDTO.CategoryId(), PageRequest.of(filterDTO.page(), filterDTO.pageSize(), sort));
+            pageable = PageRequest.of(filterDTO.page(), filterDTO.pageSize(), sort);
+            long total = productRepository.countFilteredProducts(filterDTO.categories());
+            productList = productRepository.findAllAndFilterProduct(filterDTO.categories(), pageable);
+            return new PageImpl<>(productList, pageable, total);
         }
 
         // No sort
-        return productRepository.findAllProduct(PageRequest.of(filterDTO.page(), filterDTO.pageSize()));
+        productList = productRepository.findAllAndFilterProduct(filterDTO.categories(), pageable);
+        long total = productRepository.countFilteredProducts(filterDTO.categories());
+        return new PageImpl<>(productList, pageable, total);
     }
 }

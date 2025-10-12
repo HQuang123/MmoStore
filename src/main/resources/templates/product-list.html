@@ -12,7 +12,7 @@
     </th:block>
 
     <th:block th:fragment="jsFragment">
-        <script th:src="@{/javascript/product-list.js}"></script>
+        <script src="/javascript/product-list.js"></script>
     </th:block>
 </head>
 <body>
@@ -24,15 +24,18 @@
         <div class="col-md-3">
             <div class="sidebar mb-4">
                 <h5 class="filter-title">Bộ lọc</h5>
-                <form action="/productList" method="post">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Chọn 1 hoặc nhiều sản phẩm</label><br>
-                        <div th:each="category : ${categoryList}">
-                            <div class="form-check"><input class="form-check-input" type="checkbox" name="filters" th:value="${category.categoryId}"  th:text="${category.name}" th:checked="${checkedCategory != null and checkedCategory.contains('' + category.categoryId)}"></div>
+                <!--                <form action="/productList" method="post">-->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Chọn 1 hoặc nhiều sản phẩm</label><br>
+                    <div th:each="category : ${categoryList}">
+                        <div class="form-check"><input class="form-check-input" type="checkbox" name="category"
+                                                       th:value="${category.categoryId}" th:text="${category.name}"
+                                                       th:checked="${checkedCategory != null and checkedCategory.contains('' + category.categoryId)}">
                         </div>
                     </div>
-                    <button class="btn btn-success w-100">Tìm kiếm</button>
-                </form>
+                </div>
+                <button class="btn btn-success w-100" id="buttonFilter">Tìm kiếm</button>
+                <!--                </form>-->
             </div>
 
             <!-- Bài viết tham khảo -->
@@ -54,28 +57,29 @@
             </div>
 
             <!-- Product Cards -->
-            <div th:each="product : ${productList}">
-                <div class="card card-product p-3">
-                    <div class="row g-3 align-items-center">
-                        <div class="col-md-2">
-                            <img src="#" alt="product-img">
-                        </div>
-                        <div class="col-md-10">
-                            <h5 th:text="${product.title}">Product Title</h5>
-                            <p class="text-muted mb-1" th:text="'Người bán:' + ${product.shopName}">Shop Name</p>
-                            <p class="mb-1" th:text="${product.description}">Product Description</p>
-                            <span class="text-warning" th:text="${product.avgRating + '/10'}"></span>
-                            <p class="fw-bold text-primary mt-2" th:text="${product.price}">Product Price</p>
+            <div id="productContainer">
+                <div th:each="product : ${productList}">
+                    <div class="card card-product p-3">
+                        <div class="row g-3 align-items-center">
+                            <div class="col-md-2">
+                                <img src="#" alt="product-img">
+                            </div>
+                            <div class="col-md-10">
+                                <h5 th:text="${product.title}">Product Title</h5>
+                                <p class="text-muted mb-1" th:text="'Người bán:' + ${product.shopName}">Shop Name</p>
+                                <p class="mb-1" th:text="${product.description}">Product Description</p>
+                                <span class="text-warning" th:text="${product.avgRating + '/10'}"></span>
+                                <p class="fw-bold text-primary mt-2" th:text="${product.price}">Product Price</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-
             <!-- Pagination -->
             <nav aria-label="Page navigation example">
                 <ul class="pagination justify-content-center mt-4">
                     <li class="page-item disabled">
-                        <a class="page-link">Trước</a>
+                        <a class="page-link" >Trước</a>
                     </li>
                     <li class="page-item active"><a class="page-link" href="#">1</a></li>
                     <li class="page-item"><a class="page-link" href="#">2</a></li>
