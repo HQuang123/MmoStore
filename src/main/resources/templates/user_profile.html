@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org"
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
       th:replace="~{base :: layout(~{::section}, ~{::#css}, ~{::#js})}">
 <head>
     <meta charset="UTF-8">
@@ -19,8 +20,15 @@
                     <div class="card-body">
                         <div class="row mb-3">
                             <div class="col-md-4 text-center">
-                                <img th:src="@{/images/user_avatar.png}" alt="User Avatar" width="150" class="rounded-circle border">
+                                <img th:if="${blobName != null}"
+                                     th:src="@{/user/image(blobName=${blobName})}"
+                                     alt="User Profile Image"
+                                     style="width:150px; height:150px; border-radius:50%; object-fit:cover;">
+                                <a href="#" class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#editImageModal">
+                                    Edit Image
+                                </a>
                             </div>
+
                             <div class="col-md-8">
                                 <p><strong>User ID:</strong> <span th:text="${user.userId}"></span></p>
                                 <p><strong>Name:</strong> <span th:text="${user.name}"></span></p>
@@ -31,11 +39,42 @@
                     </div>
 
                     <div class="card-footer text-center">
-
                         <a href="/user/edit" class="btn btn-primary ms-2">Edit Profile</a>
                         <a href="#" class="btn btn-danger ms-2">DELETE</a>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+    <!-- 🟢 Modal Upload Ảnh -->
+    <div class="modal fade" id="editImageModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form th:action="@{/user/editimage}" method="post" enctype="multipart/form-data">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Cập nhật ảnh đại diện</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="imageFile" class="form-label">Chọn ảnh mới:</label>
+                            <input type="file" name="imageFile" id="imageFile" class="form-control" accept="image/*"
+                                   required>
+                        </div>
+
+                        <!-- Xem trước ảnh -->
+                        <div class="text-center">
+                            <img id="previewImage" src="#" alt="Preview"
+                                 style="display:none; width:150px; height:150px; border-radius:50%; object-fit:cover;">
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Upload</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
