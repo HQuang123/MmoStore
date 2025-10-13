@@ -28,24 +28,29 @@ public class ProductService {
 
     public Page<ProductSummaryDTO> findFilteredProduct(FilterDTO filterDTO) {
         List<ProductSummaryDTO> productList;
-        Pageable pageable = PageRequest.of(filterDTO.page(), filterDTO.pageSize());
+        Sort sort = Sort.unsorted();
         // If sort filterd
         if (filterDTO.sortBy() != null) {
-            Sort sort;
             if ("des".equals(filterDTO.sortOrder())) {
                 sort = Sort.by(Sort.Direction.DESC, filterDTO.sortBy());
             } else {
                 sort = Sort.by(Sort.Direction.ASC, filterDTO.sortBy());
             }
-            pageable = PageRequest.of(filterDTO.page(), filterDTO.pageSize(), sort);
-            long total = productRepository.countFilteredProducts(filterDTO.categories());
+        }
+
+        Pageable pageable = PageRequest.of(filterDTO.page(), filterDTO.pageSize(), sort);
+        long total;
+        if (filterDTO.categories() == null || filterDTO.categories().isEmpty()) {
+            // ⬅️ Case: no category filter → get all
+            productList = productRepository.findAllProduct(pageable);
+            total = productRepository.countAllProducts();
+        } else {
+            // ⬅️ Case: filter by categories
             productList = productRepository.findAllAndFilterProduct(filterDTO.categories(), pageable);
-            return new PageImpl<>(productList, pageable, total);
+            total = productRepository.countFilteredProducts(filterDTO.categories());
         }
 
         // No sort
-        productList = productRepository.findAllAndFilterProduct(filterDTO.categories(), pageable);
-        long total = productRepository.countFilteredProducts(filterDTO.categories());
         return new PageImpl<>(productList, pageable, total);
     }
 }
