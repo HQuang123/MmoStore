@@ -23,30 +23,30 @@
         <div class="row mb-5">
             <!-- Product image -->
             <div class="col-md-5 text-center">
-                <img th:src="" alt="Product image" class="img-fluid border rounded">
+                <img src="#" alt="Product image" class="img-fluid border rounded">
             </div>
 
             <!-- Product info -->
             <div class="col-md-7">
-                <h2 class="fw-bold mb-2" th:text="${product.name}">Tên sản phẩm</h2>
+                <h2 class="fw-bold mb-2" th:text="${product.title}">Tên sản phẩm</h2>
 
                 <div class="mb-2">
                     <span>Đánh giá:</span>
                     <span class="text-warning">
                     ★★★★★
                 </span>
-                    <span class="text-muted">| Feedback: <span th:text="${product.feedbackCount}">100</span></span>
-                    <span class="text-muted">| Đã bán: <span th:text="${product.soldCount}">250</span></span>
+                    <span class="text-muted">| Feedback: <span th:text="${product.title}">100</span></span>
+                    <span class="text-muted">| Đã bán: <span th:text="${product.title}">250</span></span>
                 </div>
 
                 <p class="text-muted mb-2">Các phân loại sản phẩm</p>
 
                 <p class="text-decoration-line-through text-secondary"
-                   th:text="${#numbers.formatDecimal(product.originalPrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                   th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
                     Giá sản phẩm trước sale
                 </p>
                 <h3 class="text-danger fw-bold mb-3"
-                    th:text="${#numbers.formatDecimal(product.salePrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                    th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
                     Giá sản phẩm sau sale
                 </h3>
 
@@ -55,11 +55,10 @@
                         <label for="quantity" class="col-form-label">Số lượng mua</label>
                     </div>
                     <div class="col-auto">
-                        <input type="number" id="quantity" name="quantity" class="form-control" value="1" min="1"
-                               th:value="${selectedQuantity}">
+                        <input type="number" id="quantity" name="quantity" class="form-control" value="1" min="1">
                     </div>
                     <div class="col">
-                        <input type="text" class="form-control" placeholder="Mã giảm giá" th:value="${discountCode}">
+                        <input type="text" class="form-control" placeholder="Mã giảm giá">
                     </div>
                 </div>
 
@@ -74,16 +73,16 @@
 
         <!-- ========== Shop Info Section ========== -->
         <div class="d-flex align-items-center mb-4">
-            <img th:src="${product.shop.imageUrl}" alt="Shop avatar" class="rounded-circle me-3" width="50" height="50">
+            <img src="#" alt="Shop avatar" class="rounded-circle me-3" width="50" height="50">
             <div class="flex-grow-1">
                 <h6 class="mb-0" th:text="${product.shop.name}">Tên shop</h6>
-                <small class="text-muted">Số sản phẩm: <span th:text="${product.shop.productCount}">120</span> |
-                    Đánh giá: <span th:text="${product.shop.rating}">4.9</span>
+                <small class="text-muted">Số sản phẩm: <span th:text="${product.shop.name}">120</span> |
+                    Đánh giá: <span th:text="${product.shop.name}">4.9</span>
                 </small>
             </div>
             <div>
                 <button class="btn btn-outline-secondary me-2">Liên hệ</button>
-                <a th:href="@{/shop/{id}(id=${product.shop.id})}" class="btn btn-primary">Xem shop</a>
+                <a th:href="@{/shop/{id}(id=${product.shop.shopId})}" class="btn btn-primary">Xem shop</a>
             </div>
         </div>
 
@@ -119,16 +118,16 @@
         <div class="row row-cols-2 row-cols-md-4 g-4">
             <div class="col" th:each="related : ${relatedProducts}">
                 <div class="card h-100">
-                    <img th:src="${related.imageUrl}" class="card-img-top" alt="related">
+                    <img th:src="${related.getTitle()}" class="card-img-top" alt="related">
                     <div class="card-body">
-                        <h6 class="card-title" th:text="${related.name}">Product Name</h6>
-                        <p class="card-text text-muted small" th:text="${related.shortDescription}">Description, color,
+                        <h6 class="card-title" th:text="${related.title}">Product Name</h6>
+                        <p class="card-text text-muted small" th:text="${related.description}">Description, color,
                             size</p>
                         <div>
                         <span class="fw-bold"
-                              th:text="${#numbers.formatDecimal(related.salePrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'">$95</span>
+                              th:text="${#numbers.formatDecimal(related.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">$95</span>
                             <span class="text-decoration-line-through text-muted ms-2 small"
-                                  th:text="${#numbers.formatDecimal(related.originalPrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'">$119</span>
+                                  th:text="${#numbers.formatDecimal(related.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">$119</span>
                         </div>
                     </div>
                 </div>

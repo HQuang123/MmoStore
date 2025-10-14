@@ -1,5 +1,6 @@
 package com.swp.mmostore.repository;
 
+import com.swp.mmostore.dto.ProductDetailDTO;
 import com.swp.mmostore.dto.ProductSummaryDTO;
 import com.swp.mmostore.entity.Category;
 import com.swp.mmostore.entity.Product;
@@ -49,4 +50,25 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
                 from Product p
             """)
     long countAllProducts();
+
+    @Query("""
+                select 
+                        p.productId,
+                        p.title,
+                        p.description,
+                        p.price,                              
+                        s.shopId,
+                        COALESCE(AVG(r.ratingPoint), 0),
+                        COUNT(r.id),
+                        SUM(o.quantity),
+                        c.name
+                from Product p
+                    left join p.shop s
+                    left join p.category c
+                    left join p.ratings r
+                    left join Order o on o.product = p
+                where p.productId = :productId
+                group by p.productId
+            """)
+    public ProductDetailDTO findProductById(@Param("productId") Integer productId);
 }

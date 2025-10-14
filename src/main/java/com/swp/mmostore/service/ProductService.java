@@ -1,6 +1,7 @@
 package com.swp.mmostore.service;
 
 import com.swp.mmostore.dto.FilterDTO;
+import com.swp.mmostore.dto.ProductDetailDTO;
 import com.swp.mmostore.dto.ProductSummaryDTO;
 import com.swp.mmostore.entity.Product;
 import com.swp.mmostore.repository.ProductRepository;
@@ -52,5 +53,23 @@ public class ProductService {
 
         // No sort
         return new PageImpl<>(productList, pageable, total);
+    }
+
+    public Product findById(Integer id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
+    }
+
+    public List<Product> findRelated(Integer id) {
+        // Ví dụ: lấy 4 sản phẩm đầu tiên khác sản phẩm hiện tại
+        return productRepository.findAll()
+                .stream()
+                .filter(p -> !p.getProductId().equals(id))
+                .limit(4)
+                .toList();
+    }
+
+    public ProductDetailDTO findProductDetailById(Integer id) {
+        return productRepository.findProductById(id);
     }
 }
