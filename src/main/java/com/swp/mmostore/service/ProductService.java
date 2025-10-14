@@ -45,7 +45,8 @@ public class ProductService {
 
         System.out.println("categories" + filterDTO.categories() + ",keyword" + filterDTO.keyword());
         if (isSearching) {
-            productList = productRepository.findProductByTitle(filterDTO.keyword(), filterDTO.categories(), pageable);
+            List<String> categoryIds = filterDTO.categories() == null || filterDTO.categories().isEmpty() ? null : filterDTO.categories();
+            productList = productRepository.findProductByTitle(filterDTO.keyword(), categoryIds, pageable);
             System.out.println("convit" + productList);
             total = productRepository.countByKeywordAndCategories(filterDTO.keyword(), filterDTO.categories());
         } else if (filterDTO.categories() == null || filterDTO.categories().isEmpty()) {

@@ -17,9 +17,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const pagination = document.querySelector(".pagination");
 
     // ✅ 1. Load initial products (only if not from /search)
-    if (!keywordFromUrl) {
+
         loadProducts();
-    }
+
 
     // ✅ 2. Category filter button click
     if (searchBtn) {
