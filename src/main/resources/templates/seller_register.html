@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base::layout(~{::section}, ~{::cssFragment}, ~{::jsFragment})}">
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng ký bán hàng</title>
+</head>
+<body>
+<section>
+    <div class="container mt-5 p-5">
+        <div class="card shadow p-4 col-md-6 mx-auto">
+            <h3 class="text-center mb-4">Đăng ký bán hàng</h3>
+
+            <form action="/seller/register" method="post" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label class="form-label">Tên cửa hàng</label>
+                    <input type="text" class="form-control" name="name" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Mô tả cửa hàng</label>
+                    <textarea class="form-control" name="description" rows="4" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Ảnh cửa hàng</label>
+                    <input type="file" class="form-control" name="shopImage" accept="image/*" required>
+                </div>
+                <button type="submit" class="btn btn-primary col-12">Gửi đăng ký</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- ✅ Thêm hai fragment trống để không lỗi -->
+<th:block th:fragment="cssFragment"></th:block>
+<th:block th:fragment="jsFragment"></th:block>
+
+</body>
+</html>

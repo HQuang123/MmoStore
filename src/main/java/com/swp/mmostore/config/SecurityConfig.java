@@ -47,8 +47,9 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.disable())
             .authorizeHttpRequests(req -> req
-                .requestMatchers("/user/**").hasRole("USER")
+                .requestMatchers("/user/**").hasAnyRole("USER","SELLER")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
+                    .requestMatchers("/seller/**").hasAnyRole("SELLER","USER")
                 .requestMatchers("/**").permitAll()
             )
             .authenticationProvider(authProvider)

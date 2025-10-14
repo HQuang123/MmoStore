@@ -1,10 +1,12 @@
 package com.swp.mmostore.controller;
 
+import com.swp.mmostore.entity.Shop;
 import com.swp.mmostore.entity.User;
 import com.swp.mmostore.service.CloudStorageService;
 import com.swp.mmostore.service.LoginRegistrationService;
+import com.swp.mmostore.service.ShopService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -26,6 +28,10 @@ public class ControllerUser {
 
     @Autowired
     private CloudStorageService cloudStorageService;
+
+    @Autowired
+    private ShopService shopService;
+
 
     /** Hiển thị trang user_profile.html */
     @GetMapping("/user/detail")
@@ -113,4 +119,55 @@ public class ControllerUser {
         }
         return "redirect:/user/detail";
     }
+
+    @GetMapping("/register-seller")
+    public String showSellerRegister(Model model) {
+        return "seller_register";
+    }
+
+    @PostMapping("/seller/register")
+    public String registerSeller(@RequestParam("name") String name,
+                                 @RequestParam("description") String description,
+                                 @RequestParam("shopImage") MultipartFile shopImage,
+                                 Model model,
+                                 HttpSession session) throws IOException {
+
+        // Lấy thông tin user đang đăng nhập
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+
+        User user = userService.getUserByEmail(email);
+        if (user == null) {
+            session.setAttribute("errorMsg", "Bạn cần đăng nhập để đăng ký bán hàng.");
+            return "redirect:/login";
+        }
+
+        // Xử lý upload ảnh cửa hàng
+        String shopImageUrl;
+        if (shopImage != null && !shopImage.isEmpty()) {
+            try {
+                shopImageUrl = cloudStorageService.uploadFile(shopImage);
+            } catch (Exception e) {
+                e.printStackTrace();
+                session.setAttribute("errorMsg", "Lỗi khi upload ảnh cửa hàng");
+                return "redirect:/user/detail";
+            }
+        } else {
+            shopImageUrl = "https://storage.googleapis.com/mmostore/default-shop.jpg"; // default image
+        }
+
+        // Tạo và lưu shop mới
+        Shop shop = new Shop(name,description,user,shopImageUrl);
+        shopService.save(shop);
+
+        // Cập nhật role người dùng thành SELLER nếu chưa có
+        if (!user.getRole().contains("ROLE_SELLER")) {
+            user.setRole("ROLE_SELLER");
+            userService.updateUser(user);
+        }
+
+        session.setAttribute("successMsg", "Đăng ký cửa hàng thành công! Hãy bắt đầu bán hàng ngay.");
+        return "redirect:/user/detail";
+    }
+
 }
