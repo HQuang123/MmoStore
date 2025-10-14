@@ -22,13 +22,13 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
                 left join p.shop s
                 left join p.category c
                 left join p.ratings r
-                where (:categoryId IS NULL OR c.categoryId IN :categoryId)
+                where c.categoryId IN :categoryId
                 group by p.productId
             """)
     public List<ProductSummaryDTO> findAllAndFilterProduct(@Param("categoryId") List<String> categoryId, Pageable pageable);
 
     @Query("""
-            select p.productId, p.title, p.description, p.price, s.name, AVG(r.ratingPoint) from Product p
+            select p.productId, p.title, p.description, p.price, s.name, COALESCE(AVG(r.ratingPoint), 0) from Product p
                 left join p.shop s
                 left join p.category c
                 left join p.ratings r
@@ -44,4 +44,9 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             """)
     long countFilteredProducts(@Param("categoryId") List<String> categoryId);
 
+    @Query("""
+                select count(distinct p.productId)
+                from Product p
+            """)
+    long countAllProducts();
 }
