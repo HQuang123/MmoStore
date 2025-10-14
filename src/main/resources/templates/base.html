@@ -66,6 +66,11 @@
 
             </ul>
 
+            <form id="searchForm" class="d-flex mx-auto align-items-center" role="search" style="width: 45%;">
+                <input id="searchQuery" class="form-control me-2" type="search" placeholder="Search"
+                       aria-label="Search" name="query">
+                <button class="btn btn-outline-light" type="submit"><i class="fa fa-search"></i></button>
+            </form>
 
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
 
@@ -112,6 +117,8 @@
     <p class="mt-2"><i><b>Tap hoa SWP391</b></i><br><a th:ref="@{/login}" style="text-decoration:none; color:white;" target="_blank">Nhóm 6</a><br>Copyright &copy; 2024. All rights Reserved</p>
 </div>
 <!-- End footer -->
+
+<script src="/javascript/search-bar.js"></script>
 
 <!-- Initialize Toast -->
 <script>

@@ -1,9 +1,14 @@
+// ✅ Initialize global filter object
+const params = new URLSearchParams(window.location.search);
+const keywordFromUrl = params.get("query"); // get ?query= keyword from URL
+
 var filter = {
     categories: [],
     sortBy: null,
     sortOrder: null,
     page: 0,
-    pageSize: 8
+    pageSize: 8,
+    keyword: keywordFromUrl || null // include keyword in filter
 };
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -11,19 +16,22 @@ document.addEventListener("DOMContentLoaded", function () {
     const container = document.getElementById("productContainer");
     const pagination = document.querySelector(".pagination");
 
-    loadProducts();
-    searchBtn.addEventListener("click", function () {
-
-        //get list checked category
-        filter.categories = Array.from(document.querySelectorAll("input[name='category']:checked"))
-            .map(cb => cb.value);
-        //reset page before filter
-        filter.page = 0;
+    // ✅ 1. Load initial products (only if not from /search)
+    if (!keywordFromUrl) {
         loadProducts();
-        console.log(filter);
+    }
 
-    });
+    // ✅ 2. Category filter button click
+    if (searchBtn) {
+        searchBtn.addEventListener("click", function () {
+            filter.categories = Array.from(document.querySelectorAll("input[name='category']:checked"))
+                .map(cb => cb.value);
+            filter.page = 0;
+            loadProducts();
+        });
+    }
 
+    // ✅ 3. Load products function
     function loadProducts() {
         fetch("/api/product-list/filter", {
             method: "POST",
@@ -34,7 +42,8 @@ document.addEventListener("DOMContentLoaded", function () {
         })
             .then(response => response.json())
             .then(data => {
-                // render product list dynamically here
+
+                console.log(filter);
                 const products = data.content || data;
                 renderProducts(products);
                 if (data.totalPages) renderPagination(data.totalPages, data.number);
@@ -42,13 +51,14 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch(err => console.error("Error:", err));
     }
 
+    // ✅ 4. Render product cards
     function renderProducts(products) {
         container.innerHTML = "";
-        //if no product after return
-        if (products.length === 0) {
+        if (!products || products.length === 0) {
             container.innerHTML = "<p class='text-center text-muted'>Không có sản phẩm nào</p>";
             return;
         }
+
         products.forEach(product => {
             const card = document.createElement("div");
             card.className = "card card-product p-3 mb-3";
@@ -70,6 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // ✅ 5. Render pagination
     function renderPagination(totalPages, currentPage) {
         pagination.innerHTML = "";
 
@@ -96,37 +107,44 @@ document.addEventListener("DOMContentLoaded", function () {
           </li>
         `;
 
-        // Add click listeners
+        // 🧠 Keep keyword when paginating
         pagination.querySelectorAll("a.page-link").forEach(link => {
             link.addEventListener("click", e => {
                 e.preventDefault();
                 const newPage = parseInt(e.target.dataset.page);
                 if (newPage >= 0 && newPage < totalPages) {
                     filter.page = newPage;
+                    if (keywordFromUrl && !filter.keyword) {
+                        filter.keyword = keywordFromUrl;
+                    }
                     loadProducts();
                 }
             });
         });
     }
 
-    // Handle sort buttons
+    // ✅ 6. Handle sort buttons
     document.querySelectorAll("button[data-sort-by]").forEach(btn => {
         btn.addEventListener("click", () => {
             const sortBy = btn.getAttribute("data-sort-by");
             const sortOrder = btn.getAttribute("data-sort-order");
 
-            // Update filter
             filter.sortBy = sortBy;
             filter.sortOrder = sortOrder;
-            filter.page = 0; // reset to first page
+            filter.page = 0;
 
-            // Optional: highlight active button
+            // 🧠 Keep keyword when sorting
+            if (keywordFromUrl && !filter.keyword) {
+                filter.keyword = keywordFromUrl;
+            }
+
             document.querySelectorAll("button[data-sort-by]").forEach(b => b.classList.remove("active"));
             btn.classList.add("active");
 
             loadProducts();
-            console.log("Sorting:", sortBy, sortOrder);
         });
     });
 
+    // ✅ 7. Expose loadProducts globally (for reuse)
+    window.loadProducts = loadProducts;
 });
