@@ -10,6 +10,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const searchBtn = document.getElementById("buttonFilter");
     const container = document.getElementById("productContainer");
     const pagination = document.querySelector(".pagination");
+
+    loadProducts();
     searchBtn.addEventListener("click", function () {
 
         //get list checked category
@@ -32,7 +34,6 @@ document.addEventListener("DOMContentLoaded", function () {
         })
             .then(response => response.json())
             .then(data => {
-                console.log("Filtered products:", products);
                 // render product list dynamically here
                 const products = data.content || data;
                 renderProducts(products);
@@ -76,24 +77,24 @@ document.addEventListener("DOMContentLoaded", function () {
         const nextDisabled = currentPage === totalPages - 1 ? "disabled" : "";
 
         pagination.innerHTML += `
-      <li class="page-item ${prevDisabled}">
-        <a class="page-link" href="#" data-page="${currentPage - 1}">Trước</a>
-      </li>
-    `;
+          <li class="page-item ${prevDisabled}">
+            <a class="page-link" href="#" data-page="${currentPage - 1}">Trước</a>
+          </li>
+        `;
 
         for (let i = 0; i < totalPages; i++) {
             pagination.innerHTML += `
-        <li class="page-item ${i === currentPage ? "active" : ""}">
-          <a class="page-link" href="#" data-page="${i}">${i + 1}</a>
-        </li>
-      `;
+                <li class="page-item ${i === currentPage ? "active" : ""}">
+                  <a class="page-link" href="#" data-page="${i}">${i + 1}</a>
+                </li>
+              `;
         }
 
         pagination.innerHTML += `
-      <li class="page-item ${nextDisabled}">
-        <a class="page-link" href="#" data-page="${currentPage + 1}">Tiếp</a>
-      </li>
-    `;
+          <li class="page-item ${nextDisabled}">
+            <a class="page-link" href="#" data-page="${currentPage + 1}">Tiếp</a>
+          </li>
+        `;
 
         // Add click listeners
         pagination.querySelectorAll("a.page-link").forEach(link => {
@@ -107,4 +108,25 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
     }
+
+    // Handle sort buttons
+    document.querySelectorAll("button[data-sort-by]").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const sortBy = btn.getAttribute("data-sort-by");
+            const sortOrder = btn.getAttribute("data-sort-order");
+
+            // Update filter
+            filter.sortBy = sortBy;
+            filter.sortOrder = sortOrder;
+            filter.page = 0; // reset to first page
+
+            // Optional: highlight active button
+            document.querySelectorAll("button[data-sort-by]").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+
+            loadProducts();
+            console.log("Sorting:", sortBy, sortOrder);
+        });
+    });
+
 });
