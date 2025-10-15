@@ -48,6 +48,9 @@ public class Product {
     @Column(name = "UpdateBy", insertable = false)
     private Integer updateBy;
 
+    @Column(name = "ProductImageUrl", insertable = false)
+    private String productImageUrl;
+
     @ManyToOne
     @JoinColumn(name = "ShopID")
     private Shop shop;
