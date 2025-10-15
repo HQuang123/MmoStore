@@ -1,26 +1,18 @@
 package com.swp.mmostore.controller;
 
-import com.swp.mmostore.dto.OrderForm;
 import com.swp.mmostore.entity.*;
 import com.swp.mmostore.repository.DepositRepository;
 import com.swp.mmostore.repository.OrderRepository;
-import com.swp.mmostore.repository.ProductRepository;
-import com.swp.mmostore.repository.UserRepository;
 import com.swp.mmostore.service.DepositService;
 import com.swp.mmostore.service.MomoService;
-import com.swp.mmostore.service.OrderService;
-import com.swp.mmostore.util.MockSecurityUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-import java.util.Optional;
 
 @AllArgsConstructor
 @Controller
-@RequestMapping("/user/momo")
 public class MomoController {
 //    result code will be 0 if success and message will be Thanh cong
     private final MomoService momoService;
@@ -28,15 +20,16 @@ public class MomoController {
     private final DepositService depositService;
     private final DepositRepository depositRepository;
 
-    @PostMapping("/top-up")
+    @PostMapping("/user/momo/top-up")
     public String createQRCode(@ModelAttribute Deposit deposit) {
         Deposit pendingDeposit = depositService.createPendingDeposit(deposit);
         //generate a QR code
         MomoResponse momoResponse=  momoService.createQr(pendingDeposit);
+
         return "redirect:" + momoResponse.getPayUrl();
     }
 
-    @GetMapping("/redirect")
+    @GetMapping("/momo/redirect")
     public String handleMomoRedirect(@RequestParam(name = "orderId") String depositId,
                                      @RequestParam(name = "orderInfo") String depositInfo,
 

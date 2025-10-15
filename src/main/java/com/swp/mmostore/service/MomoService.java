@@ -55,6 +55,7 @@ public class MomoService {
         long amount = deposit.getAmount().longValue();
         String rawSignature = String.format("accessKey=%s&amount=%s&extraData=%s&ipnUrl=%s&orderId=%s&orderInfo=%s&partnerCode=%s&redirectUrl=%s&requestId=%s&requestType=%s", accessKey, amount, extraData, ipnUrl, orderId, orderInfo, partnerCode, redirectUrl, requestId, requestType);
         log.info(">>>>>endpoint: {}", endpoint);
+        log.info(">>>>>rediret_url: {}", redirectUrl);
         String prettySignature = "";
         //catch exception
         try{
