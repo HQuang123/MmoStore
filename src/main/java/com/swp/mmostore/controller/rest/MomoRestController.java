@@ -1,17 +1,17 @@
-package com.swp.mmostore.controller;
+package com.swp.mmostore.controller.rest;
 
-import com.swp.mmostore.entity.Deposit;
-import com.swp.mmostore.entity.DepositStatus;
-import com.swp.mmostore.entity.Order;
-import com.swp.mmostore.entity.User;
+import com.swp.mmostore.entity.*;
 import com.swp.mmostore.repository.DepositRepository;
 import com.swp.mmostore.repository.OrderRepository;
 import com.swp.mmostore.repository.UserRepository;
+import com.swp.mmostore.service.DepositService;
+import com.swp.mmostore.service.MomoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
@@ -19,11 +19,23 @@ import java.util.Map;
 @RestController
 @RequestMapping("api/momo")
 public class MomoRestController {
-    private final OrderRepository orderRepository;
+    private final DepositService depositService;
     private final DepositRepository depositRepository;
     private final UserRepository userRepository;
+    private final MomoService momoService;
 
+    @PostMapping("create")
+    public MomoResponse createQRCode() {
+        Deposit deposit = new Deposit();
+        deposit.setId(1);
+        deposit.setActionType(ActionType.Top_up);
+        deposit.setPaymentMethod("Momo");
+        deposit.setAmount(BigDecimal.valueOf(100000));
+        //generate a QR code
+        return momoService.createQr(deposit);
+    }
     //0 is success, !0 is failure
+
     @PostMapping("/ipn-handler")
     public ResponseEntity<Object> ipnHandler(@RequestBody Map<String, String> payload) {
         try{
