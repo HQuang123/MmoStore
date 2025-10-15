@@ -1,4 +1,7 @@
 package com.swp.mmostore.repository;
 
-public interface DepositRepository {
+import com.swp.mmostore.entity.Deposit;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface DepositRepository extends JpaRepository<Deposit, Integer> {
 }

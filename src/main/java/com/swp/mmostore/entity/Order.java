@@ -43,6 +43,12 @@ public class Order {
     @Column(name = "UpdateBy", insertable = false)
     private Integer updateBy;
 
+    @Column(name = "Status")
+    private String status;
+
+    @Column(name = "Message")
+    private String message;
+
     @ManyToOne
     @JoinColumn(name = "UserID")
     private User user;
