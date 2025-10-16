@@ -1,5 +1,6 @@
 package com.swp.mmostore.repository;
 
+import com.swp.mmostore.dto.ProductDetailDTO;
 import com.swp.mmostore.dto.ProductSummaryDTO;
 import com.swp.mmostore.entity.Category;
 import com.swp.mmostore.entity.Product;
@@ -53,4 +54,26 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
                 where p.isDeleted = false
             """)
     long countAllProducts();
+
+    @Query("""
+                SELECT
+                        p.productId,
+                        p.title,
+                        p.description,
+                        p.price,                              
+                        s.shopId,
+                        COALESCE(AVG(r.ratingPoint), 0),
+                        CAST(COUNT(r.id) AS int),
+                        CAST(COALESCE(SUM(o.quantity), 0) AS int),
+                        c.name
+                from Product p
+                    left join p.shop s
+                    left join p.category c
+                    left join p.ratings r
+                    left join Order o on o.product = p
+                where p.productId = :productId
+                and p.isDeleted = false 
+                group by p.productId
+            """)
+    public ProductDetailDTO findProductById(@Param("productId") Integer productId);
 }
