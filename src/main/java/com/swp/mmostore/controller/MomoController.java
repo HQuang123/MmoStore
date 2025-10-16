@@ -6,11 +6,12 @@ import com.swp.mmostore.repository.OrderRepository;
 import com.swp.mmostore.service.DepositService;
 import com.swp.mmostore.service.MomoService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-
+@Slf4j
 @AllArgsConstructor
 @Controller
 public class MomoController {
@@ -32,12 +33,12 @@ public class MomoController {
     @GetMapping("/momo/redirect")
     public String handleMomoRedirect(@RequestParam(name = "orderId") String depositId,
                                      @RequestParam(name = "orderInfo") String depositInfo,
-
                                      @RequestParam(name = "amount") String amount,
                                      @RequestParam(name ="resultCode") String resultCode,
                                      @RequestParam(name = "message") String message,
                                      Model model
                                      ) {
+        log.info(">>>>> ket qua: {}" , resultCode);
         boolean isSuccess = resultCode.equals("0");
         model.addAttribute("depositId", depositId);
         model.addAttribute("depositInfo", depositInfo);
