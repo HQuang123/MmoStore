@@ -23,6 +23,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
                 left join p.category c
                 left join p.ratings r
                 where c.categoryId IN :categoryId
+                and p.isDeleted = false
                 group by p.productId
             """)
     public List<ProductSummaryDTO> findAllAndFilterProduct(@Param("categoryId") List<String> categoryId, Pageable pageable);
@@ -32,6 +33,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
                 left join p.shop s
                 left join p.category c
                 left join p.ratings r
+                where p.isDeleted = false
                 group by p.productId
             """)
     public List<ProductSummaryDTO> findAllProduct(Pageable pageable);
@@ -41,12 +43,14 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
                 from Product p
                 left join p.category c
                 where c.categoryId in :categoryId
+                and p.isDeleted = false
             """)
     long countFilteredProducts(@Param("categoryId") List<String> categoryId);
 
     @Query("""
                 select count(distinct p.productId)
                 from Product p
+                where p.isDeleted = false
             """)
     long countAllProducts();
 }
