@@ -52,15 +52,15 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     long countAllProducts();
 
     @Query("""
-                select 
+                SELECT
                         p.productId,
                         p.title,
                         p.description,
                         p.price,                              
                         s.shopId,
                         COALESCE(AVG(r.ratingPoint), 0),
-                        COUNT(r.id),
-                        SUM(o.quantity),
+                        CAST(COUNT(r.id) AS int),
+                        CAST(COALESCE(SUM(o.quantity), 0) AS int),
                         c.name
                 from Product p
                     left join p.shop s
@@ -68,6 +68,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
                     left join p.ratings r
                     left join Order o on o.product = p
                 where p.productId = :productId
+                and p.isDeleted = false 
                 group by p.productId
             """)
     public ProductDetailDTO findProductById(@Param("productId") Integer productId);

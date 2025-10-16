@@ -32,14 +32,16 @@
 
                 <div class="mb-2">
                     <span>Đánh giá:</span>
-                    <span class="text-warning">
-                    ★★★★★
+                    <span class="text-warning" th:text="${product.avgRating() + '/10'}">
+
                 </span>
-                    <span class="text-muted">| Feedback: <span th:text="${product.title}">100</span></span>
-                    <span class="text-muted">| Đã bán: <span th:text="${product.title}">250</span></span>
+                    <span class="text-muted">| Feedback: <span
+                            th:text="${product.numberOfRatings() + ' Lượt đánh giá'}">100</span></span>
+                    <span class="text-muted">| Đã bán: <span
+                            th:text="${product.numberOfSoldItems() + ' Sản phẩm'}">250</span></span>
                 </div>
 
-                <p class="text-muted mb-2">Các phân loại sản phẩm</p>
+                <p class="text-muted mb-2" th:text="${product.category()}">Các phân loại sản phẩm</p>
 
                 <p class="text-decoration-line-through text-secondary"
                    th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
@@ -75,14 +77,14 @@
         <div class="d-flex align-items-center mb-4">
             <img src="#" alt="Shop avatar" class="rounded-circle me-3" width="50" height="50">
             <div class="flex-grow-1">
-                <h6 class="mb-0" th:text="${product.shop.name}">Tên shop</h6>
-                <small class="text-muted">Số sản phẩm: <span th:text="${product.shop.name}">120</span> |
-                    Đánh giá: <span th:text="${product.shop.name}">4.9</span>
+                <h6 class="mb-0" th:text="${shop.name()}">Tên shop</h6>
+                <small class="text-muted">Số sản phẩm: <span th:text="${shop.numberOfProduct()}">120</span> |
+                    Đánh giá: <span th:text="${shop.avgRating()}">4.9</span>
                 </small>
             </div>
             <div>
                 <button class="btn btn-outline-secondary me-2">Liên hệ</button>
-                <a th:href="@{/shop/{id}(id=${product.shop.shopId})}" class="btn btn-primary">Xem shop</a>
+                <a th:href="@{/shop/{id}(id=${shop.shopId})}" class="btn btn-primary">Xem shop</a>
             </div>
         </div>
 
@@ -108,7 +110,34 @@
                 </p>
             </div>
             <div class="tab-pane fade p-3 bg-white border rounded" id="reviews" role="tabpanel">
-                <p>Chưa có đánh giá nào.</p>
+                <div th:if="${#lists.isEmpty(ratings)}">
+                    <p class="text-muted fst-italic">Chưa có đánh giá nào cho sản phẩm này.</p>
+                </div>
+
+                <div th:if="${!#lists.isEmpty(ratings)}">
+                    <div th:each="rating : ${ratings}" class="border-bottom pb-3 mb-3">
+                        <div class="d-flex justify-content-between">
+                            <strong th:text="${rating.username}">Người dùng</strong>
+                            <small class="text-muted"
+                                   th:text="${#temporals.format(rating.createAt(), 'dd/MM/yyyy HH:mm')}">
+                                01/01/2025
+                            </small>
+                        </div>
+                        <div class="text-warning mb-1">
+                            <span th:if="${rating.ratingPoint() > 0}">
+                                <span th:each="i : ${#numbers.sequence(1, rating.ratingPoint)}">
+                                    <i class="bi bi-star-fill"></i>
+                                </span>
+                            </span>
+                            <span th:if="${rating.ratingPoint() < 5}">
+                                <span th:each="i : ${#numbers.sequence(rating.ratingPoint + 1, 5)}">
+                                    <i class="bi bi-star"></i>
+                                </span>
+                            </span>
+                        </div>
+                        <p th:text="${rating.feedback()}">Sản phẩm rất tốt!</p>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -118,7 +147,7 @@
         <div class="row row-cols-2 row-cols-md-4 g-4">
             <div class="col" th:each="related : ${relatedProducts}">
                 <div class="card h-100">
-                    <img th:src="${related.getTitle()}" class="card-img-top" alt="related">
+                    <img th:src="${related.title()}" class="card-img-top" alt="related">
                     <div class="card-body">
                         <h6 class="card-title" th:text="${related.title}">Product Name</h6>
                         <p class="card-text text-muted small" th:text="${related.description}">Description, color,
@@ -135,7 +164,7 @@
         </div>
 
     </div>
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </section>
 </body>

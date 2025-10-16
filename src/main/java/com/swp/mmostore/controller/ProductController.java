@@ -1,8 +1,8 @@
 package com.swp.mmostore.controller;
 
-import com.swp.mmostore.dto.FilterDTO;
-import com.swp.mmostore.dto.ProductDetailDTO;
+import com.swp.mmostore.dto.*;
 import com.swp.mmostore.entity.Product;
+import com.swp.mmostore.entity.Rating;
 import com.swp.mmostore.repository.CategoryRepository;
 import com.swp.mmostore.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,10 +62,13 @@ public class ProductController {
     @GetMapping("/product/{id}")
     public String showProductDetail(@PathVariable Integer id, Model model) {
         ProductDetailDTO product = productService.findProductDetailById(id);
-        List<Product> related = productService.findRelated(id);
-
+        ShopSummaryDTO shop = productService.findShopSummaryById(product.shopId());
+        List<ProductSummaryDTO> related = productService.findRelated(id);
+        List<RatingDTO> ratings = productService.getRatingsByProduct(id);
         model.addAttribute("product", product);
+        model.addAttribute("shop", shop);
         model.addAttribute("relatedProducts", related);
+        model.addAttribute("ratings", ratings);
 
         return "product-detail"; // Trỏ đến file product-detail.html
     }
