@@ -16,6 +16,7 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
 //init final field
+
 @RestController
 @RequestMapping("api/momo")
 public class MomoRestController {
@@ -40,8 +41,10 @@ public class MomoRestController {
     public ResponseEntity<Object> ipnHandler(@RequestBody Map<String, String> payload) {
         try{
             Integer depositId = Integer.parseInt(payload.get("orderId"));
-            String resultCode = (String) payload.get("resultCode");
+
+            String resultCode = payload.get("resultCode");
             Deposit deposit = depositRepository.findById(depositId).orElse(null);
+            log.info("Deposit Id la: {}" ,deposit.getId());
             User user = deposit.getUser();
             //TODO: implement orderService to mark success or failure
             if(resultCode.equals("0")) {
