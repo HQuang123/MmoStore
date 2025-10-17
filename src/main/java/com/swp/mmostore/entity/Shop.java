@@ -55,8 +55,8 @@ public class Shop {
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
     private List<Product> products = new ArrayList<>();
 
-   @Column(name="ShopImageUrl")
-   private String shopImageUrl;
+//   @Column(name="ShopImageUrl")
+//   private String shopImageUrl;
 
     public void addProduct(Product product) {
         products.add(product);
