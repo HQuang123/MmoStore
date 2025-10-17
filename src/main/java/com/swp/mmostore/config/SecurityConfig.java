@@ -40,6 +40,8 @@ public class SecurityConfig {
         authProvider.setPasswordEncoder(bCryptPasswordEncoder);
         return authProvider;
     }
+    //CustomUserDetailService takes UserDetails object from method loadUserByUsername
+    //both CustomUserDetails and User implements the interface UserDetails
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, DaoAuthenticationProvider authProvider) throws Exception {
