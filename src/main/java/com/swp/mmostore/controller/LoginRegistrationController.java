@@ -119,7 +119,7 @@ public class LoginRegistrationController {
         return "redirect:/register";
     }
 
-    // ----------------- Bước 1: Nhập email để gửi token -----------------
+    //  Nhập email để gửi token -----------------
     @GetMapping("/forgot-password")
     public String forgotPasswordPage() {
         return "forgot-password"; // form nhập email
@@ -132,12 +132,12 @@ public class LoginRegistrationController {
             model.addAttribute("email", email);
             return "confirm-token"; // form nhập token
         } else {
-            model.addAttribute("error", "Email không tồn tại hoặc gửi email thất bại!");
+            model.addAttribute("error", "Email không tồn tại hãy kiểm tra lại!");
             return "forgot-password";
         }
     }
 
-    // ----------------- Bước 2: Xác thực token -----------------
+    // Xác thực token -----------------
     @PostMapping("/confirm-token")
     public String confirmToken(@RequestParam("email") String email,
                                @RequestParam("token") String token,
@@ -153,7 +153,7 @@ public class LoginRegistrationController {
         }
     }
 
-    // ----------------- Bước 3: Reset mật khẩu -----------------
+    //Reset mật khẩu -----------------
     @PostMapping("/reset-password")
     public String resetPassword(@RequestParam("email") String email,
                                 @RequestParam("token") String token,

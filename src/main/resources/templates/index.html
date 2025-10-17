@@ -81,11 +81,15 @@
             </div>
         </div>
         <div class="register-section">
-            <h2>Đăng ký bán hàng</h2>
-            <p>Tạo một gian hàng của bạn trên trang của chúng tôi.
-                Đội ngũ hỗ trợ sẽ liên lạc để giúp bạn tối ưu khả năng bán hàng.
-            </p>
-            <a href="/register-seller" class="shop-register btn btn-primary">ĐĂNG KÝ</a>
+            <th:block th:if="${currentLoggedInUserDetails != null}">
+                <div th:if="${!currentLoggedInUserDetails.role.contains('ROLE_SELLER')}">
+                    <h2>Đăng ký bán hàng</h2>
+                    <p>Tạo một gian hàng của bạn trên trang của chúng tôi.
+                        Đội ngũ hỗ trợ sẽ liên lạc để giúp bạn tối ưu khả năng bán hàng.
+                    </p>
+                    <a href="/user/seller_register" class="shop-register btn btn-primary">ĐĂNG KÝ</a>
+                </div>
+            </th:block>
         </div>
     </section>
 </body>

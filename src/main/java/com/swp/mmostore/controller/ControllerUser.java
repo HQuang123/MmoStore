@@ -120,12 +120,13 @@ public class ControllerUser {
         return "redirect:/user/detail";
     }
 
-    @GetMapping("/register-seller")
-    public String showSellerRegister(Model model) {
+    @GetMapping("/user/seller_register")
+    public String showSellerRegisterPage() {
         return "seller_register";
     }
 
-    @PostMapping("/seller/register")
+
+    @PostMapping("/user/seller_register")
     public String registerSeller(@RequestParam("name") String name,
                                  @RequestParam("description") String description,
                                  @RequestParam("shopImage") MultipartFile shopImage,
@@ -162,7 +163,7 @@ public class ControllerUser {
 
         // Cập nhật role người dùng thành SELLER nếu chưa có
         if (!user.getRole().contains("ROLE_SELLER")) {
-            user.setRole("ROLE_SELLER");
+            user.setRole(user.getRole()+",ROLE_SELLER");
             userService.updateUser(user);
         }
 
