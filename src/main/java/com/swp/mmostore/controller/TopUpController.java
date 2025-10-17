@@ -9,12 +9,13 @@ import com.swp.mmostore.repository.ProductRepository;
 import com.swp.mmostore.repository.UserRepository;
 import com.swp.mmostore.util.MockSecurityUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
+@Slf4j
 @RequiredArgsConstructor
 @Controller
 public class TopUpController {
@@ -23,8 +24,10 @@ public class TopUpController {
 
     @GetMapping("/user/balance")
     public String productDetails(@RequestParam("action") String action, Model model) {
-        Integer userId = MockSecurityUtils.getCurrentUserId();
-        User user = userRepository.findById(userId).orElse(null);
+
+        String email = MockSecurityUtils.getCurrentUserEmail();
+        log.info("Current user id: {}", email);
+        User user = userRepository.findByEmail(email);
         Deposit deposit = new Deposit();
         deposit.setUser(user);
         deposit.setActionType(ActionType.Top_up);

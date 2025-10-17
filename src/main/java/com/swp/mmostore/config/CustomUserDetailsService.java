@@ -43,7 +43,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 
         return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
+                user.getEmail(), //user details will be saved in the authentication object of spring context
                 user.getPassword(),
                 authorities
         );
