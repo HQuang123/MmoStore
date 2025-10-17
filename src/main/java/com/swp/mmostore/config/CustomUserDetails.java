@@ -16,9 +16,13 @@ public class CustomUserDetails implements UserDetails {
     }
     //provide authentication object know the role - authority
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
+    public Collection<? extends GrantedAuthority> getAuthorities() { //tim role
         SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(user.getRole());
         return Arrays.asList(simpleGrantedAuthority);
+    }
+
+    public int getUserId(){
+        return user.getUserId();
     }
 
     //provide the password for authentication from the database

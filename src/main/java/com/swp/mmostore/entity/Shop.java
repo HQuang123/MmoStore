@@ -29,6 +29,9 @@ public class Shop {
     @Column(name = "Description", columnDefinition = "TEXT")
     private String description;
 
+    @Column(name = "ShopImageUrl", insertable = false)
+    private String shopImageUrl;
+
     @Column(name = "isDeleted", insertable = false)
     private Boolean isDeleted = false;
 

@@ -71,7 +71,7 @@
             <div class="row">
                 <div class="col-md-2" th:each="product: ${twelveLastestProducts}">
                     <div class="card shadow-sm p-3 mb-5 bg-white rounded">
-                        <div class="card-body text-center product" th:name="'product-' + ${product.getProductId()}">
+                        <div class="card-body text-center product" th:name="'product-' + ${product.getProductId()}" th:onclick="'window.location.href=\'/product/' + ${product.productId} + '\''" style="cursor: pointer;">
                             <img alt="productImg"  width="60%" height="140px">
                             <p class="text-center"><b th:text="${product.getTitle()}"></b></p>
                             <div style="text-align: left" th:text="${product.price} + '$'"></div>

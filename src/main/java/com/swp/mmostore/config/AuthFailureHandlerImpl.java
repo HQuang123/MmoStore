@@ -18,8 +18,6 @@ import java.io.IOException;
 //This method will handle login failure
 @Configuration
 public class AuthFailureHandlerImpl extends SimpleUrlAuthenticationFailureHandler {
-    @Autowired
-    UserRepository userRepository;
 
     @Autowired
     LoginRegistrationService userService;
