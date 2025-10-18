@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base::layout(~{::section}, ~{::cssFragment}, ~{::jsFragment})}">
+
+<head>
+    <title>Category Management</title>
+
+    <th:block th:fragment="cssFragment">
+        <link rel="stylesheet" href="">
+    </th:block>
+
+    <th:block th:fragment="jsFragment">
+        <script src="#"></script>
+    </th:block>
+</head>
+
+<body>
+<section class="container mt-4">
+    <h2 class="mb-4">Category Management</h2>
+
+    <!-- Filter + Search -->
+    <form method="get" class="d-flex gap-2 mb-3">
+        <select name="status" class="form-select form-select-sm w-auto">
+            <option value="" th:selected="${status == null || status == ''}">All Status</option>
+            <option th:value="active" th:selected="${status == 'active'}">Active</option>
+            <option th:value="inactive" th:selected="${status == 'inactive'}">Inactive</option>
+        </select>
+
+        <input type="text" name="keyword" th:value="${keyword}" placeholder="Search"
+               class="form-control form-control-sm w-auto">
+
+        <button type="submit" class="btn btn-primary btn-sm">Search</button>
+
+        <!-- Clear Filters -->
+        <a th:href="@{/admin/categories}" class="btn btn-outline-secondary btn-sm">Clear</a>
+    </form>
+
+    <!-- 📋 Category Table -->
+    <div th:if="${#lists.isEmpty(categories)}" class="alert alert-warning">
+        No categories found.
+    </div>
+
+    <table class="table table-bordered table-hover" th:if="${!#lists.isEmpty(categories)}">
+        <thead class="table-light">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="category : ${categories}">
+            <td th:text="${category.categoryId}"></td>
+            <td th:text="${category.name}"></td>
+            <td th:text="${category.description}"></td>
+            <td>
+                <span th:text="${category.isDeleted} ? 'Inactive' : 'Active'"
+                      th:classappend="${category.isDeleted} ? 'text-danger' : 'text-success'"></span>
+            </td>
+            <td>
+                <form th:action="@{'/admin/categories/' + ${category.categoryId} + '/toggle-status'}" method="post">
+                    <input type="hidden" name="page" th:value="${currentPage}">
+                    <button class="btn btn-sm"
+                            th:classappend="${category.isDeleted} ? 'btn-success' : 'btn-danger'">
+                        <span th:text="${category.isDeleted} ? 'Activate' : 'Deactivate'"></span>
+                    </button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div th:if="${totalPages > 0}"
+         class="d-flex justify-content-center align-items-center mt-3 gap-2">
+
+        <!-- Previous button -->
+        <a th:if="${hasPrevious}"
+           th:href="@{/admin/categories(page=${currentPage - 1})}"
+           class="btn btn-outline-primary btn-sm">Previous</a>
+
+        <!-- Page numbers -->
+        <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                <a th:if="${i != currentPage}"
+                   th:href="@{/admin/categories(page=${i})}"
+                   th:text="${i + 1}"
+                   class="btn btn-outline-secondary btn-sm mx-1"></a>
+                     <span th:if="${i == currentPage}"
+                           th:text="${i + 1}"
+                           class="btn btn-primary btn-sm mx-1 disabled">
+                     </span>
+            </span>
+
+        <!-- Next button -->
+        <a th:if="${hasNext}"
+           th:href="@{/admin/categories(page=${currentPage + 1})}"
+           class="btn btn-outline-primary btn-sm">Next</a>
+    </div>
+</section>
+</body>
+</html>

@@ -5,6 +5,7 @@ import com.swp.mmostore.entity.Category;
 import com.swp.mmostore.entity.Product;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -43,5 +44,9 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
                 where c.categoryId in :categoryId
             """)
     long countFilteredProducts(@Param("categoryId") List<String> categoryId);
+
+    @Modifying
+    @Query("UPDATE Product p SET p.isDeleted = :status WHERE p.shop.shopId = :shopId")
+    void updateProductDeletedStatusByShopId(@Param("shopId") Integer shopId, @Param("status") Boolean status);
 
 }
