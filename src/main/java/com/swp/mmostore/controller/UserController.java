@@ -1,6 +1,6 @@
 package com.swp.mmostore.controller;
 
-import com.swp.mmostore.config.CustomUserDetails;
+
 import com.swp.mmostore.entity.Order;
 import com.swp.mmostore.entity.Shop;
 import com.swp.mmostore.entity.User;
@@ -138,8 +138,7 @@ public class UserController {
     public String registerSeller(@RequestParam("name") String name,
                                  @RequestParam("description") String description,
                                  @RequestParam("shopImage") MultipartFile shopImage,
-                                 Model model,
-                                 HttpSession session) throws IOException {
+                                 HttpSession session) {
 
         // Lấy thông tin user đang đăng nhập
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
