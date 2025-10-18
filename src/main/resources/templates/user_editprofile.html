@@ -18,10 +18,7 @@
 
                     <div class="card-body">
                         <form th:action="@{/user/update}" th:object="${user}" method="post">
-                            <div class="mb-3">
-                                <label class="form-label"><strong>Email:</strong></label>
-                                <input type="email" th:field="*{email}" class="form-control" readonly>
-                            </div>
+
 
                             <div class="mb-3">
                                 <label class="form-label"><strong>Name:</strong></label>
