@@ -66,7 +66,7 @@ public class SecurityConfig {
             )
             .oauth2Login(oauth -> oauth
                 .loginPage("/login")
-                .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+                .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService)) //take the access key-> send to userinfo endpoint to get the user details
             )
             .logout(logout -> logout.permitAll());
         return http.build();

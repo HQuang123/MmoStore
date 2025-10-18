@@ -20,7 +20,7 @@ public class GlobalModelAttributes {
     public void addUserDetails(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !auth.getName().equals("anonymousUser")) {
-            User user = userService.getUserByEmail(auth.getName());
+            User user = userService.getUserByEmail(auth.getName()); //neu oauth2user attribute key la email --> getName = getAttributeKey = id --> moi retrieve duoc username, neu userid -> invalid
             model.addAttribute("currentLoggedInUserDetails", user);
         }
     }
