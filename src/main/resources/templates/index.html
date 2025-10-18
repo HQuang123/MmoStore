@@ -50,7 +50,7 @@
                 <div class="col-md-2" th:each="category: ${latestSixActiveCategory}">
                     <div class="card rounded-circle shadow-sm p-3 mb-5 bg-white rounded">
                         <div class="card-body text-center">
-                            <img alt="cataImg" width="100%" height="130px">
+                            <img alt="cataImg" th:src="${category.getCategoryImageUrl()}" width="100%" height="130px">
                             <p><b th:text="${category.name}">[[${category.categoryName}]]</b></p>
                         </div>
                     </div>
@@ -72,7 +72,7 @@
                 <div class="col-md-2" th:each="product: ${twelveLastestProducts}">
                     <div class="card shadow-sm p-3 mb-5 bg-white rounded">
                         <div class="card-body text-center product" th:name="'product-' + ${product.getProductId()}" th:onclick="'window.location.href=\'/product/' + ${product.productId} + '\''" style="cursor: pointer;">
-                            <img alt="productImg"  width="60%" height="140px">
+                            <img alt="productImg" th:src="${product.getProductImageUrl()}"  width="110%" height="110%">
                             <p class="text-center"><b th:text="${product.getTitle()}"></b></p>
                             <div style="text-align: left" th:text="${product.price} + '$'"></div>
                         </div>
