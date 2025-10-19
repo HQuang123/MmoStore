@@ -30,7 +30,7 @@ public class ShopService {
 
         List<Shop> shops = shopRepository.findAllByIdWithUser(shopIds.getContent());
         return new PageImpl<>(shops, pageable, shopIds.getTotalElements());
-        }
+    }
 
     @Transactional
     public void toggleShopStatus(Integer shopId) {
