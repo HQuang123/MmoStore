@@ -29,6 +29,9 @@ public class Shop {
     @Column(name = "Description", columnDefinition = "TEXT")
     private String description;
 
+    @Column(name = "ShopImageUrl", insertable = false)
+    private String shopImageUrl;
+
     @Column(name = "isDeleted", insertable = false)
     private Boolean isDeleted = false;
 
@@ -52,6 +55,9 @@ public class Shop {
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
     private List<Product> products = new ArrayList<>();
 
+//   @Column(name="ShopImageUrl")
+//   private String shopImageUrl;
+
     public void addProduct(Product product) {
         products.add(product);
         product.setShop(this);
@@ -66,6 +72,12 @@ public class Shop {
         this.name = name;
         this.description = description;
         this.user = user;
+    }
+    public Shop(String name, String description, User user, String shopImageUrl) {
+        this.name = name;
+        this.description = description;
+        this.user = user;
+        this.shopImageUrl = shopImageUrl;
     }
 
     @Override

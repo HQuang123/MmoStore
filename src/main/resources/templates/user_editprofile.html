@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base :: layout(~{::section}, ~{::#css}, ~{::#js})}">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Profile</title>
+    <th:block id="css"></th:block>
+</head>
+<body>
+<section>
+    <div class="container mt-5 p-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow p-4 mb-5 bg-body rounded">
+                    <div class="card-header text-center bg-primary text-white">
+                        <h4>Edit Profile</h4>
+                    </div>
+
+                    <div class="card-body">
+                        <form th:action="@{/user/update}" th:object="${user}" method="post">
+                            <div class="mb-3">
+                                <label class="form-label"><strong>Email:</strong></label>
+                                <input type="email" th:field="*{email}" class="form-control" readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label"><strong>Name:</strong></label>
+                                <input type="text" th:field="*{name}" class="form-control" placeholder="Enter your name" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label"><strong>Phone Number:</strong></label>
+                                <input type="text" th:field="*{phoneNumber}" class="form-control" placeholder="Enter phone number" required>
+                            </div>
+
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-success">Save Changes</button>
+                                <a href="/user/detail" class="btn btn-secondary ms-2">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<th:block id="js"></th:block>
+</body>
+</html>

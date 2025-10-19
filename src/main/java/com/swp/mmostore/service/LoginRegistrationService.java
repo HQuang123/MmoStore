@@ -162,9 +162,18 @@ public class LoginRegistrationService {
     }
 
 
+    public void updateUser(User user) {
+        userRepository.save(user);
+    }
 
 
-
+    public void registerAsSeller(String email) {
+        User user = userRepository.findByEmail(email);
+        if (user != null) {
+            user.addRole("ROLE_SELLER");
+            userRepository.save(user);
+        }
+    }
 
 
 

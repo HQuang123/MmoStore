@@ -30,8 +30,7 @@ public class ShopService {
 
         List<Shop> shops = shopRepository.findAllByIdWithUser(shopIds.getContent());
         return new PageImpl<>(shops, pageable, shopIds.getTotalElements());
-    }
-
+        }
 
     @Transactional
     public void toggleShopStatus(Integer shopId) {
@@ -41,9 +40,12 @@ public class ShopService {
             shopRepository.save(shop);
 
             // Update all products belonging to this shop
-                productRepository.updateProductDeletedStatusByShopId(shopId, newStatus);
+            productRepository.updateProductDeletedStatusByShopId(shopId, newStatus);
 
         });
     }
-}
 
+    public Shop save(Shop shop) {
+        return shopRepository.save(shop);
+    }
+}

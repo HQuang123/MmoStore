@@ -1,39 +1,52 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{base::layout(~{::section})}">
+      th:replace="~{base::layout(~{::section}, ~{::cssFragment}, ~{::jsFragment})}">
+
+<th:block th:fragment="cssFragment">
+    <link rel="stylesheet" th:href="@{/css/homepage.css}">
+    <!--    <link rel="stylesheet" th:href="@{/css/homepage.css}">-->
+</th:block>
+
+<th:block th:fragment="jsFragment">
+    <script src="/javascript/homepage.js"></script>
+</th:block>
+
 <head>
     <meta charset="UTF-8">
-    <title>Confirm Token</title>
+    <title>Title</title>
 </head>
 <body>
 <section>
-    <div class="container mt-5 p-5">
+    <!-- Start Carousel -->
+    <div class="container mt-5 p-4">
         <div class="row justify-content-center">
-            <div class="col-md-6 mt-3 p-5">
-                <div class="card shadow p-3 mb-5 bg-body rounded">
-                    <div class="card-header">
-                        <p class="fs-4 text-center">Confirm Token</p>
-
-                        <!-- Showing message to UI end -->
-                        <th:block th:if="${session.successMsg}">
-                            <p class="text-success fw-bold text-center mt-2">[[${session.successMsg}]]</p>
-                            <th:block th:text="${@commonServiceImpl.removeSessionMessage()}"></th:block>
-                        </th:block>
-                        <th:block th:if="${session.errorMsg}">
-                            <p class="text-danger fw-bold text-center mt-2">[[${session.errorMsg}]]</p>
-                            <th:block th:text="${@commonServiceImpl.removeSessionMessage()}"></th:block>
-                        </th:block>
-                        <!-- Showing message to UI end -->
+            <div class="col-md-6">
+                <div class="card shadow p-4">
+                    <div class="card-header text-center">
+                        <h3>Đặt lại mật khẩu</h3>
                     </div>
-                    <form action="/confirm-token" method="post">
-                        <input type="hidden" name="email" th:value="${email}">
-                        <div class="mb-3">
-                            <label class="form-label">Token</label>
-                            <input type="text" name="token" class="form-control" placeholder="Enter token from email" required/>
-                        </div>
-                        <button type="submit" class="btn bg-danger text-white col-md-12">Confirm Token</button>
-                    </form>
 
+                    <div th:if="${error}" class="text-danger fw-bold text-center mt-2">
+                        [[${error}]]
+                    </div>
+
+                    <!-- Form xác nhận token -->
+                    <form th:action="@{/confirm-token}" method="post" class="mt-3">
+                        <!-- Email ẩn để gửi lên controller -->
+                        <input type="hidden" name="email" th:value="${email}" />
+
+                        <div class="form-group mb-3">
+                            <label for="token">Nhập mã xác nhận (token):</label>
+                            <input type="text" id="token" name="token"
+                                   class="form-control"
+                                   placeholder="Nhập mã token được gửi đến email"
+                                   required />
+                        </div>
+
+                        <button type="submit" class="btn btn-danger col-12">
+                            Xác nhận token
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>

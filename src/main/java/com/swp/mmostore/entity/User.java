@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -130,5 +131,17 @@ public class User {
         this.password = password;
         this.provider = provider;
         this.providerId = providerId;
+    }
+
+    public List<String> getRoleList() {
+        if (this.role == null || this.role.isEmpty()) return new ArrayList<>();
+        return Arrays.asList(this.role.split(","));
+    }
+    public void addRole(String role) {
+        List<String> currentRoles = getRoleList();
+        if (!currentRoles.contains(role)) {
+            currentRoles.add(role);
+            this.role = String.join(",", currentRoles);
+        }
     }
 }

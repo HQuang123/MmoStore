@@ -1,10 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base::layout(~{::section}, ~{::cssFragment}, ~{::jsFragment})}">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Insert title here</title>
+
+
+    <th:block th:fragment="cssFragment">
+        <link rel="stylesheet" href="../css/error.css">
+    </th:block>
+
+    <th:block th:fragment="jsFragment">
+        <script src="#"></script>
+    </th:block>
 </head>
 <body>
+<section>
+
+    <h1>Lỗi 404</h1>
+    <p>Trang bạn cần tìm không tồn tại !</p>
+    <a th:href="@{/}">Quay lại trang chủ</a>
+</section>
 
 </body>
 </html>
