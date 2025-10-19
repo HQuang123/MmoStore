@@ -9,10 +9,11 @@
 </head>
 <body>
 <section>
-    <div th:if="${session.successMsg}"
+    <div th:if="${successMsg}"
          class="alert alert-success text-center"
-         th:text="${session.successMsg}">
+         th:text="${successMsg}">
     </div>
+
 
     <div class="container mt-5 p-5">
         <div class="row justify-content-center">
@@ -25,8 +26,9 @@
                     <div class="card-body">
                         <div class="row mb-3">
                             <div class="col-md-4 text-center">
-                                <img th:if="${blobName != null}"
-                                     th:src="@{/user/image(blobName=${blobName})}"
+<!--                                <img th:if="${blobName != null}"-->
+<!--                                     th:src="@{/user/image(blobName=${blobName})}"-->
+                                <img th:src="${user.profileImage}"
                                      alt="User Profile Image"
                                      style="width:150px; height:150px; border-radius:50%; object-fit:cover;">
                                 <a href="#" class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#editImageModal">

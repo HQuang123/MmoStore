@@ -49,13 +49,13 @@ public class UserController {
         User user = userService.getUserByEmail(email);
 
         // Lấy tên blob (chỉ phần cuối)
-        String blobName = null;
-        if (user.getProfileImage() != null && user.getProfileImage().contains("/")) {
-            blobName = user.getProfileImage().substring(user.getProfileImage().lastIndexOf("/") + 1);
-        }
+//        String blobName = null;
+//        if (user.getProfileImage() != null && user.getProfileImage().contains("/")) {
+//            blobName = user.getProfileImage().substring(user.getProfileImage().lastIndexOf("/") + 1);
+//        }
 
         model.addAttribute("user", user);
-        model.addAttribute("blobName", blobName);
+        //model.addAttribute("blobName", blobName);
 
         return "user_profile"; // -> hiển thị HTML
     }
@@ -94,9 +94,9 @@ public class UserController {
             user.setProfileImage(imageUrl);
             userService.updateUser(user);
 
-            redirectAttributes.addFlashAttribute("success", "Ảnh đã được cập nhật!");
+            redirectAttributes.addFlashAttribute("successMsg", "Image update success");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Lỗi khi upload ảnh!");
+            redirectAttributes.addFlashAttribute("successMsg", "Image update fail");
         }
 
         return "redirect:/user/detail";
@@ -115,7 +115,8 @@ public class UserController {
 
     /** Cập nhật thông tin user */
     @PostMapping("/user/update")
-    public String updateProfile(@ModelAttribute("user") User updatedUser) {
+    public String updateProfile(@ModelAttribute("user") User updatedUser,
+     RedirectAttributes redirectAttributes) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
         User existingUser = userService.getUserByEmail(email);
@@ -124,6 +125,9 @@ public class UserController {
             existingUser.setName(updatedUser.getName());
             existingUser.setPhoneNumber(updatedUser.getPhoneNumber());
             userService.updateUser(existingUser);
+            redirectAttributes.addFlashAttribute("successMsg", "Information update success");
+        }else{
+            redirectAttributes.addFlashAttribute("successMsg", "Information update fail");
         }
         return "redirect:/user/detail";
     }
