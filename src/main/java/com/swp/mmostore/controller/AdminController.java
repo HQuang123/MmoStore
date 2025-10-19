@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
@@ -138,4 +139,44 @@ public class AdminController {
         return "redirect:/admin/categories?page=" + page;
     }
 
+    // ✅ Show Add Category form
+    @GetMapping("/categories/add")
+    public String showAddCategoryForm(Model model) {
+        model.addAttribute("category", new Category());
+        model.addAttribute("isEdit", false);
+        return "category-form";
+    }
+
+    // ✅ Handle Add Category form submission
+    @PostMapping("/categories/add")
+    public String addCategory(@ModelAttribute("category") Category category, BindingResult result) {
+        if (result.hasErrors()) {
+            return "category-form";
+        }
+        categoryService.saveCategory(category);
+        return "redirect:/admin/categories";
+    }
+
+    // ✅ Show Edit Category form
+    @GetMapping("/categories/edit/{id}")
+    public String showEditCategoryForm(@PathVariable Integer id, Model model) {
+        Category category = categoryService.findById(id);
+        if (category == null) {
+            return "redirect:/admin/categories";
+        }
+        model.addAttribute("category", category);
+        model.addAttribute("isEdit", true);
+        return "category-form";
+    }
+
+    // ✅ Handle Edit Category form submission
+    @PostMapping("/categories/edit/{id}")
+    public String editCategory(@PathVariable Integer id, @ModelAttribute("category") Category category, BindingResult result) {
+        if (result.hasErrors()) {
+            return "category-form";
+        }
+        category.setCategoryId(id);
+        categoryService.saveCategory(category);
+        return "redirect:/admin/categories";
+    }
 }

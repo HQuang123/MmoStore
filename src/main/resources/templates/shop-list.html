@@ -53,7 +53,7 @@
             <tr th:each="shop : ${shops}">
                 <td th:text="${shop.shopId}"></td>
                 <td th:text="${shop.name}"></td>
-                <td th:text="${shop.user.name}"></td>
+                <td th:text="${shop.user?.name}">No owner</td>
                 <td th:text="${shop.createAt}"></td>
                 <td>
                     <span th:text="${shop.isDeleted} ? 'Inactive' : 'Active'"></span>
@@ -84,24 +84,25 @@
 
             <!-- Previous button -->
             <a th:if="${hasPrevious}"
-               th:href="@{/admin/shops(page=${currentPage - 1})}"
+               th:href="@{/admin/shops(page=${currentPage - 1}, keyword=${keyword}, status=${status})}"
                class="btn btn-outline-primary btn-sm">Previous</a>
 
             <!-- Page numbers -->
             <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-                <a th:if="${i != currentPage}"
-                   th:href="@{/admin/shops(page=${i})}"
-                   th:text="${i + 1}"
-                   class="btn btn-outline-secondary btn-sm mx-1"></a>
-                     <span th:if="${i == currentPage}"
-                           th:text="${i + 1}"
-                           class="btn btn-primary btn-sm mx-1 disabled">
-                     </span>
-            </span>
+        <a th:if="${i != currentPage}"
+           th:href="@{/admin/shops(page=${i}, keyword=${keyword}, status=${status})}"
+           th:text="${i + 1}"
+           class="btn btn-outline-secondary btn-sm mx-1"></a>
+
+        <span th:if="${i == currentPage}"
+              th:text="${i + 1}"
+              class="btn btn-primary btn-sm mx-1 disabled">
+        </span>
+    </span>
 
             <!-- Next button -->
             <a th:if="${hasNext}"
-               th:href="@{/admin/shops(page=${currentPage + 1})}"
+               th:href="@{/admin/shops(page=${currentPage + 1}, keyword=${keyword}, status=${status})}"
                class="btn btn-outline-primary btn-sm">Next</a>
         </div>
     </div>

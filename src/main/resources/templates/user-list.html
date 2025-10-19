@@ -57,6 +57,7 @@
                 <th>Balance</th>
                 <th>Create At</th>
                 <th>Role</th>
+                <th>Shop</th>
                 <th>Status</th>
                 <th>Action</th>
             </tr>
@@ -77,6 +78,7 @@
                 <td th:text="${user.balance}"></td>
                 <td th:text="${user.createdAt}"></td>
                 <td th:text="${user.role}"></td>
+                <td th:text="${user.shop != null ? user.shop.name : 'No Shop'}"></td>
                 <td>
         <span th:text="${user.status} ? 'Active' : 'Inactive'"
               th:classappend="${user.status} ? 'text-success' : 'text-danger'"></span>
@@ -104,24 +106,23 @@
 
             <!-- Previous button -->
             <a th:if="${hasPrevious}"
-               th:href="@{/admin/users(page=${currentPage - 1})}"
+               th:href="@{/admin/users(page=${currentPage - 1}, role=${role}, status=${status}, keyword=${keyword})}"
                class="btn btn-outline-primary btn-sm">Previous</a>
 
             <!-- Page numbers -->
             <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-                <a th:if="${i != currentPage}"
-                   th:href="@{/admin/users(page=${i})}"
-                   th:text="${i + 1}"
-                   class="btn btn-outline-secondary btn-sm mx-1"></a>
-                     <span th:if="${i == currentPage}"
-                           th:text="${i + 1}"
-                           class="btn btn-primary btn-sm mx-1 disabled">
-                     </span>
-            </span>
+        <a th:if="${i != currentPage}"
+           th:href="@{/admin/users(page=${i}, role=${role}, status=${status}, keyword=${keyword})}"
+           th:text="${i + 1}"
+           class="btn btn-outline-secondary btn-sm mx-1"></a>
+        <span th:if="${i == currentPage}"
+              th:text="${i + 1}"
+              class="btn btn-primary btn-sm mx-1 disabled"></span>
+    </span>
 
             <!-- Next button -->
             <a th:if="${hasNext}"
-               th:href="@{/admin/users(page=${currentPage + 1})}"
+               th:href="@{/admin/users(page=${currentPage + 1}, role=${role}, status=${status}, keyword=${keyword})}"
                class="btn btn-outline-primary btn-sm">Next</a>
         </div>
     </div>

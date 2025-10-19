@@ -35,9 +35,8 @@ public class Shop {
     @Column(name = "CreateAt", insertable = false)
     private LocalDateTime createAt;
 
-    @ManyToOne
-    @JoinColumn(name = "CreateBy")
-    private User createBy;
+    @Column(name = "CreateBy")
+    private Integer createBy;
 
     @Column(name = "UpdateAt")
     private LocalDateTime updateAt;
@@ -45,9 +44,10 @@ public class Shop {
     @Column(name = "UpdateBy")
     private Integer updateBy;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "UserID")
     private User user;
+
 
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
     private List<Product> products = new ArrayList<>();

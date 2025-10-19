@@ -66,17 +66,21 @@ public class User {
     @Column(name = "ProviderId")
     private String providerId;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Shop> shops = new ArrayList<>();
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Shop shop;
 
     public void addShop(Shop shop) {
-        shops.add(shop);
-        shop.setUser(this);
+        this.shop = shop;
+        if (shop != null) {
+            shop.setUser(this);
+        }
     }
 
-    public void removeShop(Shop shop){
-        shops.remove(shop);
-        shop.setUser(null);
+    public void removeShop() {
+        if (this.shop != null) {
+            this.shop.setUser(null);
+            this.shop = null;
+        }
     }
 
     @Column(name = "AccountStatusNonLocked", insertable = false)
