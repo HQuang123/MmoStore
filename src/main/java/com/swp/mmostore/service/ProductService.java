@@ -1,9 +1,11 @@
 package com.swp.mmostore.service;
 
-import com.swp.mmostore.dto.FilterDTO;
-import com.swp.mmostore.dto.ProductSummaryDTO;
+import com.swp.mmostore.dto.*;
 import com.swp.mmostore.entity.Product;
+import com.swp.mmostore.entity.Rating;
 import com.swp.mmostore.repository.ProductRepository;
+import com.swp.mmostore.repository.RatingRepository;
+import com.swp.mmostore.repository.ShopRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.data.repository.query.Param;
@@ -17,6 +19,12 @@ public class ProductService {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private ShopRepository shopRepository;
+
+    @Autowired
+    private RatingRepository ratingRepository;
 
     public List<Product> loadAllProduct() {
         return productRepository.findAll();
@@ -81,5 +89,31 @@ public class ProductService {
         long total = productRepository.countByKeywordAndCategories(filterDTO.keyword(), filterDTO.categories());
 
         return new PageImpl<>(productList, pageable, total);
+    }
+
+    public Product findById(Integer id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
+    }
+
+    public List<ProductSummaryDTO> findRelated(Integer id) {
+        // Ví dụ: lấy 4 sản phẩm đầu tiên khác sản phẩm hiện tại
+        return productRepository.findAllProduct(Pageable.unpaged())
+                .stream()
+                .filter(p -> !p.id().equals(id))
+                .limit(4)
+                .toList();
+    }
+
+    public ProductDetailDTO findProductDetailById(Integer id) {
+        return productRepository.findProductById(id);
+    }
+
+    public ShopSummaryDTO findShopSummaryById(Integer id) {
+        return shopRepository.findShopId(id);
+    }
+
+    public List<RatingDTO> getRatingsByProduct(Integer productId) {
+        return ratingRepository.findAllByProductId(productId);
     }
 }

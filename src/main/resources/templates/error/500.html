@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base::layout(~{::section}, ~{::cssFragment}, ~{::jsFragment})}">
+<head>
+    <meta charset="UTF-8">
+    <title>Insert title here</title>
+
+
+    <th:block th:fragment="cssFragment">
+        <link rel="stylesheet" href="../css/error.css">
+    </th:block>
+
+    <th:block th:fragment="jsFragment">
+        <script src="#"></script>
+    </th:block>
+</head>
+<body>
+<section>
+    <h1>Lỗi Server</h1>
+    <p>Server đang bận, vui lòng thử lại sau !</p>
+    <a th:href="@{/}">Quay lại trang chủ</a>
+</section>
+
+</body>
+</html>

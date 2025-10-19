@@ -48,44 +48,6 @@ public class LoginRegistrationController {
         return "register";
     }
 
-//    @PostMapping("/save-user")
-//    public String saveUserDetails(@ModelAttribute User user, @RequestParam("file") MultipartFile file, Model model, HttpSession session)
-//    throws IOException {
-//
-//        String email = user.getEmail();
-//        if(userService.getUserByEmail(email) == null){
-//            //user not input image -> default image, if input, the name of file is the name of image file
-//            //user image will always be saved into the classes
-//            String profileImage = file.isEmpty() ? "default.jpg" : file.getOriginalFilename();
-//            user.setProfileImage(profileImage);
-//            User saveUser = userService.saveUser(user);
-//
-//            if(!ObjectUtils.isEmpty(saveUser)){
-//                if(!file.isEmpty()){
-//                    File saveFile = new ClassPathResource("/static/images").getFile();
-//                    System.out.println("Save file is " + saveFile);
-//
-//                    //full-path
-//                    //remember that intelliij does not copy an empty directory from src/resources to target/classes in exploded build mode- which is a mode instead of using fat jar, it launch main class from target folder
-//                    Path path = Paths.get(saveFile.getAbsolutePath()+File.separator+"profile_img"+File.separator+file.getOriginalFilename());
-//                    System.out.println("Path for Profile Image :"+path);
-//
-//                    //now: if same file with name exist -> replace existing
-//                    Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-//                }
-//                session.setAttribute("successMsg","Bạn đã đăng ký thành công");
-//            }
-//            else{
-//                session.setAttribute("errorMsg","500 error");
-//            }
-//            //avoid resubmission -> change the url
-//        }
-//        else{
-//            session.setAttribute("errorMsg","Email is already exist");
-//        }
-//        return "redirect:/register";
-//    }
-
     @PostMapping("/save-user")
     public String saveUserDetails(@ModelAttribute User user, @RequestParam("file") MultipartFile file, Model model, HttpSession session)
             throws IOException {
@@ -119,7 +81,7 @@ public class LoginRegistrationController {
         return "redirect:/register";
     }
 
-    // ----------------- Bước 1: Nhập email để gửi token -----------------
+    //  Nhập email để gửi token -----------------
     @GetMapping("/forgot-password")
     public String forgotPasswordPage() {
         return "forgot-password"; // form nhập email
@@ -132,12 +94,12 @@ public class LoginRegistrationController {
             model.addAttribute("email", email);
             return "confirm-token"; // form nhập token
         } else {
-            model.addAttribute("error", "Email không tồn tại hoặc gửi email thất bại!");
+            model.addAttribute("error", "Email không tồn tại hãy kiểm tra lại!");
             return "forgot-password";
         }
     }
 
-    // ----------------- Bước 2: Xác thực token -----------------
+    // Xác thực token -----------------
     @PostMapping("/confirm-token")
     public String confirmToken(@RequestParam("email") String email,
                                @RequestParam("token") String token,
@@ -153,7 +115,7 @@ public class LoginRegistrationController {
         }
     }
 
-    // ----------------- Bước 3: Reset mật khẩu -----------------
+    //Reset mật khẩu -----------------
     @PostMapping("/reset-password")
     public String resetPassword(@RequestParam("email") String email,
                                 @RequestParam("token") String token,

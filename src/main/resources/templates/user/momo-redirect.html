@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base::layout(~{::section}, ~{::cssFragment}, ~{::jsFragment})}">
+
+<th:block th:fragment="cssFragment">
+    <link rel="stylesheet" th:href="@{/css/homepage.css}">
+    <!--    <link rel="stylesheet" th:href="@{/css/homepage.css}">-->
+</th:block>
+
+<th:block th:fragment="jsFragment">
+    <script src="/javascript/homepage.js"></script>
+</th:block>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<section>
+    <div class="container mt-5 text-center">
+        <div th:if="${isSuccess}">
+            <div class="alert alert-success p-4 rounded shadow">
+                <h2>✅ Payment Successful!</h2>
+                <p>ID giao dịch: <strong th:text="${depositId}"></strong></p>
+                <p>Số tiền </p>: <strong th:text="${amount}"></strong> VND</p>
+                <p th:text="${message}">Payment completed successfully.</p>
+                <a th:href="@{/}" class="btn btn-primary mt-3">Back to Home</a>
+            </div>
+        </div>
+
+        <div th:if="${!isSuccess}">
+            <div class="alert alert-danger p-4 rounded shadow">
+                <h2>❌ Payment Failed!</h2>
+                <p>ID giao dịch: <strong th:text="${depositId}"></strong></p>
+                <p th:text="${message}">An error occurred during payment.</p>
+                <a th:href="@{/}"  class="btn btn-secondary mt-3">Try Again</a>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

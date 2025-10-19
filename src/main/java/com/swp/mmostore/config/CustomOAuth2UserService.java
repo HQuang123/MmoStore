@@ -1,6 +1,7 @@
 package com.swp.mmostore.config;
 
 import com.swp.mmostore.entity.User;
+import com.swp.mmostore.repository.UserRepository;
 import com.swp.mmostore.service.LoginRegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,10 +14,8 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Minimal OAuth2UserService that adds ROLE_USER authority to any authenticated OAuth2 user
@@ -27,6 +26,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     //the id token retrieved will be used to fetch the user details from gmail
     @Autowired
     private LoginRegistrationService userService;
+    private UserRepository userRepository;
 
     public CustomOAuth2UserService() {
 
@@ -48,10 +48,24 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             user = new User(name, email,phone,password,provider,providerId);
             user.setProfileImage(profileImg);
         }
+
         userService.saveUser(user);
+        User savedUser = userService.findByProviderId(providerId);
+        int userId = savedUser.getUserId();
+        Map<String, Object> attributes = new HashMap<>(oAuth2User.getAttributes()); //oauth2user map is immutable
+        attributes.put("userId", userId);
+        List<GrantedAuthority> authorities = Arrays.stream(user.getRole().split(","))
+                .map(String::trim)
+                .map(r -> r.startsWith("ROLE_") ? r : "ROLE_" + r.toUpperCase())
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
+
         return new DefaultOAuth2User(
-                oAuth2User.getAuthorities(),
-                oAuth2User.getAttributes(),
+                authorities, //change from oauth2user.getAuthorities() to athorities because oauth2user.getAuthorities() value  is DefaultOAuth2userAuthority, not ROLE_USER, ROLE_SELLER,
+                //spring security config: authenticated user with role ROLE_USER can access /user/* but oauth2User was given role DefaultOAuth2userAuthority --> 404 error even when login with google
+                //Fix solution: change oAuth2User.getAuthorities() to List<GrantedAuthority> authorities
+                //oAuth2User.getAttributes(),
+                attributes,
                 "email"
         );
     }
