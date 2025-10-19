@@ -13,6 +13,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.io.IOException;
 
 @Controller
 @RequestMapping("/admin")
@@ -147,13 +151,18 @@ public class AdminController {
         return "category-form";
     }
 
-    // ✅ Handle Add Category form submission
+    // ✅ Handle Add Category form submission (supports image upload)
     @PostMapping("/categories/add")
-    public String addCategory(@ModelAttribute("category") Category category, BindingResult result) {
+    public String addCategory(@ModelAttribute("category") Category category,
+                              BindingResult result,
+                              @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
+                              RedirectAttributes redirectAttributes) throws IOException {
         if (result.hasErrors()) {
             return "category-form";
         }
-        categoryService.saveCategory(category);
+
+        categoryService.saveCategory(category, imageFile);
+        redirectAttributes.addFlashAttribute("success", "Category added successfully!");
         return "redirect:/admin/categories";
     }
 
@@ -169,14 +178,20 @@ public class AdminController {
         return "category-form";
     }
 
-    // ✅ Handle Edit Category form submission
+    // ✅ Handle Edit Category form submission (supports changing image)
     @PostMapping("/categories/edit/{id}")
-    public String editCategory(@PathVariable Integer id, @ModelAttribute("category") Category category, BindingResult result) {
+    public String editCategory(@PathVariable Integer id,
+                               @ModelAttribute("category") Category category,
+                               @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
+                               BindingResult result,
+                               RedirectAttributes redirectAttributes) throws IOException {
         if (result.hasErrors()) {
             return "category-form";
         }
+
         category.setCategoryId(id);
-        categoryService.saveCategory(category);
+        categoryService.saveCategory(category, imageFile);
+        redirectAttributes.addFlashAttribute("success", "Category updated successfully!");
         return "redirect:/admin/categories";
     }
 }

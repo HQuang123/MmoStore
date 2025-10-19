@@ -52,6 +52,7 @@
         <thead class="table-light">
         <tr>
             <th>ID</th>
+            <th>Image</th>
             <th>Name</th>
             <th>Description</th>
             <th>Status</th>
@@ -61,21 +62,26 @@
         <tbody>
         <tr th:each="category : ${categories}">
             <td th:text="${category.categoryId}"></td>
+
+            <!-- 🖼️ Category Image -->
+            <td>
+                <img th:src="${category.categoryImageUrl != null ? category.categoryImageUrl : '/images/no-image.png'}"
+                     alt="Category Image" width="60" height="60" class="rounded border">
+            </td>
+
             <td th:text="${category.name}"></td>
             <td th:text="${category.description}"></td>
             <td>
-                <span th:text="${category.isDeleted} ? 'Inactive' : 'Active'"
-                      th:classappend="${category.isDeleted} ? 'text-danger' : 'text-success'"></span>
+            <span th:text="${category.isDeleted} ? 'Inactive' : 'Active'"
+                  th:classappend="${category.isDeleted} ? 'text-danger' : 'text-success'"></span>
             </td>
             <td>
                 <div class="btn-group" role="group">
-                    <!-- ✏️ Edit Button -->
                     <a th:href="@{'/admin/categories/edit/' + ${category.categoryId}}"
                        class="btn btn-info btn-sm">
                         <i class="bi bi-pencil-square"></i> Edit
                     </a>
 
-                    <!-- 🔄 Activate/Deactivate Button -->
                     <form th:action="@{'/admin/categories/' + ${category.categoryId} + '/toggle-status'}"
                           method="post" style="display:inline;">
                         <input type="hidden" name="page" th:value="${currentPage}">
