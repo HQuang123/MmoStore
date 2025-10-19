@@ -85,7 +85,8 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             LEFT JOIN p.shop s
             LEFT JOIN p.category c
             LEFT JOIN p.ratings r
-            WHERE (:keyword IS NULL OR TRIM(:keyword) = '' 
+            WHERE p.isDeleted = false
+              AND (:keyword IS NULL OR TRIM(:keyword) = '' 
                    OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')))
               AND (
                    :categoryIds IS NULL 
@@ -100,18 +101,20 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             Pageable pageable
     );
 
+
     @Query("""
-            SELECT COUNT(DISTINCT p.productId)
-            FROM Product p
-            LEFT JOIN p.category c
-            WHERE (:keyword IS NULL OR TRIM(:keyword) = '' 
-                   OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')))
-              AND (
-                   :categoryId IS NULL 
-                   OR COALESCE(:categoryId, NULL) IS NULL 
-                   OR c.categoryId IN :categoryId
-              )
-            """)
+    SELECT COUNT(DISTINCT p.productId)
+    FROM Product p
+    LEFT JOIN p.category c
+    WHERE p.isDeleted = false
+      AND (:keyword IS NULL OR TRIM(:keyword) = '' 
+           OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')))
+      AND (
+           :categoryId IS NULL 
+           OR COALESCE(:categoryId, NULL) IS NULL 
+           OR c.categoryId IN :categoryId
+      )
+    """)
     long countByKeywordAndCategories(
             @Param("keyword") String keyword,
             @Param("categoryId") List<String> categoryId
