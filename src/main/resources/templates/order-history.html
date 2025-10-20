@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base::layout(~{::section}, ~{::cssFragment}, ~{::jsFragment})}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lịch sử đơn hàng</title>
+
+    <th:block th:fragment="cssFragment">
+        <link rel="stylesheet" href="/css/order-history.css">
+    </th:block>
+
+    <th:block th:fragment="jsFragment">
+        <script src="/javascript/order-history.js"></script>
+    </th:block>
+</head>
+<body>
+
+<section class="container-fluid order-history-page">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+
+            <h2 class="page-title">Order History</h2>
+
+            <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 filter-container">
+
+                <!-- Form tìm theo mã đơn hàng -->
+                <form class="filter-form d-flex align-items-end gap-2" method="get" action="/user/orders">
+                    <div>
+                        <label class="form-label fw-bold">Order ID</label>
+                        <input type="text" class="form-control" name="orderId"
+                               placeholder="VD: 101" th:value="${param.orderId}">
+                    </div>
+                    <button type="submit" class="btn btn-primary filter-btn">Search</button>
+                </form>
+
+                <!-- Form lọc theo ngày -->
+                <form class="filter-form d-flex align-items-end gap-2" method="get" action="/user/orders">
+                    <div>
+                        <label class="form-label fw-bold">Start date</label>
+                        <input type="date" class="form-control" name="startDate" th:value="${param.startDate}">
+                    </div>
+                    <div>
+                        <label class="form-label fw-bold">End date</label>
+                        <input type="date" class="form-control" name="endDate" th:value="${param.endDate}">
+                    </div>
+                    <button type="submit" class="btn btn-success filter-btn">Fill</button>
+                </form>
+
+            </div>
+
+
+            <!--  Orders Table -->
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Product ID</th>
+                    <th>Product Name</th>
+                    <th>Create At</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="order : ${orderPage.content}">
+                    <td th:text="${order.orderId}"></td>
+
+                    <!-- Lấy ProductID và ProductName -->
+                    <td th:text="${order.product.productId}"></td>
+                    <td th:text="${order.product.title}"></td>
+
+                    <td th:text="${#temporals.format(order.createAt, 'dd-MM-yyyy HH:mm')}"></td>
+                    <td th:text="${order.status}"></td>
+                    <td th:text="${#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 2, 'POINT')} + ' ₫'"></td>
+                </tr>
+                </tbody>
+            </table>
+
+
+            <!-- 🔢 Pagination -->
+            <div class="pagination">
+                <a th:if="${currentPage > 0}"
+                   th:href="@{/user/orders(page=${currentPage - 1}, orderId=${param.orderId}, startDate=${param.startDate}, endDate=${param.endDate})}">
+                    Previous
+                </a>
+
+                <span>Trang <span th:text="${currentPage + 1}"></span> / <span th:text="${totalPages}"></span></span>
+
+                <a th:if="${currentPage + 1 < totalPages}"
+                   th:href="@{/user/orders(page=${currentPage + 1}, orderId=${param.orderId}, startDate=${param.startDate}, endDate=${param.endDate})}">
+                    Next
+                </a>
+            </div>
+
+        </div>
+    </div>
+</section>
+</body>
+</html>
