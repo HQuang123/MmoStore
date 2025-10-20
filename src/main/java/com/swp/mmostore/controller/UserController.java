@@ -4,6 +4,7 @@ package com.swp.mmostore.controller;
 import com.swp.mmostore.entity.Order;
 import com.swp.mmostore.entity.Shop;
 import com.swp.mmostore.entity.User;
+import com.swp.mmostore.repository.UserRepository;
 import com.swp.mmostore.service.CloudStorageService;
 import com.swp.mmostore.service.LoginRegistrationService;
 import com.swp.mmostore.service.OrderService;
@@ -230,6 +231,8 @@ public class UserController {
 
         return "order-history";
     }
+    @Autowired
+    private  LoginRegistrationService  loginRegistrationService;
     /** Xóa tài khoản user */
     @GetMapping("/user/delete")
     public String deleteUser(RedirectAttributes redirectAttributes) {
@@ -238,7 +241,8 @@ public class UserController {
         User existingUser = userService.getUserByEmail(email);
 
         if (existingUser != null) {
-            userService.deleteUser(existingUser.getUserId());
+            loginRegistrationService.updateUserStatus(false,existingUser.getUserId());
+            //userService.deleteUser(existingUser.getUserId());
             redirectAttributes.addFlashAttribute("successMsg", "Your account has been deleted successfully.");
             // Sau khi xóa, đăng xuất người dùng
             SecurityContextHolder.clearContext();
