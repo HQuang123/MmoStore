@@ -1,30 +1,36 @@
 package com.swp.mmostore.controller;
 
 import com.swp.mmostore.dto.OrderForm;
-import com.swp.mmostore.entity.ActionType;
-import com.swp.mmostore.entity.Deposit;
-import com.swp.mmostore.entity.Product;
-import com.swp.mmostore.entity.User;
+import com.swp.mmostore.entity.*;
+import com.swp.mmostore.repository.DepositRepository;
+import com.swp.mmostore.repository.OrderRepository;
 import com.swp.mmostore.repository.ProductRepository;
 import com.swp.mmostore.repository.UserRepository;
+import com.swp.mmostore.service.DepositService;
+import com.swp.mmostore.service.MomoService;
 import com.swp.mmostore.util.MockSecurityUtils;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 @Slf4j
 @RequiredArgsConstructor
 @Controller
 public class TopUpController {
-    private final ProductRepository productRepository;
     private final UserRepository userRepository;
+    private final MomoService momoService;
+    private final DepositService depositService;
+    private final DepositRepository depositRepository;
 
-    @GetMapping("/user/balance")
-    public String productDetails(@RequestParam("action") String action, Model model) {
-
+    @ModelAttribute //this method will automatically model.addAttribute for every method in this class
+    public void addCommonAttributes(Model model) {
         String email = MockSecurityUtils.getCurrentUserEmail();
         log.info("Current user id: {}", email);
         User user = userRepository.findByEmail(email);
@@ -34,9 +40,45 @@ public class TopUpController {
         deposit.setPaymentMethod("Momo");
         model.addAttribute("deposit", deposit);
         model.addAttribute("user", user);
+    }
+
+    @GetMapping("/user/balance")
+    public String topUpBalance(@RequestParam("action") String action) {
         if(action.equalsIgnoreCase("top-up")){
             return "user/top-up";
         }
         return "user/withdraw";
+    }
+
+
+    @PostMapping("/user/momo/top-up")
+    public String createQRCode(@Valid @ModelAttribute Deposit deposit, BindingResult bindingResult ) {
+        if (bindingResult.hasErrors()) {
+            return "user/top-up";
+        }
+        Deposit pendingDeposit = depositService.createPendingDeposit(deposit);
+        //generate a QR code
+        MomoResponse momoResponse=  momoService.createQr(pendingDeposit);
+        return "redirect:" + momoResponse.getPayUrl();
+    }
+
+    @GetMapping("/momo/redirect")
+    public String handleMomoRedirect(@RequestParam(name = "orderId") String depositId,
+                                     @RequestParam(name = "orderInfo") String depositInfo,
+                                     @RequestParam(name = "amount") String amount,
+                                     @RequestParam(name ="resultCode") String resultCode,
+                                     @RequestParam(name = "message") String message,
+                                     Model model
+    ) {
+        log.info(">>>>> ket qua: {}" , resultCode);
+        boolean isSuccess = resultCode.equals("0");
+        model.addAttribute("depositId", depositId);
+        model.addAttribute("depositInfo", depositInfo);
+        model.addAttribute("amount", amount);
+        model.addAttribute("message", message);
+        model.addAttribute("isSuccess", isSuccess);
+        Deposit deposit = depositRepository.findById(Integer.parseInt(depositId)).orElse(null);
+        model.addAttribute("deposit", deposit);
+        return "/user/momo-redirect";
     }
 }

@@ -6,13 +6,16 @@ import com.swp.mmostore.service.CloudStorageService;
 import com.swp.mmostore.service.LoginRegistrationService;
 import com.swp.mmostore.service.ShopService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.Banner;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -21,7 +24,7 @@ import java.io.IOException;
 import java.security.Principal;
 
 @Controller
-public class ControllerUser {
+public class UserController {
 
     @Autowired
     private LoginRegistrationService userService;
@@ -49,7 +52,7 @@ public class ControllerUser {
         model.addAttribute("user", user);
         model.addAttribute("blobName", blobName);
 
-        return "user_profile"; // -> hiển thị HTML
+        return "user/user_profile"; // -> hiển thị HTML
     }
 
     @GetMapping("/user/image")
@@ -102,12 +105,19 @@ public class ControllerUser {
         String email = auth.getName();
         User user = userService.getUserByEmail(email);
         model.addAttribute("user", user);
-        return "user_editprofile";
+        return "user/user_editprofile";
     }
 
     /** Cập nhật thông tin user */
     @PostMapping("/user/update")
-    public String updateProfile(@ModelAttribute("user") User updatedUser) {
+    public String updateProfile(@Valid @ModelAttribute("user") User updatedUser, BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String email = auth.getName();
+            User user = userService.getUserByEmail(email);
+            model.addAttribute("user", user);
+            return "user/user_editprofile";
+        }
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
         User existingUser = userService.getUserByEmail(email);
@@ -125,7 +135,7 @@ public class ControllerUser {
         return "seller_register";
     }
 
-
+    //Todo: Sửa lại check valid của Shop, sử dụng cả new và edit cùng 1 form
     @PostMapping("/user/seller_register")
     public String registerSeller(@RequestParam("name") String name,
                                  @RequestParam("description") String description,

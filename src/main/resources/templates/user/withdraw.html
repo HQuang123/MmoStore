@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base :: layout(~{::section}, ~{::#css}, ~{::#js})}">
+<head>
+    <meta charset="UTF-8">
+    <title>User Profile</title>
+    <th:block id="css"></th:block>
+</head>
+<body>
+<section>
+    <div class="container mt-5">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h3 class="card-title mb-4">Withdraw Money</h3>
+
+                <form th:action="@{/withdraw}" th:object="${withdrawalRequest}" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Account Holder Name</label>
+                        <input type="text" th:field="*{accountHolder}" class="form-control" placeholder="e.g. Nguyen Van A" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Account Number</label>
+                        <input type="text" th:field="*{bankAccount}" class="form-control" placeholder="Your bank account number" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Select Bank</label>
+                        <select th:field="*{bank}" class="form-select" required>
+                            <option value="">-- Choose Bank --</option>
+                            <option th:each="bank : ${banks}"
+                                    th:value="${bank}"
+                                    th:text="${bank.displayName}"></option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Amount (VND)</label>
+                        <input type="number" th:field="*{amount}" class="form-control" min="10000" step="1000" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Submit Withdrawal</button>
+                </form>
+
+                <div th:if="${message}" class="alert alert-success mt-3" th:text="${message}"></div>
+            </div>
+        </div>
+</section>
+<th:block id="js"></th:block>
+</body>
+</html>

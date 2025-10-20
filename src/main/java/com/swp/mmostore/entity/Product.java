@@ -1,6 +1,8 @@
 package com.swp.mmostore.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import org.springframework.context.annotation.Lazy;
 
@@ -22,15 +24,19 @@ public class Product {
     private Integer productId;
 
     @Column(name = "Title", length = 255)
+    @Pattern(regexp = "^[\\p{L}\\p{M}\\d\\s,]+$\n", message="Tên tiếng việt chứa ký tự lạ")
     private String title;
 
+    @Pattern(regexp = "^[\\p{L}\\p{M}\\d\\s,]+$\n", message="Mô tả chứa ký tự lạ")
     @Column(name = "Description", columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "Price", precision = 15, scale = 2)
+    @Min(value = 1000, message = "Giá tối thiểu 1000 đồng")
     private BigDecimal price;
 
     @Column(name = "Quantity")
+    @Min(value = 0, message = "Số lượng tối thiểu là 0 đơn vị")
     private Integer quantity;
 
     @Column(name = "isDeleted")

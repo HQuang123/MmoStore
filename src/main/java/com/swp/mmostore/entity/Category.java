@@ -1,6 +1,7 @@
 package com.swp.mmostore.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,6 +25,7 @@ public class Category {
     private Integer categoryId;
 
     @Column(name = "Name", length = 255)
+    @Pattern(regexp = "^\\p{Lu}\\p{Ll}*(?:\\s+\\p{Ll}\\p{Ll}*)*$\n", message = "Tên danh mục sản phẩm phải in hoa chữ cái đầu tiên, ví dụ: Bánh mỳ")
     private String name;
 
     @Column(name = "Description", columnDefinition = "TEXT")
