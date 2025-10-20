@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base::layout(~{::section}, ~{::cssFragment}, ~{::jsFragment})}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>User List</title>
+
+    <th:block th:fragment="cssFragment">
+        <link rel="stylesheet" href="">
+    </th:block>
+
+    <th:block th:fragment="jsFragment">
+        <script src="#"></script>
+    </th:block>
+</head>
+<body>
+<section>
+    <div class="container mt-4">
+        <div class="mb-3">
+            <a th:href="@{/admin}" class="btn btn-outline-primary btn-sm">
+                ← Back to Dashboard
+            </a>
+        </div>
+
+        <h2 class="mb-4">User Management</h2>
+
+        <form th:action="@{/admin/users}" method="get" class="d-flex gap-2 mb-3">
+
+            <!-- Role Filter -->
+            <select name="role" class="form-select form-select-sm w-auto">
+                <option value="" th:selected="${(role == null) or (role == '')}">All Roles</option>
+                <option th:value="'ROLE_ADMIN'" th:selected="${role == 'ROLE_ADMIN'}">Admin</option>
+                <option th:value="'ROLE_SELLER'" th:selected="${role == 'ROLE_SELLER'}">Seller</option>
+                <option th:value="'ROLE_USER'" th:selected="${role == 'ROLE_USER'}">User</option>
+            </select>
+
+            <!-- Status Filter -->
+            <select name="status" class="form-select form-select-sm w-auto">
+                <option value="" th:selected="${(status == null) or (status == '')}">All status</option>
+                <option th:value="'true'" th:selected="${status == 'true'}">Active</option>
+                <option th:value="'false'" th:selected="${status == 'false'}">Inactive</option>
+            </select>
+
+            <!-- Search Input -->
+            <input type="text" name="keyword" class="form-control form-control-sm w-auto"
+                   placeholder="Search"
+                   th:value="${keyword}">
+
+            <!-- Buttons -->
+            <button type="submit" class="btn btn-primary btn-sm">Search</button>
+
+            <!-- Clear Filters -->
+            <a th:href="@{/admin/users}" class="btn btn-outline-secondary btn-sm">Clear</a>
+        </form>
+
+        <table class="table table-bordered table-hover">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Balance</th>
+                <th>Create At</th>
+                <th>Role</th>
+                <th>Shop</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- If no users -->
+            <tr th:if="${#lists.isEmpty(users)}">
+                <td colspan="8" class="text-center text-muted">
+                    No users found matching your filters.
+                </td>
+            </tr>
+
+            <!-- If users exist -->
+            <tr th:each="user : ${users}">
+                <td th:text="${user.userId}"></td>
+                <td th:text="${user.name}"></td>
+                <td th:text="${user.email}"></td>
+                <td th:text="${user.balance}"></td>
+                <td th:text="${user.createdAt}"></td>
+                <td th:text="${user.role}"></td>
+                <td th:text="${user.shop != null ? user.shop.name : 'No Shop'}"></td>
+                <td>
+        <span th:text="${user.status} ? 'Active' : 'Inactive'"
+              th:classappend="${user.status} ? 'text-success' : 'text-danger'"></span>
+                </td>
+                <td>
+                    <form th:action="@{'/admin/users/' + ${user.userId} + '/toggle-status'}"
+                          method="post"
+                          th:object="${user}">
+                        <input type="hidden" name="page" th:value="${currentPage}"/>
+                        <button type="submit"
+                                th:text="${user.status} ? 'Deactivate' : 'Activate'"
+                                class="btn btn-sm"
+                                th:classappend="${user.status} ? 'btn-danger' : 'btn-success'">
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+
+        </table>
+
+        <!-- Pagination controls -->
+        <div th:if="${totalPages > 0}"
+             class="d-flex justify-content-center align-items-center mt-3 gap-2">
+
+            <!-- Previous button -->
+            <a th:if="${hasPrevious}"
+               th:href="@{/admin/users(page=${currentPage - 1}, role=${role}, status=${status}, keyword=${keyword})}"
+               class="btn btn-outline-primary btn-sm">Previous</a>
+
+            <!-- Page numbers -->
+            <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+        <a th:if="${i != currentPage}"
+           th:href="@{/admin/users(page=${i}, role=${role}, status=${status}, keyword=${keyword})}"
+           th:text="${i + 1}"
+           class="btn btn-outline-secondary btn-sm mx-1"></a>
+        <span th:if="${i == currentPage}"
+              th:text="${i + 1}"
+              class="btn btn-primary btn-sm mx-1 disabled"></span>
+    </span>
+
+            <!-- Next button -->
+            <a th:if="${hasNext}"
+               th:href="@{/admin/users(page=${currentPage + 1}, role=${role}, status=${status}, keyword=${keyword})}"
+               class="btn btn-outline-primary btn-sm">Next</a>
+        </div>
+    </div>
+</section>
+</body>
+</html>

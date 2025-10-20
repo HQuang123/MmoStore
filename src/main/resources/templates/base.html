@@ -75,7 +75,7 @@
                     <li class="nav-item"><a class="nav-link active"
                                             aria-current="page" href="/register">REGISTER</a></li>
                     <li class="nav-item"><a class="nav-link active"
-                                            aria-current="page" href="/admin/">ADMIN</a></li>
+                                            aria-current="page" href="/admin">ADMIN</a></li>
 
                 </th:block>
 
@@ -93,7 +93,10 @@
                             <li th:if="${currentLoggedInUserDetails.role.contains('ROLE_SELLER')}">
                                 <a class="dropdown-item" href="/seller/manage">Quản lý Shop</a>
                             </li>
-                            <li><a class="dropdown-item" href="/admin/">Dashboard</a></li>
+                            <!-- Nếu user có ROLE_ADMIN -->
+                            <li th:if="${currentLoggedInUserDetails.role.contains('ROLE_ADMIN')}">
+                                <a class="dropdown-item" href="/admin">Dashboard</a>
+                            </li>
                             <li><a class="dropdown-item" href="/user/detail">Profile</a></li>
                             <li><a class="dropdown-item" href="/user/orders">Order History</a></li>
 

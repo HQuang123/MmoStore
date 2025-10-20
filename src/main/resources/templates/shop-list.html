@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base::layout(~{::section}, ~{::cssFragment}, ~{::jsFragment})}">
+
+<head>
+    <title>Shop Management</title>
+
+    <th:block th:fragment="cssFragment">
+        <link rel="stylesheet" href="">
+    </th:block>
+
+    <th:block th:fragment="jsFragment">
+        <script src="#"></script>
+    </th:block>
+</head>
+
+<body>
+<section>
+    <div class="container mt-4">
+        <div class="mb-3">
+            <a th:href="@{/admin}" class="btn btn-outline-primary btn-sm">
+                ← Back to Dashboard
+            </a>
+        </div>
+
+        <h2 class="mb-4">Shop Management</h2>
+
+        <!-- Filter + Search -->
+        <form method="get" class="d-flex gap-2 mb-3">
+            <select name="status" class="form-select form-select-sm w-auto">
+                <option value="" th:selected="${status == null || status == ''}">All Status</option>
+                <option th:value="active" th:selected="${status == 'active'}">Active</option>
+                <option th:value="inactive" th:selected="${status == 'inactive'}">Inactive</option>
+            </select>
+
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="Search by shop or owner"
+                   class="form-control form-control-sm w-auto">
+
+            <button type="submit" class="btn btn-primary btn-sm">Search</button>
+
+            <!-- Clear Filters -->
+            <a th:href="@{/admin/shops}" class="btn btn-outline-secondary btn-sm">Clear</a>
+        </form>
+
+        <!-- Table -->
+        <table class="table table-bordered table-hover">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Shop Name</th>
+                <th>Owner</th>
+                <th>Created At</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="shop : ${shops}">
+                <td th:text="${shop.shopId}"></td>
+                <td th:text="${shop.name}"></td>
+                <td th:text="${shop.user?.name}">No owner</td>
+                <td th:text="${shop.createAt}"></td>
+                <td>
+                    <span th:text="${shop.isDeleted} ? 'Inactive' : 'Active'"></span>
+                </td>
+                <td>
+                    <form th:action="@{'/admin/shops/' + ${shop.shopId} + '/toggle-status'}" method="post">
+                        <input type="hidden" name="page" th:value="${currentPage}">
+                        <button class="btn btn-sm"
+                                th:classappend="${shop.isDeleted} ? 'btn-success' : 'btn-danger'">
+                            <span th:text="${shop.isDeleted} ? 'Activate' : 'Deactivate'"></span>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+
+            <!-- No results -->
+            <tr th:if="${#lists.isEmpty(shops)}">
+                <td colspan="6" class="text-center text-muted">
+                    No shops found matching your filters.
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <div th:if="${totalPages > 0}"
+             class="d-flex justify-content-center align-items-center mt-3 gap-2">
+
+            <!-- Previous button -->
+            <a th:if="${hasPrevious}"
+               th:href="@{/admin/shops(page=${currentPage - 1}, keyword=${keyword}, status=${status})}"
+               class="btn btn-outline-primary btn-sm">Previous</a>
+
+            <!-- Page numbers -->
+            <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+        <a th:if="${i != currentPage}"
+           th:href="@{/admin/shops(page=${i}, keyword=${keyword}, status=${status})}"
+           th:text="${i + 1}"
+           class="btn btn-outline-secondary btn-sm mx-1"></a>
+
+        <span th:if="${i == currentPage}"
+              th:text="${i + 1}"
+              class="btn btn-primary btn-sm mx-1 disabled">
+        </span>
+    </span>
+
+            <!-- Next button -->
+            <a th:if="${hasNext}"
+               th:href="@{/admin/shops(page=${currentPage + 1}, keyword=${keyword}, status=${status})}"
+               class="btn btn-outline-primary btn-sm">Next</a>
+        </div>
+    </div>
+</section>
+</body>
+</html>
