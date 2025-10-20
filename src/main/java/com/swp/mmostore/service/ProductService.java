@@ -48,7 +48,16 @@ public class ProductService {
 
         Pageable pageable = PageRequest.of(filterDTO.page(), filterDTO.pageSize(), sort);
         long total;
-        if (filterDTO.categories() == null || filterDTO.categories().isEmpty()) {
+
+        boolean isSearching = filterDTO.keyword() != null && !filterDTO.keyword().trim().isEmpty();
+
+        System.out.println("categories" + filterDTO.categories() + ",keyword" + filterDTO.keyword());
+        if (isSearching) {
+            List<String> categoryIds = filterDTO.categories() == null || filterDTO.categories().isEmpty() ? null : filterDTO.categories();
+            productList = productRepository.findProductByTitle(filterDTO.keyword(), categoryIds, pageable);
+            System.out.println("convit" + productList);
+            total = productRepository.countByKeywordAndCategories(filterDTO.keyword(), filterDTO.categories());
+        } else if (filterDTO.categories() == null || filterDTO.categories().isEmpty()) {
             // ⬅️ Case: no category filter → get all
             productList = productRepository.findAllProduct(pageable);
             total = productRepository.countAllProducts();
@@ -59,6 +68,26 @@ public class ProductService {
         }
 
         // No sort
+        return new PageImpl<>(productList, pageable, total);
+    }
+
+    public Page<ProductSummaryDTO> searchProductByTitle(FilterDTO filterDTO) {
+        Sort sort = Sort.unsorted();
+
+        if (filterDTO.sortBy() != null && !filterDTO.sortBy().isEmpty()) {
+            Sort.Direction direction = "desc".equalsIgnoreCase(filterDTO.sortOrder())
+                    ? Sort.Direction.DESC
+                    : Sort.Direction.ASC;
+            sort = Sort.by(direction, filterDTO.sortBy());
+        }
+
+        Pageable pageable = PageRequest.of(filterDTO.page(), filterDTO.pageSize(), sort);
+
+        List<ProductSummaryDTO> productList =
+                productRepository.findProductByTitle(filterDTO.keyword(), filterDTO.categories(), pageable);
+
+        long total = productRepository.countByKeywordAndCategories(filterDTO.keyword(), filterDTO.categories());
+
         return new PageImpl<>(productList, pageable, total);
     }
 
