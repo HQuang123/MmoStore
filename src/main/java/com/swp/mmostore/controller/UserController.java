@@ -223,12 +223,30 @@ public class UserController {
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", orderPage.getTotalPages());
 
-        // 🧠 Giữ lại các tham số tìm kiếm để hiển thị lại trong form
+        //  Giữ lại các tham số tìm kiếm để hiển thị lại trong form
         model.addAttribute("paramOrderId", orderId);
         model.addAttribute("paramStartDate", startDate);
         model.addAttribute("paramEndDate", endDate);
 
         return "order-history";
+    }
+    /** Xóa tài khoản user */
+    @GetMapping("/user/delete")
+    public String deleteUser(RedirectAttributes redirectAttributes) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        User existingUser = userService.getUserByEmail(email);
+
+        if (existingUser != null) {
+            userService.deleteUser(existingUser.getUserId());
+            redirectAttributes.addFlashAttribute("successMsg", "Your account has been deleted successfully.");
+            // Sau khi xóa, đăng xuất người dùng
+            SecurityContextHolder.clearContext();
+            return "redirect:/logout"; // hoặc redirect về trang chủ tùy logic app
+        } else {
+            redirectAttributes.addFlashAttribute("errorMsg", "User not found!");
+            return "redirect:/user/detail";
+        }
     }
 
 

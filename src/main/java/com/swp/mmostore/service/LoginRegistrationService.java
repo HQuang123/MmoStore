@@ -175,6 +175,9 @@ public class LoginRegistrationService {
         }
     }
 
+    public void deleteUser(Integer id) {
+        userRepository.deleteById(id);
+    }
 
 
 

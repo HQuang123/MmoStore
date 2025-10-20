@@ -16,4 +16,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     public User findByProviderId(String providerId);
 
 
+
+
 }
