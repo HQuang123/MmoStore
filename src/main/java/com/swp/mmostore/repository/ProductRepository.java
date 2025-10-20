@@ -6,6 +6,7 @@ import com.swp.mmostore.entity.Category;
 import com.swp.mmostore.entity.Product;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -76,4 +77,8 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
                 group by p.productId
             """)
     public ProductDetailDTO findProductById(@Param("productId") Integer productId);
+    @Modifying
+    @Query("UPDATE Product p SET p.isDeleted = :status WHERE p.shop.shopId = :shopId")
+    void updateProductDeletedStatusByShopId(@Param("shopId") Integer shopId, @Param("status") Boolean status);
+
 }
