@@ -17,6 +17,12 @@
 <body>
 <section>
     <div class="container mt-4">
+        <div class="mb-3">
+            <a th:href="@{/admin}" class="btn btn-outline-primary btn-sm">
+                ← Back to Dashboard
+            </a>
+        </div>
+
         <h2 class="mb-4">User Management</h2>
 
         <form th:action="@{/admin/users}" method="get" class="d-flex gap-2 mb-3">
