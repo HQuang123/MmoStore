@@ -48,4 +48,5 @@ public class ShopService {
     public Shop save(Shop shop) {
         return shopRepository.save(shop);
     }
+
 }
