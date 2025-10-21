@@ -1,6 +1,7 @@
 package com.swp.mmostore.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -33,6 +34,7 @@ public class Withdrawal {
     private String bankAccount;
 
     @Column(name = "AccountHolder")
+    @Pattern(regexp = "^[\\p{L}\\p{M}\\d\\s,]+$\n", message = "Tên tài khoản chứa ký tự lạ")
     private String accountHolder;
 
     @Column(name = "status", length = 20, columnDefinition = "VARCHAR(20) DEFAULT 'Pending'")

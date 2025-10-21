@@ -14,7 +14,7 @@
             <div class="card-body">
                 <h3 class="card-title mb-4">Withdraw Money</h3>
 
-                <form th:action="@{/withdraw}" th:object="${withdrawalRequest}" method="post">
+                <form th:action="@{/user/wallet/withdraw}" th:object="${withdrawalRequest}" method="post">
                     <div class="mb-3">
                         <label class="form-label">Account Holder Name</label>
                         <input type="text" th:field="*{accountHolder}" class="form-control" placeholder="e.g. Nguyen Van A" required>
@@ -44,8 +44,10 @@
                 </form>
 
                 <div th:if="${message}" class="alert alert-success mt-3" th:text="${message}"></div>
+                <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
             </div>
         </div>
+    </div>
 </section>
 <th:block id="js"></th:block>
 </body>

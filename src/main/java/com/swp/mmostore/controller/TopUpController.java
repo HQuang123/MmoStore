@@ -12,6 +12,7 @@ import com.swp.mmostore.util.MockSecurityUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.Banner;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -43,11 +44,17 @@ public class TopUpController {
     }
 
     @GetMapping("/user/balance")
-    public String topUpBalance(@RequestParam("action") String action) {
-        if(action.equalsIgnoreCase("top-up")){
+    public String topUpBalance(@RequestParam("action") String action, Model model) {
+        if ("top-up".equalsIgnoreCase(action)) {
+            // Simply return the top-up view
             return "user/top-up";
         }
-        return "user/withdraw";
+        //withdraw
+        else {
+            model.addAttribute("withdrawalRequest", new Withdrawal()); // Assuming 'Withdrawal' is your
+            model.addAttribute("banks", Bank.listAll());
+            return "user/withdraw";
+        }
     }
 
 
