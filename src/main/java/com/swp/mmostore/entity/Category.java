@@ -31,7 +31,7 @@ public class Category {
     @Column(name = "Description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "CategoryImageUrl", insertable = false)
+    @Column(name = "CategoryImageUrl")
     private String CategoryImageUrl;
 
     @Column(name = "isDeleted", insertable = false)

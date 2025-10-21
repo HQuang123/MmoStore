@@ -53,7 +53,7 @@ public class Order {
     @JoinColumn(name = "UserID")
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ProductID")
     private Product product;
 

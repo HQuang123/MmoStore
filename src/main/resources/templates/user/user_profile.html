@@ -9,6 +9,12 @@
 </head>
 <body>
 <section>
+    <div th:if="${successMsg}"
+         class="alert alert-success text-center"
+         th:text="${successMsg}">
+    </div>
+
+
     <div class="container mt-5 p-5">
         <div class="row justify-content-center">
             <div class="col-md-8">
@@ -20,8 +26,9 @@
                     <div class="card-body">
                         <div class="row mb-3">
                             <div class="col-md-4 text-center">
-                                <img th:if="${blobName != null}"
-                                     th:src="@{/user/image(blobName=${blobName})}"
+<!--                                <img th:if="${blobName != null}"-->
+<!--                                     th:src="@{/user/image(blobName=${blobName})}"-->
+                                <img th:src="${user.profileImage}"
                                      alt="User Profile Image"
                                      style="width:150px; height:150px; border-radius:50%; object-fit:cover;">
                                 <a href="#" class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#editImageModal">
@@ -34,6 +41,9 @@
                                 <p><strong>Name:</strong> <span th:text="${user.name}"></span></p>
                                 <p><strong>Email:</strong> <span th:text="${user.email}"></span></p>
                                 <p><strong>Phone Number:</strong> <span th:text="${user.phoneNumber}"></span></p>
+                                <p><strong>Role:</strong> <span th:text="${user.role}"></span></p>
+                                <p><strong>Create At:</strong> <span th:text="${user.createdAt}"></span></p>
+                                <p><strong>Balance:</strong> <span th:text="${user.balance}"></span></p>
                             </div>
                         </div>
                     </div>

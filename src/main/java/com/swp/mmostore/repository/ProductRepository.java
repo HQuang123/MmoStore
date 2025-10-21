@@ -6,6 +6,7 @@ import com.swp.mmostore.entity.Category;
 import com.swp.mmostore.entity.Product;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -76,4 +77,52 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
                 group by p.productId
             """)
     public ProductDetailDTO findProductById(@Param("productId") Integer productId);
+    @Modifying
+    @Query("UPDATE Product p SET p.isDeleted = :status WHERE p.shop.shopId = :shopId")
+    void updateProductDeletedStatusByShopId(@Param("shopId") Integer shopId, @Param("status") Boolean status);
+
+
+    @Query("""
+            SELECT new com.swp.mmostore.dto.ProductSummaryDTO(
+                p.productId, p.title, p.description, p.price, s.name, COALESCE(AVG(r.ratingPoint), 0)
+            )
+            FROM Product p
+            LEFT JOIN p.shop s
+            LEFT JOIN p.category c
+            LEFT JOIN p.ratings r
+            WHERE p.isDeleted = false
+              AND (:keyword IS NULL OR TRIM(:keyword) = '' 
+                   OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')))
+              AND (
+                   :categoryIds IS NULL 
+                   OR COALESCE(:categoryIds, NULL) IS NULL 
+                   OR c.categoryId IN :categoryIds
+              )
+            GROUP BY p.productId, p.title, p.description, p.price, s.name
+            """)
+    List<ProductSummaryDTO> findProductByTitle(
+            @Param("keyword") String keyword,
+            @Param("categoryIds") List<String> categoryIds,
+            Pageable pageable
+    );
+
+
+    @Query("""
+    SELECT COUNT(DISTINCT p.productId)
+    FROM Product p
+    LEFT JOIN p.category c
+    WHERE p.isDeleted = false
+      AND (:keyword IS NULL OR TRIM(:keyword) = '' 
+           OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')))
+      AND (
+           :categoryId IS NULL 
+           OR COALESCE(:categoryId, NULL) IS NULL 
+           OR c.categoryId IN :categoryId
+      )
+    """)
+    long countByKeywordAndCategories(
+            @Param("keyword") String keyword,
+            @Param("categoryId") List<String> categoryId
+    );
+
 }
