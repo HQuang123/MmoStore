@@ -19,18 +19,20 @@ public class OrderProducer {
 
     private final OrderRepository orderRepository;
 
-    private LocalDateTime lastSentTime = LocalDateTime.MIN;
+    private Integer lastSentOrderId = 0;
+
+    private final String STATUS_PENDING = "PENDING";
 
     @Scheduled(fixedRate = 5000)
     public void sendPendingOrders() {
 
-        List<OrderEvent> newPendingOrders = orderRepository.findByStatusAfter("PENDING", lastSentTime);
+        List<OrderEvent> newPendingOrders = orderRepository.findByStatusAfter(STATUS_PENDING, lastSentOrderId);
         for (OrderEvent order : newPendingOrders) {
             kafkaTemplate.send("order-events", order);
         }
 
         if (!newPendingOrders.isEmpty()) {
-            lastSentTime = LocalDateTime.now();
+            lastSentOrderId = newPendingOrders.getLast().getOrderId();
         }
     }
 }

@@ -158,18 +158,20 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     );
 
     @Query("""
-        select 
-            o.orderId,
-            o.user.userId,
-            o.product.productId,
-            o.quantity,
-            o.totalPrice,
-            o.status
+        SELECT new com.swp.mmostore.dto.OrderEvent(
+                o.orderId,
+                o.user.userId,
+                o.product.productId,
+                o.quantity,
+                o.totalPrice,
+                o.status
+            )
         from Order o
         where o.status = :status
-        and o.createAt > :after
+        and o.orderId > :lastestOrderId
+        order by o.orderId asc
     """)
-    List<OrderEvent> findByStatusAfter(@Param("status") String status, @Param("after") LocalDateTime after);
+    List<OrderEvent> findByStatusAfter(@Param("status") String status, @Param("lastestOrderId") Integer lastestOrderId);
 
     @Modifying
     @Transactional
