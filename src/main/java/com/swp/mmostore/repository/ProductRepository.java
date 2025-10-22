@@ -125,4 +125,13 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             @Param("categoryId") List<String> categoryId
     );
 
+    @Query("SELECT COUNT(p) FROM Product p WHERE p.shop.user.userId = :sellerId AND p.isDeleted = false")
+    Long countProductsBySeller(Integer sellerId);
+
+    // Đếm số sản phẩm theo người bán
+    @Query("SELECT COUNT(p) FROM Product p WHERE p.shop.user.userId = :sellerId")
+    long countBySellerId(Integer sellerId);
+
+    @Query("SELECT COUNT(p) FROM Product p WHERE p.shop.shopId = :shopId")
+    long countByShopId(@Param("shopId") Integer shopId);
 }

@@ -10,19 +10,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Collections;
+import java.util.Map;
 
 @Controller
 public class LoginRegistrationController {
@@ -80,42 +82,43 @@ public class LoginRegistrationController {
 
         return "redirect:/register";
     }
-
-    //  Nhập email để gửi token -----------------
+    // Gửi token qua email
     @GetMapping("/forgot-password")
     public String forgotPasswordPage() {
         return "forgot-password"; // form nhập email
     }
 
     @PostMapping("/forgot-password")
-    public String processForgotPassword(@RequestParam("email") String email, Model model) {
+    public String processForgotPassword(@RequestParam("email") String email,
+                                        RedirectAttributes redirectAttributes,
+                                        Model model) {
         boolean sent = userService.generateResetTokenAndSendEmail(email);
         if (sent) {
-            model.addAttribute("email", email);
-            return "confirm-token"; // form nhập token
+            redirectAttributes.addAttribute("email", email); // Spring tự encode
+            return "redirect:/confirm-token";
         } else {
-            model.addAttribute("error", "Email không tồn tại hãy kiểm tra lại!");
+            model.addAttribute("error", "Email không tồn tại, hãy kiểm tra lại!");
             return "forgot-password";
         }
     }
 
-    // Xác thực token -----------------
-    @PostMapping("/confirm-token")
-    public String confirmToken(@RequestParam("email") String email,
-                               @RequestParam("token") String token,
-                               Model model) {
-        if (userService.verifyResetToken(email, token)) {
-            model.addAttribute("email", email);
-            model.addAttribute("token", token);
-            return "reset-password"; // form nhập password mới
-        } else {
-            model.addAttribute("error", "Token không hợp lệ!");
-            model.addAttribute("email", email);
-            return "confirm-token";
-        }
+    @GetMapping("/confirm-token")
+    public String showConfirmTokenPage(@RequestParam("email") String email, Model model) {
+        model.addAttribute("email", email);
+        return "confirm-token";
     }
 
-    //Reset mật khẩu -----------------
+
+    // API verify token AJAX
+    @GetMapping("/api/verify-token")
+    @ResponseBody
+    public Map<String, Boolean> verifyToken(@RequestParam String email, @RequestParam String token) {
+        System.out.println("API verify-token called: email=" + email + ", token=" + token);
+        boolean valid = userService.verifyResetToken(email, token);
+        return Collections.singletonMap("valid", valid);
+    }
+
+    // Reset password
     @PostMapping("/reset-password")
     public String resetPassword(@RequestParam("email") String email,
                                 @RequestParam("token") String token,
@@ -126,18 +129,18 @@ public class LoginRegistrationController {
         if (!password.equals(confirmPassword)) {
             model.addAttribute("error", "Mật khẩu xác nhận không khớp.");
             model.addAttribute("email", email);
-            model.addAttribute("token", token);
-            return "reset-password";
+            return "confirm-token";
         }
 
         boolean success = userService.resetPassword(email, token, password);
         if (success) {
-            return LOGIN_VIEW;
+            return "redirect:/login?success=true"; // hoặc LOGIN_VIEW
         } else {
-            model.addAttribute("error", "Token không hợp lệ!");
+            model.addAttribute("error", "Token không hợp lệ hoặc đã hết hạn!");
             model.addAttribute("email", email);
-            model.addAttribute("token", token);
-            return "reset-password";
+            return "confirm-token";
         }
     }
+
+
 }

@@ -45,4 +45,6 @@ public interface ShopRepository extends JpaRepository<Shop, Integer> {
         WHERE s.shopId IN :ids
         """)
     List<Shop> findAllByIdWithUser(@Param("ids") List<Integer> ids);
+
+    Shop findByUser_UserId(Integer userId);
 }
