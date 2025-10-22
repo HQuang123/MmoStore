@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base :: layout(~{::content}, ~{::cssFragment}, ~{::jsFragment})}">
+
+<!-- Custom CSS -->
+<th:block th:fragment="cssFragment">
+    <link rel="stylesheet" th:href="@{/css/seller.css}">
+</th:block>
+
+<!-- Custom JS -->
+<th:block th:fragment="jsFragment">
+    <!-- Add custom JS for order-history if needed -->
+</th:block>
+
+<!-- CONTENT -->
+<th:block th:fragment="content">
+    <div class="container-fluid">
+        <div class="row">
+
+            <!-- SIDEBAR -->
+            <div class="col-md-3 col-lg-2 bg-dark text-white vh-100 p-3" id="sidebar">
+                <div class="text-center mb-3">
+                    <img th:src="${shop.shopImageUrl}"
+                         alt="Shop Image"
+                         class="rounded-circle"
+                         style="width:120px; height:120px; object-fit:cover;">
+                </div>
+                <h4 class="text-center mb-2" th:text="${shop.name}"></h4>
+                <p class="text-center small text-muted" th:text="${shop.description}"></p>
+                <hr class="border-secondary"/>
+                <ul class="nav flex-column">
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white" th:href="@{/seller/statistic}">
+                            <i class="fa-solid fa-chart-line"></i> Statistics
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white" th:href="@{/seller/products}">
+                            <i class="fa-solid fa-box"></i> Products
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a class="nav-link active bg-secondary text-white rounded" th:href="@{/seller/orders}">
+                            <i class="fa-solid fa-file-invoice"></i> Orders
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- MAIN CONTENT -->
+            <div class="col-md-9 col-lg-10 p-4" id="page-content">
+                <h3 class="mb-3">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Order History
+                </h3>
+
+                <!-- FILTER FORM -->
+                <!-- FILTER FORM -->
+                <form method="get" th:action="@{/seller/orders}">
+                    <div class="row g-2 mb-3 align-items-end">
+
+                        <!-- Quantity -->
+                        <div class="col-md-2">
+                            <label class="form-label">Quantity ≥</label>
+                            <input type="number" name="minQuantity" class="form-control"
+                                   th:value="${minQuantity}">
+                        </div>
+
+                        <!-- Min Total -->
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Min Total</label>
+                            <input type="number" step="0.01" class="form-control"
+                                   name="minTotal"
+                                   th:value="${minTotal}">
+                        </div>
+
+                        <!-- Max Total -->
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Max Total</label>
+                            <input type="number" step="0.01" class="form-control"
+                                   name="maxTotal"
+                                   th:value="${maxTotal}">
+                        </div>
+
+                        <!-- From Date -->
+                        <div class="col-md-2">
+                            <label class="form-label">From Date</label>
+                            <input type="date" name="startDate" class="form-control"
+                                   th:value="${startDate}">
+                        </div>
+
+                        <!-- To Date -->
+                        <div class="col-md-2">
+                            <label class="form-label">To Date</label>
+                            <input type="date" name="endDate" class="form-control"
+                                   th:value="${endDate}">
+                        </div>
+
+                        <!-- Status -->
+                        <div class="col-md-2">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-select">
+                                <option value="" th:selected="${status == null or status == ''}">All</option>
+                                <option value="Pending" th:selected="${status == 'Pending'}">Pending</option>
+                                <option value="Completed" th:selected="${status == 'Completed'}">Completed</option>
+                                <option value="Canceled" th:selected="${status == 'Canceled'}">Canceled</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mb-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-filter"></i> Filter
+                        </button>
+
+                        <!-- Clear button -->
+                        <a th:href="@{/seller/orders}" class="btn btn-secondary">
+                            <i class="fa-solid fa-rotate-left"></i> Clear
+                        </a>
+                    </div>
+                </form>
+
+
+                <!-- ORDER TABLE -->
+                <table class="table table-bordered table-hover">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Product ID</th>
+                        <th>Product Name</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Total</th>
+                        <th>Order Date</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="o : ${orderList}">
+                        <td th:text="${o.orderId}"></td>
+                        <td th:text="${o.productId}"></td>
+                        <td th:text="${o.productTitle}"></td>
+                        <td th:text="${o.quantity}"></td>
+                        <td th:text="${#numbers.formatDecimal(o.price, 0, 'COMMA', 3, 'COMMA')} + ' VND'"></td>
+                        <td th:text="${#numbers.formatDecimal(o.totalPrice, 0, 'COMMA', 3, 'COMMA')} + ' VND'"></td>
+                        <td th:text="${#temporals.format(o.createAt, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td th:text="${o.status}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <!-- PAGINATION -->
+                <nav th:if="${totalPages > 1}">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                            <a class="page-link" th:href="@{/seller/orders(page=${currentPage - 1})}">Previous</a>
+                        </li>
+                        <li class="page-item"
+                            th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                            th:classappend="${i == currentPage} ? 'active'">
+                            <a class="page-link"
+                               th:text="${i + 1}"
+                               th:href="@{/seller/orders(page=${i})}"></a>
+                        </li>
+                        <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+                            <a class="page-link" th:href="@{/seller/orders(page=${currentPage + 1})}">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+</html>

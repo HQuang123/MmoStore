@@ -35,4 +35,5 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     @EntityGraph(attributePaths = "shop")
     Page<User> findAll(Pageable pageable);
+
 }
