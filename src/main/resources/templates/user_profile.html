@@ -48,7 +48,10 @@
                                 <p><strong>Phone Number:</strong> <span th:text="${user.phoneNumber}"></span></p>
                                 <p><strong>Role:</strong> <span th:text="${user.role}"></span></p>
                                 <p><strong>Create At:</strong> <span th:text="${user.createdAt}"></span></p>
-                                <p><strong>Balance:</strong> <span th:text="${user.balance}"></span></p>
+                                <p>
+                                    <strong>Balance:</strong>
+                                    <span th:text="${#numbers.formatDecimal(user.balance, 0, 'POINT', 3, 'POINT')}"></span> VNĐ
+                                </p>
                             </div>
                         </div>
                     </div>

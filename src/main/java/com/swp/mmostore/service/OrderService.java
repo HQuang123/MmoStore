@@ -1,12 +1,13 @@
 package com.swp.mmostore.service;
 
+import com.swp.mmostore.dto.OrderStatisticDTO;
+import com.swp.mmostore.dto.ShopOrderHistoryDTO;
 import com.swp.mmostore.entity.Order;
 import com.swp.mmostore.entity.User;
 import com.swp.mmostore.repository.OrderRepository;
 import com.swp.mmostore.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,7 +16,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @RequiredArgsConstructor
 @Service
@@ -63,27 +63,63 @@ public class OrderService {
         orderRepository.save(order);
     }
 
-    public Page<Order> getOrdersByUser(Integer userId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createAt").descending());
-        return orderRepository.findByUser_UserId(userId, pageable);
+
+
+    public Page<OrderStatisticDTO> getOrderHistory(
+            Integer userId,
+            String orderId,
+            String productName,
+            LocalDateTime startDateTime,
+            LocalDateTime endDateTime,
+            String status,
+            String paymentMethod,
+            BigDecimal minTotal,
+            BigDecimal maxTotal,
+            Pageable pageable
+    ) {
+        return orderRepository.findOrderHistoryByUserId(
+                Long.valueOf(userId),
+                orderId,
+                productName,
+                startDateTime,
+                endDateTime,
+                status,
+                paymentMethod,
+                minTotal,
+                maxTotal,
+                pageable
+        );
+    }
+
+    public Page<ShopOrderHistoryDTO> getOrderHistoryByShop(Integer shopId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return orderRepository.findOrderHistoryByShop(shopId, pageable);
     }
 
 
-    public Page<Order> findByUserAndOrderId(Integer userId, String orderId, int page, int pageSize) {
-        Pageable pageable = PageRequest.of(page, pageSize);
-        try {
-            Integer id = Integer.parseInt(orderId);
-            return orderRepository.findByUserAndOrderId(userId, id, pageable);
-        } catch (NumberFormatException e) {
-            return Page.empty(pageable); // nếu orderId không hợp lệ
-        }
+
+    public Page<ShopOrderHistoryDTO> getFilteredOrders(
+            Integer shopId,
+            Integer minQuantity,
+            BigDecimal minTotal,
+            BigDecimal maxTotal,
+            LocalDateTime startDate,
+            LocalDateTime endDate,
+            String status,
+            Pageable pageable
+    ) {
+        return orderRepository.findFilteredOrdersByShop(
+                shopId,
+                minQuantity,
+                minTotal,
+                maxTotal,
+                startDate,
+                endDate,
+                status,
+                pageable
+        );
     }
 
-    public Page<Order> findByUserAndDateRange(Integer userId, LocalDate startDate, LocalDate endDate, int page, int pageSize) {
-        Pageable pageable = PageRequest.of(page, pageSize);
-        LocalDateTime start = startDate.atStartOfDay();
-        LocalDateTime end = endDate.atTime(23, 59, 59);
-        return orderRepository.findByUserAndDateRange(userId, start, end, pageable);
-    }
+
 
 }

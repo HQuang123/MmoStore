@@ -1,6 +1,8 @@
 package com.swp.mmostore.service;
 
+import com.swp.mmostore.dto.ProductSalesDTO;
 import com.swp.mmostore.entity.Shop;
+import com.swp.mmostore.repository.OrderRepository;
 import com.swp.mmostore.repository.ProductRepository;
 import com.swp.mmostore.repository.ShopRepository;
 import jakarta.transaction.Transactional;
@@ -47,6 +49,19 @@ public class ShopService {
 
     public Shop save(Shop shop) {
         return shopRepository.save(shop);
+    }
+
+    public Shop findByUserId(Integer userId) {
+        return shopRepository.findByUser_UserId(userId);
+    }
+
+
+    @Autowired
+    private OrderRepository orderRepository;
+
+    public Page<ProductSalesDTO> getSoldProductsByShop(Integer shopId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return orderRepository.findSoldProductsByShop(shopId, pageable);
     }
 
 }
