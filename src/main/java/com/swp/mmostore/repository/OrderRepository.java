@@ -1,18 +1,22 @@
 package com.swp.mmostore.repository;
 
+import com.swp.mmostore.dto.OrderEvent;
 import com.swp.mmostore.dto.OrderStatisticDTO;
 import com.swp.mmostore.dto.ProductSalesDTO;
 import com.swp.mmostore.dto.ShopOrderHistoryDTO;
 import com.swp.mmostore.entity.Order;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 public interface OrderRepository extends JpaRepository<Order, Integer> {
@@ -153,9 +157,24 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
             Pageable pageable
     );
 
+    @Query("""
+        select 
+            o.orderId,
+            o.user.userId,
+            o.product.productId,
+            o.quantity,
+            o.totalPrice,
+            o.status
+        from Order o
+        where o.status = :status
+        and o.createAt > :after
+    """)
+    List<OrderEvent> findByStatusAfter(@Param("status") String status, @Param("after") LocalDateTime after);
 
-
-
+    @Modifying
+    @Transactional
+    @Query("UPDATE Order o SET o.status = :status WHERE o.orderId = :orderId")
+    void updateOrderStatus(@Param("orderId") Integer orderId, @Param("status") String status);
 }
 
 
