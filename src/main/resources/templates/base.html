@@ -92,11 +92,11 @@
                             <!-- Nếu user có ROLE_SELLER -->
                             <li th:if="${currentLoggedInUserDetails.role.contains('ROLE_SELLER')}">
                                 <a class="dropdown-item" href="/seller/manage">Quản lý Shop</a>
+                                <a class="dropdown-item" href="/admin/">Dashboard</a>
                             </li>
-                            <li><a class="dropdown-item" href="/admin/">Dashboard</a></li>
-                            <li><a class="dropdown-item" href="/user/detail">Profile</a></li>
-                            <li><a class="dropdown-item" href="#">Another Action</a></li>
-
+                            <li></li>
+                            <li><a class="dropdown-item" href="/user/detail">Thông tin cá nhân</a></li>
+                            <li><a class="dropdown-item" href="/user/wallet">Quản lý ví</a></li>
                         </ul>
                     </li>
 

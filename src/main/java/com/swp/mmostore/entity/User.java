@@ -13,7 +13,6 @@ import java.util.List;
 
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -25,14 +24,14 @@ public class User {
     private Integer userId;
 
     @Column(name = "Name", length = 50)
-    @Pattern(regexp = "^[\\p{L}\\p{M}\\d\\s,]+$\n", message = "Tên chứa ký tự lạ")
+//    @Pattern(regexp = "^[\\p{L}\\p{M}\\d\\s,]+$\n", message = "Tên chứa ký tự lạ")
     private String name;
 
     @Column(name = "Email", length = 100, unique = true)
     private String email;
 
     @Column(name = "PhoneNumber")
-    @Pattern(regexp = "^\\d{8,12}$\n", message = "Số điện thoại không hợp lệ")
+//    @Pattern(regexp = "^\\d{8,12}$\n", message = "Số điện thoại không hợp lệ")
     private String phoneNumber;
 
     @Column(name = "Password", length = 255)

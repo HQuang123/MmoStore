@@ -41,7 +41,7 @@ public class Withdrawal {
     private String status = "Pending"; // Pending, Approved, Rejected
 
     @Column(name = "CreateAt", insertable = false)
-    private LocalDateTime createdAt;
+    private LocalDateTime creatAt;
 
     @Column(name = "CreateBy", insertable = false)
     private Integer createBy;

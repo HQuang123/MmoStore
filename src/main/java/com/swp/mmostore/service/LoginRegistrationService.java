@@ -3,7 +3,6 @@ package com.swp.mmostore.service;
 import com.swp.mmostore.entity.User;
 import com.swp.mmostore.repository.UserRepository;
 import com.swp.mmostore.util.AppConstant;
-import com.swp.mmostore.util.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.security.crypto.password.PasswordEncoder;

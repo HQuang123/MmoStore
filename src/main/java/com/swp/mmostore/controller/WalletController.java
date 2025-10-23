@@ -1,10 +1,7 @@
 package com.swp.mmostore.controller;
 
-import com.swp.mmostore.dto.OrderForm;
 import com.swp.mmostore.entity.*;
 import com.swp.mmostore.repository.DepositRepository;
-import com.swp.mmostore.repository.OrderRepository;
-import com.swp.mmostore.repository.ProductRepository;
 import com.swp.mmostore.repository.UserRepository;
 import com.swp.mmostore.service.DepositService;
 import com.swp.mmostore.service.MomoService;
@@ -12,8 +9,6 @@ import com.swp.mmostore.util.MockSecurityUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.Banner;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -24,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Slf4j
 @RequiredArgsConstructor
 @Controller
-public class TopUpController {
+public class WalletController {
     private final UserRepository userRepository;
     private final MomoService momoService;
     private final DepositService depositService;
@@ -43,18 +38,17 @@ public class TopUpController {
         model.addAttribute("user", user);
     }
 
-    @GetMapping("/user/balance")
-    public String topUpBalance(@RequestParam("action") String action, Model model) {
-        if ("top-up".equalsIgnoreCase(action)) {
+    @GetMapping("/user/wallet")
+    public String viewWallet(Model model) {
+        User user = (User) model.getAttribute("user");
+        model.addAttribute("balance", user.getBalance());
+        return "user/wallet"; // → renders wallet.html
+    }
+
+    @GetMapping("/user/wallet/top-up")
+    public String topUpBalance(Model model) {
             // Simply return the top-up view
             return "user/top-up";
-        }
-        //withdraw
-        else {
-            model.addAttribute("withdrawalRequest", new Withdrawal()); // Assuming 'Withdrawal' is your
-            model.addAttribute("banks", Bank.listAll());
-            return "user/withdraw";
-        }
     }
 
 
