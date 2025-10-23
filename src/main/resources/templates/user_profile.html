@@ -13,7 +13,11 @@
          class="alert alert-success text-center"
          th:text="${successMsg}">
     </div>
-
+    <div class="mb-3">
+        <a th:href="@{/}" class="btn btn-outline-primary btn-sm">
+            ← Back to Home
+        </a>
+    </div>
 
     <div class="container mt-5 p-5">
         <div class="row justify-content-center">
@@ -26,12 +30,13 @@
                     <div class="card-body">
                         <div class="row mb-3">
                             <div class="col-md-4 text-center">
-<!--                                <img th:if="${blobName != null}"-->
-<!--                                     th:src="@{/user/image(blobName=${blobName})}"-->
+                                <!--                                <img th:if="${blobName != null}"-->
+                                <!--                                     th:src="@{/user/image(blobName=${blobName})}"-->
                                 <img th:src="${user.profileImage}"
                                      alt="User Profile Image"
                                      style="width:150px; height:150px; border-radius:50%; object-fit:cover;">
-                                <a href="#" class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#editImageModal">
+                                <a href="#" class="btn btn-primary ms-2" data-bs-toggle="modal"
+                                   data-bs-target="#editImageModal">
                                     Edit Image
                                 </a>
                             </div>
@@ -43,14 +48,17 @@
                                 <p><strong>Phone Number:</strong> <span th:text="${user.phoneNumber}"></span></p>
                                 <p><strong>Role:</strong> <span th:text="${user.role}"></span></p>
                                 <p><strong>Create At:</strong> <span th:text="${user.createdAt}"></span></p>
-                                <p><strong>Balance:</strong> <span th:text="${user.balance}"></span></p>
+                                <p>
+                                    <strong>Balance:</strong>
+                                    <span th:text="${#numbers.formatDecimal(user.balance, 0, 'POINT', 3, 'POINT')}"></span> VNĐ
+                                </p>
                             </div>
                         </div>
                     </div>
 
                     <div class="card-footer text-center">
                         <a href="/user/edit" class="btn btn-primary ms-2">Edit Profile</a>
-                        <a href="#" class="btn btn-danger ms-2">DELETE</a>
+                        <a href="/user/delete" class="btn btn-danger ms-2">DELETE</a>
                     </div>
                 </div>
             </div>

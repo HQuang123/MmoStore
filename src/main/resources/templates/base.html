@@ -42,7 +42,7 @@
 <!-- Start navbar -->
 <nav class="navbar navbar-expand-lg bg-success navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="/"><i class="fa-solid fa-cart-shopping"></i> <i><b>SWP391</b></i></a>
+        <a class="navbar-brand" href="/"><i class="fa-solid fa-cart-shopping"></i> <i><b>MMO STORE</b></i></a>
         <button class="navbar-toggler" type="button"
                 data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false"
@@ -80,9 +80,6 @@
                 </th:block>
 
                 <th:block th:if="${currentLoggedInUserDetails != null}">
-                    <li class="nav-item"><a class="nav-link active"
-                                            aria-current="page" href="/user/cart"><i class="fas fa-cart-shopping"></i> Cart [ [[${countCartForUser}]] ]</a></li>
-
                     <li class="nav-item dropdown">
 
                         <a class="nav-link active dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -91,8 +88,9 @@
                         <ul class="dropdown-menu">
                             <!-- Nếu user có ROLE_SELLER -->
                             <li th:if="${currentLoggedInUserDetails.role.contains('ROLE_SELLER')}">
-                                <a class="dropdown-item" href="/seller/manage">Quản lý Shop</a>
+                                <a class="dropdown-item" href="/seller/statistic">Quản lý Shop</a>
                                 <a class="dropdown-item" href="/admin/">Dashboard</a>
+
                             </li>
                             <li></li>
                             <li><a class="dropdown-item" href="/user/detail">Thông tin cá nhân</a></li>

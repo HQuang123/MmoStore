@@ -24,77 +24,111 @@
 
             <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 filter-container">
 
-                <!-- Form tìm theo mã đơn hàng -->
-                <form class="filter-form d-flex align-items-end gap-2" method="get" action="/user/orders">
+                <form class="filter-form d-flex align-items-end flex-wrap gap-2" method="get" action="/user/orders">
+                    <!-- Lọc theo trạng thái -->
                     <div>
-                        <label class="form-label fw-bold">Order ID</label>
-                        <input type="text" class="form-control" name="orderId"
-                               placeholder="VD: 101" th:value="${param.orderId}">
+                        <label class="form-label fw-bold">Status</label>
+                        <select name="status" class="form-select">
+                            <option value="">-- All --</option>
+                            <option value="PENDING" th:selected="${param.status == 'PENDING'}">Pending</option>
+                            <option value="SHIPPING" th:selected="${param.status == 'SHIPPING'}">Shipping</option>
+                            <option value="COMPLETED" th:selected="${param.status == 'COMPLETED'}">Completed</option>
+                            <option value="CANCELED" th:selected="${param.status == 'CANCELED'}">Canceled</option>
+                        </select>
                     </div>
-                    <button type="submit" class="btn btn-primary filter-btn">Search</button>
+
+                    <!-- Lọc theo tổng tiền -->
+                    <div>
+                        <label class="form-label fw-bold">Min Total</label>
+                        <input type="number" class="form-control" name="minTotal" th:value="${param.minTotal}">
+                    </div>
+
+                    <div>
+                        <label class="form-label fw-bold">Max Total</label>
+                        <input type="number" class="form-control" name="maxTotal" th:value="${param.maxTotal}">
+                    </div>
+
+                    <!-- Lọc theo phương thức thanh toán -->
+                    <div>
+                        <label class="form-label fw-bold">Payment</label>
+                        <select name="paymentMethod" class="form-select">
+                            <option value="">-- All --</option>
+                            <option value="COD" th:selected="${param.paymentMethod == 'COD'}">COD</option>
+                            <option value="BANK" th:selected="${param.paymentMethod == 'BANK'}">Bank Transfer</option>
+                            <option value="MOMO" th:selected="${param.paymentMethod == 'MOMO'}">Momo</option>
+                        </select>
+                    </div>
+
+                    <!--  Lọc theo ngày -->
+                    <div>
+                        <label class="form-label fw-bold">From Date</label>
+                        <input type="date" name="startDate" th:value="${param.startDate}">
+                    </div>
+
+                    <div>
+                        <label class="form-label fw-bold">To Date</label>
+                        <input type="date" name="endDate" th:value="${param.endDate}">
+                    </div>
+
+                    <!-- Nút -->
+                    <div class="d-flex gap-2 align-items-end">
+                        <button type="submit" class="btn btn-secondary filter-btn">Filter</button>
+                        <a href="/user/orders" class="btn btn-outline-danger">Clear</a>
+                    </div>
                 </form>
 
-                <!-- Form lọc theo ngày -->
-                <form class="filter-form d-flex align-items-end gap-2" method="get" action="/user/orders">
-                    <div>
-                        <label class="form-label fw-bold">Start date</label>
-                        <input type="date" class="form-control" name="startDate" th:value="${param.startDate}">
+                <form th:action="@{/user/orders}" method="get" class="mb-3">
+                    <div class="input-group">
+                        <input type="text" name="productName" th:value="${param.productName}" class="form-control" placeholder="Search by product name">
+                        <button class="btn btn-primary" type="submit">Search</button>
                     </div>
-                    <div>
-                        <label class="form-label fw-bold">End date</label>
-                        <input type="date" class="form-control" name="endDate" th:value="${param.endDate}">
-                    </div>
-                    <button type="submit" class="btn btn-success filter-btn">Fill</button>
                 </form>
 
+                <!--  Orders Table -->
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Product Name</th>
+                        <th>Create At</th>
+                        <th>Status</th>
+                        <th>Payment</th>
+                        <th>Total</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="order : ${orderPage.content}">
+                        <td th:text="${order.orderId}"></td>
+                        <td th:text="${order.productName}"></td>
+                        <td th:text="${#temporals.format(order.createAt, 'dd-MM-yyyy HH:mm')}"></td>
+                        <td th:text="${order.status}"></td>
+                        <td th:text="${order.paymentMethod}"></td>
+                        <td th:text="${#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 2, 'POINT')} + ' ₫'"></td>
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+
+                <!-- 🔢 Pagination -->
+                <div class="pagination">
+                    <a th:if="${currentPage > 0}"
+                       th:href="@{/user/orders(page=${currentPage - 1}, orderId=${param.orderId}, startDate=${param.startDate}, endDate=${param.endDate})}">
+                        Previous
+                    </a>
+
+                    <span>Trang <span th:text="${currentPage + 1}"></span> / <span
+                            th:text="${totalPages}"></span></span>
+
+                    <a th:if="${currentPage + 1 < totalPages}"
+                       th:href="@{/user/orders(page=${currentPage + 1}, orderId=${param.orderId}, startDate=${param.startDate}, endDate=${param.endDate})}">
+                        Next
+                    </a>
+                </div>
+
             </div>
-
-
-            <!--  Orders Table -->
-            <table class="table table-striped">
-                <thead>
-                <tr>
-                    <th>Order ID</th>
-                    <th>Product ID</th>
-                    <th>Product Name</th>
-                    <th>Create At</th>
-                    <th>Status</th>
-                    <th>Total</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="order : ${orderPage.content}">
-                    <td th:text="${order.orderId}"></td>
-
-                    <!-- Lấy ProductID và ProductName -->
-                    <td th:text="${order.product.productId}"></td>
-                    <td th:text="${order.product.title}"></td>
-
-                    <td th:text="${#temporals.format(order.createAt, 'dd-MM-yyyy HH:mm')}"></td>
-                    <td th:text="${order.status}"></td>
-                    <td th:text="${#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 2, 'POINT')} + ' ₫'"></td>
-                </tr>
-                </tbody>
-            </table>
-
-
-            <!-- 🔢 Pagination -->
-            <div class="pagination">
-                <a th:if="${currentPage > 0}"
-                   th:href="@{/user/orders(page=${currentPage - 1}, orderId=${param.orderId}, startDate=${param.startDate}, endDate=${param.endDate})}">
-                    Previous
-                </a>
-
-                <span>Trang <span th:text="${currentPage + 1}"></span> / <span th:text="${totalPages}"></span></span>
-
-                <a th:if="${currentPage + 1 < totalPages}"
-                   th:href="@{/user/orders(page=${currentPage + 1}, orderId=${param.orderId}, startDate=${param.startDate}, endDate=${param.endDate})}">
-                    Next
-                </a>
-            </div>
-
         </div>
-    </div>
 </section>
 </body>
 </html>

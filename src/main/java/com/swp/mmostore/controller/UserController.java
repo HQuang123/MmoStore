@@ -1,20 +1,20 @@
 package com.swp.mmostore.controller;
 
 
-import com.swp.mmostore.entity.Order;
+import com.swp.mmostore.dto.OrderStatisticDTO;
 import com.swp.mmostore.entity.Shop;
 import com.swp.mmostore.entity.User;
-import com.swp.mmostore.service.CloudStorageService;
-import com.swp.mmostore.service.LoginRegistrationService;
-import com.swp.mmostore.service.OrderService;
-import com.swp.mmostore.service.ShopService;
+import com.swp.mmostore.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -24,8 +24,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.data.domain.Page;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 
 @Controller
 public class UserController {
@@ -41,6 +44,9 @@ public class UserController {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private WalletService walletService;
 
     /** Hiển thị trang user_profile.html */
     @GetMapping("/user/detail")
@@ -155,6 +161,13 @@ public class UserController {
             return "redirect:/login";
         }
 
+        try {
+            walletService.deductMoney(user.getUserId(), BigDecimal.valueOf(10), "MoMo");
+        } catch (RuntimeException e) {
+            session.setAttribute("errorMsg", e.getMessage());
+            return "redirect:/user/seller_register";
+        }
+
         // Xử lý upload ảnh cửa hàng
         String shopImageUrl;
         if (shopImage != null && !shopImage.isEmpty()) {
@@ -168,6 +181,7 @@ public class UserController {
         } else {
             shopImageUrl = "https://storage.googleapis.com/mmostore/default-shop.jpg"; // default image
         }
+
 
         // Tạo và lưu shop mới
         Shop shop = new Shop(name,description,user,shopImageUrl);
@@ -183,53 +197,75 @@ public class UserController {
         return "redirect:/user/detail";
     }
 
+
+
     @GetMapping("/user/orders")
     public String orderHistory(
-            Model model,
-            @RequestParam(required = false) String orderId,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @RequestParam(defaultValue = "0") int page) {
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(value = "orderId", required = false) String orderId,
+            @RequestParam(value = "productName", required = false) String productName,
+            @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "paymentMethod", required = false) String paymentMethod,
+            @RequestParam(value = "minTotal", required = false) BigDecimal minTotal,
+            @RequestParam(value = "maxTotal", required = false) BigDecimal maxTotal,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            Model model
+    ) {
+        User user = userService.getUserByEmail(userDetails.getUsername());
+        Integer userId = user.getUserId();
 
-        // 🧍‍♂️ Lấy user đang đăng nhập
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
-            return "redirect:/login";
-        }
+        orderId = (orderId != null && !orderId.isBlank()) ? orderId : null;
+        status = (status != null && !status.isBlank()) ? status : null;
+        paymentMethod = (paymentMethod != null && !paymentMethod.isBlank()) ? paymentMethod : null;
+        productName = (productName != null && !productName.isBlank()) ? productName : null;
 
-        String email = auth.getName();
-        User user = userService.getUserByEmail(email);
-        if (user == null) {
-            return "redirect:/login";
-        }
+        LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
+        LocalDateTime endDateTime = endDate != null ? endDate.plusDays(1).atStartOfDay() : null;
 
-        int pageSize = 3;
-        Page<Order> orderPage;
+        Page<OrderStatisticDTO> orderPage = orderService.getOrderHistory(
+                userId,
+                orderId,
+                productName,
+                startDateTime,
+                endDateTime,
+                status,
+                paymentMethod,
+                minTotal,
+                maxTotal,
+                PageRequest.of(page, 10)
+        );
 
-        // Tìm theo Mã đơn hàng
-        if (orderId != null && !orderId.isEmpty()) {
-            orderPage = orderService.findByUserAndOrderId(user.getUserId(), orderId, page, pageSize);
-
-            //  Lọc theo khoảng thời gian
-        } else if (startDate != null && endDate != null) {
-            orderPage = orderService.findByUserAndDateRange(user.getUserId(), startDate, endDate, page, pageSize);
-
-            //  Nếu không có filter nào
-        } else {
-            orderPage = orderService.getOrdersByUser(user.getUserId(), page, pageSize);
-        }
-
-        // 🧩 Gửi dữ liệu sang View
         model.addAttribute("orderPage", orderPage);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", orderPage.getTotalPages());
 
-        // 🧠 Giữ lại các tham số tìm kiếm để hiển thị lại trong form
-        model.addAttribute("paramOrderId", orderId);
-        model.addAttribute("paramStartDate", startDate);
-        model.addAttribute("paramEndDate", endDate);
-
         return "order-history";
+    }
+
+
+
+    @Autowired
+    private  LoginRegistrationService  loginRegistrationService;
+    /** Xóa tài khoản user */
+    @GetMapping("/user/delete")
+    public String deleteUser(RedirectAttributes redirectAttributes) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        User existingUser = userService.getUserByEmail(email);
+
+        if (existingUser != null) {
+            loginRegistrationService.updateUserStatus(false,existingUser.getUserId());
+            //userService.deleteUser(existingUser.getUserId());
+            redirectAttributes.addFlashAttribute("successMsg", "Your account has been deleted successfully.");
+            // Sau khi xóa, đăng xuất người dùng
+            SecurityContextHolder.clearContext();
+            return "redirect:/logout"; // hoặc redirect về trang chủ tùy logic app
+        } else {
+            redirectAttributes.addFlashAttribute("errorMsg", "User not found!");
+            return "redirect:/user/detail";
+        }
     }
 
 

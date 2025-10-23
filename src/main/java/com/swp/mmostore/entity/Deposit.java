@@ -38,6 +38,10 @@ public class Deposit {
     @Column(name = "ActionType")
     private ActionType actionType;
 
+    @ManyToOne
+    @JoinColumn(name = "OrderID") // Tạo cột OrderID trong Deposit
+    private Order order;
+
     @Column(name = "IsDeleted", insertable = false)
     private Boolean isDeleted;
 
@@ -56,4 +60,6 @@ public class Deposit {
     @ManyToOne
     @JoinColumn(name = "UserID")
     private User user;
+
+
 }
