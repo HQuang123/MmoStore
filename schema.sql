@@ -160,3 +160,36 @@ CREATE TABLE ActivityLog (
                              UserID      INT,
                              FOREIGN KEY (UserID)   REFERENCES User(UserID)
 );
+
+CREATE TABLE Withdrawal (
+                            id INT AUTO_INCREMENT PRIMARY KEY,
+                            Amount DECIMAL(15,2) NOT NULL,
+                            Bank VARCHAR(50) NOT NULL,
+                            BankAccount VARCHAR(50) NOT NULL,
+                            AccountHolder VARCHAR(100) NOT NULL,
+                            Status VARCHAR(20) DEFAULT 'Pending',
+                            CreateAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            CreateBy INT, -- User ID of the creator
+                            UpdateAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                            UpdateBy INT, -- User ID of the updater
+                            UserID INT NOT NULL,
+                            FOREIGN KEY (UserID) REFERENCES User(UserID)
+);
+
+CREATE TABLE `Notifications` (
+                                 `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                                 `UserId` INT NOT NULL,
+                                 `title` VARCHAR(255) NOT NULL,
+                                 `content` TEXT,
+                                 `Status` VARCHAR(20) DEFAULT 'Unread',
+                                 `CreateAt` DATETIME DEFAULT CURRENT_TIMESTAMP,
+                                 `UpdateAt` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                 `CreateBy` INT,
+                                 `DeleteBy` INT,
+                                 `IsDeleted` TINYINT(1) DEFAULT 0, -- Using 0 for false
+                                 FOREIGN KEY (`UserId`) REFERENCES `User`(`UserID`),
+
+                                 FOREIGN KEY (`CreateBy`) REFERENCES `User`(`UserId`),
+                                 FOREIGN KEY (`DeleteBy`) REFERENCES `User`(`UserID`)
+);
+

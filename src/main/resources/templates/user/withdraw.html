@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base::layout(~{::section}, ~{::cssFragment}, ~{::jsFragment})}">
+
+    <th:block th:fragment="cssFragment">
+    <link rel="stylesheet" th:href="@{/css/homepage.css}">
+    <!--    <link rel="stylesheet" th:href="@{/css/homepage.css}">-->
+    </th:block>
+
+    <th:block th:fragment="jsFragment">
+    <script src="/javascript/top-up.js"></script>
+    </th:block>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fade-in {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        .animate-fade-in {
+            animation: fade-in 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @media (max-width: 640px) {
+            body {
+                background-position: top center;
+            }
+        }
+    </style>
+</head>
+<body>
+<section>
+    <div class="container mt-5">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h3 class="card-title mb-4">Withdraw Money</h3>
+                <form th:action="@{/user/wallet/witdraw}" th:object="${withdraw}" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Account Holder Name</label>
+                        <input type="text" th:field="*{accountHolder}" class="form-control" placeholder="e.g. Nguyen Van A" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="accountNumber" class="form-label">Account Number</label>
+                        <input  id= "accountNumber"
+                               th:field="*{bankAccount}" class="form-control"
+                               placeholder="Your bank account number"
+                               required type="number">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Select Bank</label>
+                        <select th:field="*{bank}" class="form-select" required>
+                            <option value="">-- Choose Bank --</option>
+                            <option th:each="bank : ${banks}"
+                                    th:value="${bank}"
+                                    th:text="${bank.displayName}"></option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="amount">Amount (VND)</label>
+                        <input type="number" id="amount"
+                               th:field="*{amount}" class="form-control"
+                               min="10000" step="1000"
+                               placeholder="Nhập số tiền ít nhất 10,000 đồng"
+                               th:attr="max=${user.balance?.toPlainString() ?: '0'}" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Submit Withdrawal</button>
+                </form>
+
+                <div th:if="${message}" class="alert alert-success mt-3" th:text="${message}"></div>
+                <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+            </div>
+        </div>
+        Lịch sử rút tiền
+        <div class="overflow-x-auto">
+            <div th:if="${withdrawals != null && !withdrawals.isEmpty()}">
+                <table class="min-w-full divide-y divide-primary-100 rounded-xl overflow-hidden">
+                    <thead class="bg-primary-50">
+                    <tr>
+                        <!-- <th class="px-6 py-3 text-left text-xs font-bold text-primary-600 uppercase tracking-wider">ID</th> -->
+                        <th class="px-6 py-3 text-left text-xs font-bold text-primary-600 uppercase tracking-wider">
+                            STT
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-bold text-primary-600 uppercase tracking-wider cursor-pointer"
+                            onclick="sortTable(1)">
+                            Số tiền
+                            <svg class="inline h-4 w-4 ml-1 sort-icon" fill="none" stroke="currentColor"
+                                 viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                            </svg>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-bold text-primary-600 uppercase tracking-wider">
+                            Trạng thái
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-bold text-primary-600 uppercase tracking-wider cursor-pointer"
+                            onclick="sortTable(3)">
+                            Ngày tháng
+                            <svg class="inline h-4 w-4 ml-1 sort-icon" fill="none" stroke="currentColor"
+                                 viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                            </svg>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-primary-50">
+                    <tr th:each="w, iterStat : ${withdrawals}" class="hover:bg-primary-50 transition-all">
+                        <!-- <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold" th:text="' #' + ${w.id}"></td> -->
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold" th:text="${iterStat.index + 1}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+                            th:text="${w.amount}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                                        <span th:classappend="
+                                            ${w.status} == 'Pending' ? 'px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 border border-yellow-200' :
+                                            (${w.status} == 'Approved' ? 'px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-600 border border-green-200' :
+                                            'px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-600 border border-red-200')
+                                        " th:text="${w.status}"></span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                            th:text="${#dates.format(w.creatAt, 'yyyy-MM-dd HH:mm')}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div th:if="${withdrawals == null || withdrawals.isEmpty()}">
+                <p class="text-gray-500">No withdrawal history found.</p>
+            </div>
+        </div>
+    </div>
+</section>
+<th:block id="js"></th:block>
+</body>
+</html>

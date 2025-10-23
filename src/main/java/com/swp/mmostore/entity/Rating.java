@@ -1,6 +1,9 @@
 package com.swp.mmostore.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,9 +24,12 @@ public class Rating {
     private Integer id;
 
     @Column(name = "RatingPoint")
+    @Min(value = 1, message = "Điểm dánh giá tối thiểu 1")
+    @Max(value = 5, message = "Điểm đánh giá tôi thiểu 5")
     private Integer ratingPoint; // value between 1 and 5
 
     @Column(name = "Feedback", columnDefinition = "TEXT")
+    @Pattern(regexp = "^[\\p{L}\\p{M}\\d\\s,]+$\n", message = "Mô tả chứa ký tự lạ")
     private String feedback;
 
     @Column(name = "IsDeleted")
