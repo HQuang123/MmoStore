@@ -1,19 +1,14 @@
 <!DOCTYPE html>
-<html lang="en"
-      xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{base :: layout(~{::section}, ~{::#css}, ~{::#js})}">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base::layout(~{::section}, ~{::cssFragment}, ~{::jsFragment})}">
 
-
-<head>
-    <meta charset="UTF-8">
-    <title>Withdraw Money</title>
     <th:block th:fragment="cssFragment">
-        <link rel="stylesheet" th:href="@{/css/homepage.css}">
-        <!--    <link rel="stylesheet" th:href="@{/css/homepage.css}">-->
+    <link rel="stylesheet" th:href="@{/css/homepage.css}">
+    <!--    <link rel="stylesheet" th:href="@{/css/homepage.css}">-->
     </th:block>
 
     <th:block th:fragment="jsFragment">
-        <script src="/javascript/withdraw.js"></script>
+    <script src="/javascript/top-up.js"></script>
     </th:block>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
