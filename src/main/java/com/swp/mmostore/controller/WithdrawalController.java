@@ -64,7 +64,7 @@ public class WithdrawalController {
             if (result.hasErrors()) {
                 return "user/withdraw";
             }
-            if (withdrawal.getAmount().compareTo(withdrawal.getUser().getBalance()) > 0) {
+            if (withdrawal.getAmount().compareTo(user.getBalance()) > 0) {
                 redirectAttributes.addFlashAttribute("errorMessage", "Số dư không đủ");
                 return "redirect:/user/wallet/withdraw"; //return to @GET MAPPing
             }
@@ -72,19 +72,20 @@ public class WithdrawalController {
             //Deduct user balance
             user.setBalance(user.getBalance().subtract(withdrawal.getAmount()));
             userRepository.save(user);
+            withdrawal.setUser(user);
             withdrawRequestRepository.save(withdrawal);
             //send email to user
             String subject = "[MMOStore] Đã nộp đơn rút tiền";
-            String content = EmailTemplate.withdrawalRequestEmail(user.getName(), String.format("%,d VND", withdrawal.getAmount().toString()), withdrawal.getBank().getDisplayName() + "-" + withdrawal.getBankAccount(), new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
+            String content = EmailTemplate.withdrawalRequestEmail(user.getName(),  withdrawal.getAmount().toString(), withdrawal.getBank().getDisplayName() + "-" + withdrawal.getBankAccount(), new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
 
-            emailService.sendEmail(user.getEmail(), subject, content);
+            emailService.sendEmailAsync(user.getEmail(), subject, content);
             //
             notificationService.createNotificationForUser(user.getUserId(), "Yêu cầu rút tiền", "Yêu cầu rút " + withdrawal.getAmount() + " VND đã được gửi và đang chờ duyệt !");
             try {
                 notificationService.createNotificationForRole(
                         "ROLE_ADMIN",
                         "Yêu cầu rút tiền của người dùng đang chờ",
-                        "New withdrawal request of " + String.format("%s VND", withdrawal.getAmount()) + " by " + user.getEmail() + " (user id: " + user.getUserId() + ") is pending approval."
+                        "New withdrawal request of " +  withdrawal.getAmount().toString() + " by " + user.getEmail() + "  pending approval."
                 );
             } catch (Exception ignored) {
             }
@@ -96,28 +97,5 @@ public class WithdrawalController {
         }
         return "redirect:/user/wallet/withdraw";
     }
-    //
-
-
-//        // Check 1: Existing Pending Request
-//        if (withdrawRequestRepository.findByUserAndStatus(user, "PENDING").isPresent()) {
-//            redirectAttributes.addFlashAttribute("error", "Bạn dã có yêu cầu rút tiền đang được xử lý!");
-//            return "user/withdraw";
-//        }
-//
-//        //2. Check balance
-//        if (user.getBalance().compareTo(withdrawal.getAmount()) < 0) {
-//            redirectAttributes.addFlashAttribute("error", "Số dư không khả dụng!");
-//            return "user/withdraw";
-//        }
-//
-//        //set pending
-//        withdrawal.setStatus("PENDING");
-//        withdrawal.setUser(user);
-//        withdrawRequestRepository.save(withdrawal);
-//
-//        redirectAttributes.addFlashAttribute("message", "Bạn đã yêu cầu rút tiền thành công !");
-//        redirectAttributes.addFlashAttribute("withdrawalRequest", new Withdrawal());
-//        return "user/withdraw";
     }
 

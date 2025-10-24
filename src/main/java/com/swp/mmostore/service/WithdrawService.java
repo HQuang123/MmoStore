@@ -133,7 +133,7 @@ public class WithdrawService {
 
     public List<Withdrawal> getWithdrawalHistoryForUser(User user) {
         // Call the new method that automatically sorts the results
-        return withdrawalRepository.findByUserOrderByCreatAtDesc(user);
+        return withdrawalRepository.findByUserOrderByCreateAtDesc(user);
     }
 
 }

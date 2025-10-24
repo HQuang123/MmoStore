@@ -10,6 +10,6 @@ import java.util.Optional;
 public interface WithdrawRequestRepository extends JpaRepository<Withdrawal, Integer> {
     List<Withdrawal> findByStatus(String status);
     Optional<Withdrawal> findByUserAndStatus(User user, String status);
-    List<Withdrawal> findByUserOrderByCreatAtDesc(User user);
+    List<Withdrawal> findByUserOrderByCreateAtDesc(User user);
 
 }

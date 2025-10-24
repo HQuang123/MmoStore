@@ -34,14 +34,14 @@ public class Withdrawal {
     private String bankAccount;
 
     @Column(name = "AccountHolder")
-    @Pattern(regexp = "^[\\p{L}\\p{M}\\d\\s,]+$\n", message = "Tên tài khoản chứa ký tự lạ")
+//    @Pattern(regexp = "^[\\p{L}\\p{M}\\d\\s,]+$\n", message = "Tên tài khoản chứa ký tự lạ")
     private String accountHolder;
 
     @Column(name = "status", length = 20, columnDefinition = "VARCHAR(20) DEFAULT 'Pending'")
     private String status = "Pending"; // Pending, Approved, Rejected
 
     @Column(name = "CreateAt", insertable = false)
-    private LocalDateTime creatAt;
+    private LocalDateTime createAt;
 
     @Column(name = "CreateBy", insertable = false)
     private Integer createBy;

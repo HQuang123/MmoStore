@@ -2,47 +2,38 @@ package com.swp.mmostore.util;
 
 public class EmailTemplate {
     public static String verificationEmail(String code) {
-        return "<div style=\"font-family:'Inter',Arial,sans-serif;background:#f7f7f9;padding:32px;\">" +
-                "<div style=\"max-width:480px;margin:auto;background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);overflow:hidden;\">" +
-                "<div style=\"background:linear-gradient(90deg,#ef4444 0,#f59e42 100%);padding:24px 0;text-align:center;border-radius:16px 16px 0 0;\">" +
-                "<h2 style=\"color:#fff;font-size:24px;font-weight:700;margin:0;letter-spacing:1px;\">Xác thực tài khoản - MMOMarket</h2>" +
-                "</div>" +
-                "<div style=\"padding:32px 24px 24px 24px;\">" +
-                "<p style=\"font-size:17px;color:#222;margin-bottom:18px;\">Xin chào,</p>" +
-                "<p style=\"font-size:16px;color:#444;margin-bottom:28px;\">Bạn đã yêu cầu xác thực tài khoản hoặc đổi mật khẩu tại <b>MMOMarket</b>. Vui lòng sử dụng mã OTP bên dưới để hoàn tất quá trình xác thực:</p>" +
-                "<div style=\"text-align:center;margin-bottom:28px;\">" +
-                "<span style=\"display:inline-block;background:#ef4444;color:#fff;font-size:36px;font-weight:700;letter-spacing:8px;padding:18px 40px;border-radius:10px;box-shadow:0 2px 8px rgba(239,68,68,0.12);\">" + code + "</span>" +
-                "</div>" +
-                "<p style=\"font-size:15px;color:#666;margin-bottom:16px;text-align:center;\">Mã OTP có hiệu lực trong <b>5 phút</b>. Vui lòng không chia sẻ mã này cho bất kỳ ai để đảm bảo an toàn tài khoản.</p>" +
-                "<p style=\"font-size:15px;color:#666;margin-bottom:24px;text-align:center;\">Nếu bạn không thực hiện yêu cầu này, hãy bỏ qua email hoặc liên hệ bộ phận hỗ trợ.</p>" +
-                "<div style=\"text-align:center;margin-bottom:8px;\">" +
-                "<a href='http://localhost:8080/authen/login' style='display:inline-block;background:#ef4444;color:#fff;font-weight:600;padding:12px 36px;border-radius:8px;text-decoration:none;font-size:16px;box-shadow:0 2px 8px rgba(239,68,68,0.10);transition:background 0.2s;'>Đăng nhập MMOMarket</a>" +
-                "</div>" +
-                "</div>" +
-                "<div style=\"background:#f7f7f9;color:#aaa;font-size:13px;text-align:center;padding:16px 8px;border-radius:0 0 16px 16px;\">&copy; 2024 MMOMarket. Mọi quyền được bảo lưu.</div>" +
-                "</div>" +
-                "</div>";
+        return STR."<div style=\"font-family:'Inter',Arial,sans-serif;background:#f7f7f9;padding:32px;\"><div style=\"max-width:480px;margin:auto;background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);overflow:hidden;\"><div style=\"background:linear-gradient(90deg,#ef4444 0,#f59e42 100%);padding:24px 0;text-align:center;border-radius:16px 16px 0 0;\"><h2 style=\"color:#fff;font-size:24px;font-weight:700;margin:0;letter-spacing:1px;\">Xác thực tài khoản - MMOMarket</h2></div><div style=\"padding:32px 24px 24px 24px;\"><p style=\"font-size:17px;color:#222;margin-bottom:18px;\">Xin chào,</p><p style=\"font-size:16px;color:#444;margin-bottom:28px;\">Bạn đã yêu cầu xác thực tài khoản hoặc đổi mật khẩu tại <b>MMOMarket</b>. Vui lòng sử dụng mã OTP bên dưới để hoàn tất quá trình xác thực:</p><div style=\"text-align:center;margin-bottom:28px;\"><span style=\"display:inline-block;background:#ef4444;color:#fff;font-size:36px;font-weight:700;letter-spacing:8px;padding:18px 40px;border-radius:10px;box-shadow:0 2px 8px rgba(239,68,68,0.12);\">\{code}</span></div><p style=\"font-size:15px;color:#666;margin-bottom:16px;text-align:center;\">Mã OTP có hiệu lực trong <b>5 phút</b>. Vui lòng không chia sẻ mã này cho bất kỳ ai để đảm bảo an toàn tài khoản.</p><p style=\"font-size:15px;color:#666;margin-bottom:24px;text-align:center;\">Nếu bạn không thực hiện yêu cầu này, hãy bỏ qua email hoặc liên hệ bộ phận hỗ trợ.</p><div style=\"text-align:center;margin-bottom:8px;\"><a href='http://localhost:8080/authen/login' style='display:inline-block;background:#ef4444;color:#fff;font-weight:600;padding:12px 36px;border-radius:8px;text-decoration:none;font-size:16px;box-shadow:0 2px 8px rgba(239,68,68,0.10);transition:background 0.2s;'>Đăng nhập MMOMarket</a></div></div><div style=\"background:#f7f7f9;color:#aaa;font-size:13px;text-align:center;padding:16px 8px;border-radius:0 0 16px 16px;\">&copy; 2024 MMOMarket. Mọi quyền được bảo lưu.</div></div></div>";
     }
 
     public static String withdrawalRequestEmail(String userName, String amount, String bankInfo, String requestDate) {
-        return "<div style=\"font-family:'Inter',Arial,sans-serif;background:#f7f7f9;padding:32px;\">" +
-                "<div style=\"max-width:480px;margin:auto;background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);overflow:hidden;\">" +
-                "<div style=\"background:linear-gradient(90deg,#ef4444 0,#f59e42 100%);padding:24px 0;text-align:center;border-radius:16px 16px 0 0;\">" +
-                "<h2 style=\"color:#fff;font-size:24px;font-weight:700;margin:0;letter-spacing:1px;\">Xác nhận yêu cầu rút tiền</h2>" +
-                "</div>" +
-                "<div style=\"padding:32px 24px 24px 24px;\">" +
-                "<p style=\"font-size:17px;color:#222;margin-bottom:18px;\">Xin chào <b>" + userName + "</b>,</p>" +
-                "<p style=\"font-size:16px;color:#444;margin-bottom:18px;\">Chúng tôi đã nhận được yêu cầu rút tiền của bạn với thông tin sau:</p>" +
-                "<ul style=\"font-size:15px;color:#444;margin-bottom:18px;list-style:none;padding:0;\">" +
-                "<li><b>Số tiền:</b> " + amount + "</li>" +
-                "<li><b>Ngân hàng:</b> " + bankInfo + "</li>" +
-                "<li><b>Thời gian yêu cầu:</b> " + requestDate + "</li>" +
-                "</ul>" +
-                "<p style=\"font-size:15px;color:#666;margin-bottom:24px;\">Yêu cầu sẽ được xử lý trong vòng <b>3-5 ngày làm việc</b>. Nếu cần hỗ trợ, vui lòng liên hệ bộ phận chăm sóc khách hàng.</p>" +
-                "</div>" +
-                "<div style=\"background:#f7f7f9;color:#aaa;font-size:13px;text-align:center;padding:16px 8px;border-radius:0 0 16px 16px;\">&copy; 2024 MMOMarket. Mọi quyền được bảo lưu.</div>" +
-                "</div>" +
-                "</div>";
+        // Define the template using a Text Block (""").
+        // %s is a placeholder for a String.
+        String emailTemplate = """
+        Hello %s,
+
+        We have received your withdrawal request submitted on %s.
+        Our team is now processing it.
+
+        Here are the details of your request:
+        - Amount: %s
+        - Bank Information: %s
+
+        You can expect the funds to be reflected in your account within 3-5
+        business days.
+
+        Thank you,
+        The AwesomeApp Team
+        """;
+
+        // Use String.format() to inject the values into the template.
+        // The order of arguments must match the placeholders (%s) in the template.
+        return String.format(
+                emailTemplate,
+                userName,
+                requestDate,
+                amount,
+                bankInfo
+        );
     }
 
     public static String sellerRegistrationSuccessEmail(String userName) {
