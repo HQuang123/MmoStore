@@ -1,6 +1,8 @@
 package com.swp.mmostore.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +24,7 @@ public class Deposit {
     private Integer id;
 
     @Column(name = "Amount", precision = 15, scale = 2)
+    @Min(value = 5000, message = "Nạp tối thiểu 5000 đồng")
     private BigDecimal amount;
 
     @Column(name = "PaymentMethod", length = 100)
@@ -34,6 +37,10 @@ public class Deposit {
     @Enumerated(EnumType.STRING)
     @Column(name = "ActionType")
     private ActionType actionType;
+
+    @ManyToOne
+    @JoinColumn(name = "OrderID") // Tạo cột OrderID trong Deposit
+    private Order order;
 
     @Column(name = "IsDeleted", insertable = false)
     private Boolean isDeleted;
@@ -53,4 +60,6 @@ public class Deposit {
     @ManyToOne
     @JoinColumn(name = "UserID")
     private User user;
+
+
 }

@@ -47,6 +47,8 @@ public interface ShopRepository extends JpaRepository<Shop, Integer> {
         """)
     List<Shop> findAllByIdWithUser(@Param("ids") List<Integer> ids);
 
+    Shop findByUser_UserId(Integer userId);
+
     @Query("""
         SELECT new com.swp.mmostore.dto.ShopViewDTO(
             s.shopId,

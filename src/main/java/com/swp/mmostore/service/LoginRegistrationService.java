@@ -3,7 +3,6 @@ package com.swp.mmostore.service;
 import com.swp.mmostore.entity.User;
 import com.swp.mmostore.repository.UserRepository;
 import com.swp.mmostore.util.AppConstant;
-import com.swp.mmostore.util.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -114,6 +113,7 @@ public class LoginRegistrationService {
         return userRepository.findByProviderId(providerId);
     }
 
+
     private static final Random RANDOM = new Random();
     //Tạo token và gửi email
     public boolean generateResetTokenAndSendEmail(String email) {
@@ -149,17 +149,23 @@ public class LoginRegistrationService {
     // Cập nhật mật khẩu
     public boolean resetPassword(String email, String token, String newPassword) {
         User user = userRepository.findByEmail(email);
-        if (user == null) return false;
-
-        if (token.equals(user.getResetToken())) {
-            user.setPassword(passwordEncoder.encode(newPassword));
-            user.setResetToken(null); // xóa token sau khi đổi thành công
-            userRepository.save(user);
-            return true;
+        if (user == null) {
+            System.out.println("Không tìm thấy user: " + email);
+            return false;
         }
 
-        return false;
+        System.out.println("Token trong DB: " + user.getResetToken());
+        System.out.println("Token người nhập: " + token);
+
+        if (user.getResetToken() == null) return false;
+        if (!token.equals(user.getResetToken())) return false;
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setResetToken(null);
+        userRepository.save(user);
+        return true;
     }
+
 
 
     public void updateUser(User user) {
@@ -175,6 +181,9 @@ public class LoginRegistrationService {
         }
     }
 
+    public void deleteUser(Integer id) {
+        userRepository.deleteById(id);
+    }
 
 
 
