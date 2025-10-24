@@ -2,6 +2,7 @@ package com.swp.mmostore.repository;
 
 import com.swp.mmostore.dto.ProductDetailDTO;
 import com.swp.mmostore.dto.ShopSummaryDTO;
+import com.swp.mmostore.dto.ShopViewDTO;
 import com.swp.mmostore.entity.Shop;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +18,7 @@ import java.util.List;
 public interface ShopRepository extends JpaRepository<Shop, Integer> {
 
     @Query("""
-                select 
+                select
                         s.shopId,
                         s.name,
                         CAST(COUNT(p.productId) AS int),
@@ -45,4 +46,28 @@ public interface ShopRepository extends JpaRepository<Shop, Integer> {
         WHERE s.shopId IN :ids
         """)
     List<Shop> findAllByIdWithUser(@Param("ids") List<Integer> ids);
+
+    @Query("""
+        SELECT new com.swp.mmostore.dto.ShopViewDTO(
+            s.shopId,
+            s.name,
+            s.description,
+            s.shopImageUrl,
+            s.user.name,
+            s.user.email,
+            COUNT(DISTINCT p.productId),
+            COALESCE(AVG(r.ratingPoint), 0.0),
+            s.createAt,
+            s.updateAt
+        )
+        FROM Shop s
+        LEFT JOIN s.products p
+        LEFT JOIN p.ratings r
+        WHERE s.shopId = :shopId
+          AND s.isDeleted = false
+        GROUP BY s.shopId, s.name, s.description, s.shopImageUrl, s.user.name, s.createAt, s.updateAt
+        """)
+    ShopViewDTO findShopViewById(@Param("shopId") Integer shopId);
+
+
 }

@@ -125,4 +125,24 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             @Param("categoryId") List<String> categoryId
     );
 
+    @Query("""
+            SELECT new com.swp.mmostore.dto.ProductSummaryDTO(
+                p.productId, p.title, p.description, p.price, s.name, COALESCE(AVG(r.ratingPoint), 0)
+            )
+            FROM Product p
+            LEFT JOIN p.shop s
+            LEFT JOIN p.ratings r
+            WHERE p.isDeleted = false
+              AND s.shopId = :shopId
+            GROUP BY p.productId, p.title, p.description, p.price, s.name
+            """)
+    List<ProductSummaryDTO> findProductsByShopId(@Param("shopId") Integer shopId, Pageable pageable);
+
+    @Query("""
+            SELECT COUNT(DISTINCT p.productId)
+            FROM Product p
+            WHERE p.isDeleted = false
+              AND p.shop.shopId = :shopId
+            """)
+    long countProductsByShopId(@Param("shopId") Integer shopId);
 }
