@@ -16,10 +16,11 @@
     <!-- JS tùy chọn -->
 </th:block>
 <th:block th:fragment="content">
+    <div th:if="${successMsg}" class="alert alert-success text-center" th:text="${successMsg}"></div>
     <div  class="seller-layout container-fluid">
         <!-- CONTENT -->
         <th:block th:fragment="content">
-            <div th:if="${successMsg}" class="alert alert-success text-center" th:text="${successMsg}"></div>
+
             <div class="container-fluid">
                 <div class="row">
 
