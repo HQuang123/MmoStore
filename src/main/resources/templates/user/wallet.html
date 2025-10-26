@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base::layout(~{::section}, ~{::cssFragment}, ~{::jsFragment})}">
+
+<th:block th:fragment="cssFragment">
+    <link rel="stylesheet" th:href="@{/css/homepage.css}">
+    <!--    <link rel="stylesheet" th:href="@{/css/homepage.css}">-->
+</th:block>
+
+<th:block th:fragment="jsFragment">
+    <script src="/javascript/top-up.js"></script>
+</th:block>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<section>
+    <div class="container mt-5">
+        <h2 class="mb-4">My Wallet</h2>
+
+        <div class="card p-4 shadow-sm">
+            <h4>Số dư hiện tại:</h4>
+            <h2 class="text-success" th:text="${#numbers.formatDecimal(balance, 0, 'COMMA', 2, 'POINT')} + ' VND'"></h2>
+
+            <div class="mt-4">
+                <a th:href="@{/user/wallet/top-up}" class="btn btn-primary me-2">Nạp tiền vào vi</a>
+                <a th:href="@{/user/wallet/withdraw}" class="btn btn-warning">Rút tiền</a>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

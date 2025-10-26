@@ -8,26 +8,24 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
-@Table(name = "Orders")
+@Table(name = "Items")
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Order {
+public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "OrderID")
-    private Integer orderId;
+    @Column(name = "ItemID")
+    private Integer itemId;
 
-    @Column(name = "Quantity")
-    private Integer quantity;
+    @Column(name = "Value")
+    private String value;
 
-    @Column(name = "TotalPrice", precision = 15, scale = 2)
-    private BigDecimal totalPrice;
+    @Column(name = "IsSold")
+    private Boolean isSold;
 
     @Column(name = "isDeleted", insertable = false)
     private Boolean isDeleted;
@@ -45,28 +43,11 @@ public class Order {
     @Column(name = "UpdateBy", insertable = false)
     private Integer updateBy;
 
-    @Column(name = "Status")
-    private String status;
-
-    @Column(name = "Message")
-    private String message;
-
     @ManyToOne
-    @JoinColumn(name = "UserID")
-    private User user;
-
-    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ProductID")
     private Product product;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Item> items = new ArrayList<>();
-
-
-    public Order(Integer quantity, BigDecimal totalPrice, User user, Product product) {
-        this.quantity = quantity;
-        this.totalPrice = totalPrice;
-        this.user = user;
-        this.product = product;
-    }
+    @ManyToOne
+    @JoinColumn(name = "OrderID")
+    private Order order;
 }

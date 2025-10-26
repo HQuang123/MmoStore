@@ -47,9 +47,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         if (user == null){
             user = new User(name, email,phone,password,provider,providerId);
             user.setProfileImage(profileImg);
+            userService.saveUser(user);
         }
 
-        userService.saveUser(user);
         User savedUser = userService.findByProviderId(providerId);
         int userId = savedUser.getUserId();
         Map<String, Object> attributes = new HashMap<>(oAuth2User.getAttributes()); //oauth2user map is immutable

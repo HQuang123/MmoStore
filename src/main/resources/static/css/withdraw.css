@@ -1,0 +1,22 @@
+/* Use Inter font */
+body {
+    font-family: "Inter", sans-serif;
+}
+/* Custom styles for sort icons */
+.sort-icon {
+    opacity: 0.5;
+    transition: all 0.2s ease;
+}
+.sort-icon.asc {
+    opacity: 1;
+    transform: rotate(0deg);
+}
+.sort-icon.desc {
+    opacity: 1;
+    transform: rotate(180deg);
+}
+/* Hide the default up/down arrows in the SVG */
+.sort-icon .arrow-down { display: block; }
+.sort-icon .arrow-up { display: none; }
+.sort-icon.asc .arrow-down { display: none; }
+.sort-icon.asc .arrow-up { display: block; }

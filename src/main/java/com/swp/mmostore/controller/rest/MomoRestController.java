@@ -6,6 +6,7 @@ import com.swp.mmostore.repository.OrderRepository;
 import com.swp.mmostore.repository.UserRepository;
 import com.swp.mmostore.service.DepositService;
 import com.swp.mmostore.service.MomoService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +37,7 @@ public class MomoRestController {
         return momoService.createQr(deposit);
     }
     //0 is success, !0 is failure
-
+    @Transactional
     @PostMapping("/ipn-handler")
     public ResponseEntity<Object> ipnHandler(@RequestBody Map<String, String> payload) {
         try{
@@ -45,16 +46,19 @@ public class MomoRestController {
             String resultCode = payload.get("resultCode");
             Deposit deposit = depositRepository.findById(depositId).orElse(null);
             log.info("Deposit Id la: {}" ,deposit.getId());
+            log.info("User id la: {}" ,deposit.getUser().getUserId());
+            log.info("Result code la: {}" ,resultCode);
+            log.info("User name la: {}" ,deposit.getUser().getName());
             User user = deposit.getUser();
             //TODO: implement orderService to mark success or failure
             if(resultCode.equals("0")) {
-                //todo: implement
                 deposit.setStatus(DepositStatus.Completed);
-                user.setBalance(user.getBalance().add(deposit.getAmount()));
+                user.setBalance(user.getBalance().add(deposit.getAmount())); //likely to cause error due to
+                depositRepository.save(deposit);
             }
             else{
-                //Todo: implement here
                 deposit.setStatus(DepositStatus.Failed);
+                depositRepository.save(deposit);
             }
             userRepository.save(user);
             return ResponseEntity.noContent().build();
