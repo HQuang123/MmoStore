@@ -1,14 +1,7 @@
 /* ================================
    ORDER HISTORY PAGE ONLY
    ================================ */
-.input-group {
-    position: relative;
-    display: flex
-;
-    flex-wrap: wrap;
-    align-items: stretch;
-    width: 25%;
-}
+
 /* Giới hạn phạm vi để tránh đụng CSS khác */
 .order-history-page {
     background-color: #f8f9fa;
@@ -17,12 +10,18 @@
     font-family: 'Segoe UI', Tahoma, sans-serif;
 }
 
+/* Container trung tâm */
+.order-history-page .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
 /* Tiêu đề */
 .order-history-page .page-title {
     text-align: center;
     font-weight: 700;
-    font-size: 28px;
-
+    font-size: clamp(20px, 3vw, 28px);
     margin-bottom: 30px;
 }
 
@@ -38,17 +37,22 @@
 .order-history-page .filter-form .form-label {
     color: #333;
     font-weight: 600;
+    margin-bottom: 5px;
 }
 
 .order-history-page .filter-form input {
     border: 1px solid #ccc;
     border-radius: 6px;
+    padding: 8px 10px;
     transition: all 0.2s ease-in-out;
+    width: 100%;
 }
 
 .order-history-page .filter-form input:focus {
-    background-color: #1E7B57;
-    box-shadow: 0 0 4px rgb(220, 53, 69);
+    background-color: #f5f5f5;
+    box-shadow: 0 0 4px rgba(30, 123, 87, 0.4);
+    border-color: #1E7B57;
+    outline: none;
 }
 
 .order-history-page .filter-form button {
@@ -57,6 +61,7 @@
     border-radius: 6px;
     color: #fff;
     font-weight: 600;
+    padding: 8px 16px;
     transition: all 0.2s ease-in-out;
 }
 
@@ -64,7 +69,43 @@
     background-color: #5d4037;
 }
 
-/* Bảng đơn hàng */
+/* ================================
+   FILTER CONTAINER
+   ================================ */
+.filter-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    gap: 20px;
+}
+
+.filter-form {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.filter-form .form-control {
+    flex: 1 1 200px;
+    min-width: 160px;
+}
+
+.filter-btn {
+    white-space: nowrap;
+    height: 38px;
+}
+
+/* ================================
+   ORDER TABLE
+   ================================ */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
 .order-history-page table {
     width: 100%;
     border-collapse: collapse;
@@ -72,6 +113,7 @@
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    min-width: 700px; /* tránh vỡ bố cục */
 }
 
 .order-history-page thead {
@@ -91,14 +133,17 @@
     background-color: #f6f6f6;
 }
 
-/* Phân trang */
+/* ================================
+   PAGINATION
+   ================================ */
 .order-history-page .pagination {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
     margin-top: 25px;
     font-weight: 600;
+    flex-wrap: wrap;
 }
 
 .order-history-page .pagination a {
@@ -118,37 +163,23 @@
 .order-history-page .pagination span {
     color: #333;
 }
-.filter-container {
+
+/* ================================
+   INPUT GROUPS
+   ================================ */
+.input-group {
+    position: relative;
     display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
     flex-wrap: wrap;
-    margin-bottom: 20px;
-    gap: 20px;
+    align-items: stretch;
+    width: 100%;
+    max-width: 300px;
 }
 
-.filter-form {
-    display: flex;
-    align-items: flex-end;
-    gap: 10px;
-}
-
-.filter-form .form-label {
-    font-weight: 600;
-    margin-bottom: 5px;
-}
-
-.filter-form .form-control {
-    min-width: 160px;
-}
-
-.filter-btn {
-    white-space: nowrap;
-    height: 38px;
-}
-
-/* Responsive: tự xuống hàng trên màn hình nhỏ */
-@media (max-width: 768px) {
+/* ================================
+   RESPONSIVE DESIGN
+   ================================ */
+@media (max-width: 992px) {
     .filter-container {
         flex-direction: column;
         align-items: flex-start;
@@ -156,11 +187,46 @@
 
     .filter-form {
         width: 100%;
-        flex-wrap: wrap;
     }
 
     .filter-btn {
         width: 100%;
-        margin-top: 5px;
+    }
+}
+
+@media (max-width: 768px) {
+    .order-history-page {
+        padding: 30px 15px;
+    }
+
+    .order-history-page th,
+    .order-history-page td {
+        font-size: 14px;
+        padding: 10px;
+    }
+}
+
+@media (max-width: 576px) {
+    .order-history-page {
+        padding: 20px 10px;
+    }
+
+    .order-history-page .page-title {
+        font-size: clamp(18px, 5vw, 24px);
+    }
+
+    .order-history-page th,
+    .order-history-page td {
+        font-size: 13px;
+        padding: 8px;
+    }
+
+    .order-history-page .pagination a {
+        padding: 4px 10px;
+        font-size: 13px;
+    }
+
+    .filter-container {
+        gap: 10px;
     }
 }
