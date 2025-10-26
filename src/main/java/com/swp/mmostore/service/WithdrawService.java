@@ -3,24 +3,27 @@ package com.swp.mmostore.service;
 import com.swp.mmostore.entity.User;
 import com.swp.mmostore.entity.Withdrawal;
 import com.swp.mmostore.repository.UserRepository;
-import com.swp.mmostore.repository.WithdrawRequestRepository;
+import com.swp.mmostore.repository.WithdrawalRepository;
 import com.swp.mmostore.util.EmailTemplate;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Pageable;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import jakarta.persistence.criteria.Predicate;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class WithdrawService {
-    private final WithdrawRequestRepository withdrawalRepository;
+    private final WithdrawalRepository withdrawalRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
 
@@ -134,6 +137,35 @@ public class WithdrawService {
     public List<Withdrawal> getWithdrawalHistoryForUser(User user) {
         // Call the new method that automatically sorts the results
         return withdrawalRepository.findByUserOrderByCreateAtDesc(user);
+    }
+
+    public Page<Withdrawal> findWithdrawals(String keyword, String status, Pageable pageable) {
+
+        // giong query builder cho sql query)
+        Specification<Withdrawal> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // 1. Filter by keyword in user's name
+            if (keyword != null && !keyword.isBlank()) {
+                // Assumes Withdraw has a 'user' relationship, and User has a 'username' or 'fullName' field
+                predicates.add(cb.like(cb.lower(root.get("user").get("name")), "%" + keyword.toLowerCase() + "%"));
+            }
+
+            // 2. Filter by status
+            if (status != null && !status.isBlank()) {
+                try {
+                    predicates.add(cb.equal(root.get("status"), status));
+                } catch (IllegalArgumentException e) {
+                    // Handle invalid status string if necessary
+                }
+            }
+
+            // Combine all predicates with AND
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        // Execute the query with the dynamic specification and pagination
+        return withdrawalRepository.findAll(spec, pageable);
     }
 
 }
