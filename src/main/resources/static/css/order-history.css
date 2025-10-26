@@ -1,7 +1,14 @@
 /* ================================
    ORDER HISTORY PAGE ONLY
    ================================ */
-
+.input-group {
+    position: relative;
+    display: flex
+;
+    flex-wrap: wrap;
+    align-items: stretch;
+    width: 25%;
+}
 /* Giới hạn phạm vi để tránh đụng CSS khác */
 .order-history-page {
     background-color: #f8f9fa;

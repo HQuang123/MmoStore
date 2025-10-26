@@ -18,6 +18,7 @@
 
 <!-- CONTENT -->
 <th:block th:fragment="content">
+    <div th:if="${successMsg}" class="alert alert-success text-center" th:text="${successMsg}"></div>
     <div class="container-fluid">
         <div class="row">
 
@@ -70,7 +71,7 @@
                             <div class="card-body">
                                 <h5 class="card-title">Total Revenue</h5>
                                 <p class="card-text fs-5">
-                                    <span th:text="${#numbers.formatDecimal(dashboard.totalRevenue, 0, 'COMMA', 3, 'COMMA')}"></span> VNĐ
+                                    <span th:text="${#numbers.formatDecimal(dashboard.totalRevenue, 0, 'COMMA', 0, 'COMMA')}"></span> VNĐ
                                 </p>
                             </div>
                         </div>

@@ -26,7 +26,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
         o.createAt,
         o.status,
         o.totalPrice,
-        COALESCE(d.paymentMethod, 'N/A')
+        COALESCE(d.paymentMethod, 'MMO')
     )
     FROM Order o
     LEFT JOIN o.product p
@@ -120,28 +120,22 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
 
     @Query("""
-        SELECT new com.swp.mmostore.dto.ShopOrderHistoryDTO(
-            o.orderId,
-            p.productId,
-            p.title,
-            o.quantity,
-            p.price,
-            o.totalPrice,
-            o.createAt,
-            o.status
-        )
-        FROM Order o
-        JOIN o.product p
-        JOIN p.shop s
-        WHERE s.shopId = :shopId
-          AND (:minQuantity IS NULL OR o.quantity >= :minQuantity)
-          AND (:minTotal IS NULL OR o.totalPrice >= :minTotal)
-          AND (:maxTotal IS NULL OR o.totalPrice <= :maxTotal)
-          AND (:startDate IS NULL OR o.createAt >= :startDate)
-          AND (:endDate IS NULL OR o.createAt <= :endDate)
-          AND (:status IS NULL OR o.status = :status)
-        ORDER BY o.createAt DESC
-    """)
+    SELECT new com.swp.mmostore.dto.ShopOrderHistoryDTO(
+        o.orderId, p.productId, p.title, o.quantity, p.price,
+        o.totalPrice, o.createAt, o.status
+    )
+    FROM Order o
+    JOIN o.product p
+    JOIN p.shop s
+    WHERE s.shopId = :shopId
+      AND (:minQuantity IS NULL OR o.quantity >= :minQuantity)
+      AND (:minTotal IS NULL OR o.totalPrice >= :minTotal)
+      AND (:maxTotal IS NULL OR o.totalPrice <= :maxTotal)
+      AND (:startDate IS NULL OR o.createAt >= :startDate)
+      AND (:endDate IS NULL OR o.createAt <= :endDate)
+      AND (:status IS NULL OR UPPER(TRIM(o.status)) = UPPER(TRIM(:status)))
+    ORDER BY o.createAt DESC
+""")
     Page<ShopOrderHistoryDTO> findFilteredOrdersByShop(
             @Param("shopId") Integer shopId,
             @Param("minQuantity") Integer minQuantity,
@@ -152,6 +146,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
             @Param("status") String status,
             Pageable pageable
     );
+
 
 
 
