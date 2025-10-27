@@ -2,6 +2,7 @@ package com.swp.mmostore.controller;
 
 
 import com.swp.mmostore.dto.OrderStatisticDTO;
+import com.swp.mmostore.entity.DepositStatus;
 import com.swp.mmostore.entity.Shop;
 import com.swp.mmostore.entity.User;
 import com.swp.mmostore.service.*;
@@ -146,7 +147,8 @@ public class UserController {
 
 
     @PostMapping("/user/seller_register")
-    public String registerSeller(@RequestParam("name") String name,
+    public String registerSeller(RedirectAttributes redirectAttributes,
+                                 @RequestParam("name") String name,
                                  @RequestParam("description") String description,
                                  @RequestParam("shopImage") MultipartFile shopImage,
                                  HttpSession session) {
@@ -162,7 +164,7 @@ public class UserController {
         }
 
         try {
-            walletService.deductMoney(user.getUserId(), BigDecimal.valueOf(10), "MoMo");
+            walletService.deductMoney(user.getUserId(), BigDecimal.valueOf(200000), "MMO");
         } catch (RuntimeException e) {
             session.setAttribute("errorMsg", e.getMessage());
             return "redirect:/user/seller_register";
@@ -189,12 +191,12 @@ public class UserController {
 
         // Cập nhật role người dùng thành SELLER nếu chưa có
         if (!user.getRole().contains("ROLE_SELLER")) {
-            user.setRole(user.getRole()+",ROLE_SELLER");
+            user.setRole(STR."\{user.getRole()},ROLE_SELLER");
             userService.updateUser(user);
         }
 
-        session.setAttribute("successMsg", "Đăng ký cửa hàng thành công! Hãy bắt đầu bán hàng ngay.");
-        return "redirect:/user/detail";
+        redirectAttributes.addFlashAttribute("successMsg", "Đăng ký cửa hàng thành công! Hãy bắt đầu bán hàng ngay.");
+        return "redirect:/seller/statistic";
     }
 
 
@@ -234,12 +236,18 @@ public class UserController {
                 paymentMethod,
                 minTotal,
                 maxTotal,
-                PageRequest.of(page, 10)
+                PageRequest.of(page, 2)
         );
+
+        System.out.println("minTotal = " + minTotal + ", maxTotal = " + maxTotal);
 
         model.addAttribute("orderPage", orderPage);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", orderPage.getTotalPages());
+
+        // render enum Status trong dropdown
+        model.addAttribute("statuses", DepositStatus.values());
+        model.addAttribute("selectedStatus", status);
 
         return "order-history";
     }

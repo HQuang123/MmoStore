@@ -3,6 +3,7 @@ package com.swp.mmostore.controller;
 import com.swp.mmostore.dto.ProductSalesDTO;
 import com.swp.mmostore.dto.ShopOrderHistoryDTO;
 import com.swp.mmostore.dto.ShopStatisticDTO;
+import com.swp.mmostore.entity.DepositStatus;
 import com.swp.mmostore.entity.Shop;
 import com.swp.mmostore.entity.User;
 import com.swp.mmostore.service.LoginRegistrationService;
@@ -53,7 +54,7 @@ public class  SellerController {
 
         Integer shopId = shop.getShopId();
 
-        Page<ProductSalesDTO> reportPage = shopService.getSoldProductsByShop(shopId, page, 10);
+        Page<ProductSalesDTO> reportPage = shopService.getSoldProductsByShop(shopId, page, 1);
 
         model.addAttribute("shop", shop);
         model.addAttribute("reportList", reportPage.getContent());
@@ -72,14 +73,14 @@ public class  SellerController {
     @GetMapping("/seller/orders")
     public String viewShopOrders(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(required = false) Integer minQuantity,
-            @RequestParam(required = false) BigDecimal minTotal,
-            @RequestParam(required = false) BigDecimal maxTotal,
-            @RequestParam(required = false)
+            @RequestParam(value = "minQuantity", required = false) Integer minQuantity,
+            @RequestParam(value = "minTotal", required = false) BigDecimal minTotal,
+            @RequestParam(value = "maxTotal", required = false) BigDecimal maxTotal,
+            @RequestParam(value = "startDate", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(required = false)
+            @RequestParam(value = "endDate", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @RequestParam(required = false) String status,
+            @RequestParam(value = "status", required = false) String status,
             Model model
     ) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -87,14 +88,17 @@ public class  SellerController {
         User user = userService.getUserByEmail(email);
         Shop shop = shopService.findByUserId(user.getUserId());
 
-        // Convert LocalDate → LocalDateTime cho JPQL filter
-        LocalDateTime startDateTime = (startDate != null) ? startDate.atStartOfDay() : null;
-        LocalDateTime endDateTime = (endDate != null) ? endDate.atTime(23, 59, 59) : null;
+        // --- Chuẩn hóa input ---
+        status = (status != null && !status.isBlank()) ? status : null;
+        minQuantity = (minQuantity != null && minQuantity > 0) ? minQuantity : null;
+        minTotal = (minTotal != null && minTotal.compareTo(BigDecimal.ZERO) > 0) ? minTotal : null;
+        maxTotal = (maxTotal != null && maxTotal.compareTo(BigDecimal.ZERO) > 0) ? maxTotal : null;
 
-        // Pageable cho phân trang
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("createAt").descending());
+        LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
+        LocalDateTime endDateTime = endDate != null ? endDate.plusDays(1).atStartOfDay() : null;
 
-        // Gọi service đúng method và tham số
+        Pageable pageable = PageRequest.of(page, 1, Sort.by("createAt").descending());
+
         Page<ShopOrderHistoryDTO> orderPage = orderService.getFilteredOrders(
                 shop.getShopId(),
                 minQuantity,
@@ -106,12 +110,12 @@ public class  SellerController {
                 pageable
         );
 
+        // --- Add model attributes ---
         model.addAttribute("shop", shop);
         model.addAttribute("orderList", orderPage.getContent());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", orderPage.getTotalPages());
 
-        // Giữ lại giá trị lọc
         model.addAttribute("minQuantity", minQuantity);
         model.addAttribute("minTotal", minTotal);
         model.addAttribute("maxTotal", maxTotal);
@@ -119,7 +123,14 @@ public class  SellerController {
         model.addAttribute("endDate", endDate);
         model.addAttribute("status", status);
 
+        model.addAttribute("statuses", com.swp.mmostore.entity.DepositStatus.values());
+        model.addAttribute("selectedStatus", status);
+
         return "seller/orders";
     }
+
+
+
+
 
 }
