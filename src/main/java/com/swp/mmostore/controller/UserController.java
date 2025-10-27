@@ -191,7 +191,7 @@ public class UserController {
 
         // Cập nhật role người dùng thành SELLER nếu chưa có
         if (!user.getRole().contains("ROLE_SELLER")) {
-            user.setRole(STR."\{user.getRole()},ROLE_SELLER");
+            user.setRole("ROLE_USER,ROLE_SELLER");
             userService.updateUser(user);
         }
 
