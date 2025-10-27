@@ -25,7 +25,7 @@ public class Category {
     private Integer categoryId;
 
     @Column(name = "Name", length = 255)
-    @Pattern(regexp = "^\\p{Lu}\\p{Ll}*(?:\\s+\\p{Ll}\\p{Ll}*)*$\n", message = "Tên danh mục sản phẩm phải in hoa chữ cái đầu tiên, ví dụ: Bánh mỳ")
+//    @Pattern(regexp = "^\\p{Lu}\\p{Ll}*(?:\\s+\\p{Ll}\\p{Ll}*)*$\n", message = "Tên danh mục sản phẩm phải in hoa chữ cái đầu tiên, ví dụ: Bánh mỳ")
     private String name;
 
     @Column(name = "Description", columnDefinition = "TEXT")

@@ -55,7 +55,7 @@
                 </tr>
 
                 <tr th:each="withdraw : ${withdrawPage.content}">
-                    <td th:text="${withdraw.user.name}">User naem</td>
+                    <td th:text="${withdraw.user.name}">User name</td>
                     <td th:text="${withdraw.user.email}">user@example.com</td>
                     <td th:text="${#numbers.formatDecimal(withdraw.amount, 0, 'POINT', 0, 'NONE')} + ' ₫'">100.000 ₫</td>
                     <td>
