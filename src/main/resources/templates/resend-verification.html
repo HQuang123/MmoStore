@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base::layout(~{::section}, ~{::cssFragment}, ~{::jsFragment})}">
+
+<!-- Fragment CSS -->
+<th:block th:fragment="cssFragment">
+    <meta charset="UTF-8">
+    <title>Gửi lại mã xác nhận</title>
+    <link rel="stylesheet" th:href="@{/css/forgot-password.css}" />
+</th:block>
+
+<!-- Nội dung chính -->
+<section th:fragment="section">
+    <a th:href="@{/login}" class="btn btn-outline-primary btn-sm">
+        ← Quay lại trang đăng nhập
+    </a>
+    <div class="container mt-5 p-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6 mt-3 p-5">
+                <div class="card shadow p-3 mb-5 bg-body rounded">
+                    <div class="card-header">
+                        <p class="fs-4 text-center">Gửi lại mã xác nhận email</p>
+
+                        <!-- Thông báo -->
+
+                        <div th:if="${error}" class="text-danger fw-bold text-center mt-2">
+                            [[${error}]]
+                        </div>
+                        <!-- Kết thúc thông báo -->
+                    </div>
+
+                    <form action="/resend-verification" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control"
+                                   placeholder="Nhập email để gửi lại mã xác nhận" required />
+                        </div>
+                        <button type="submit" class="btn bg-danger text-white col-md-12">
+                            Gửi mã
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Fragment JS -->
+<th:block th:fragment="jsFragment">
+    <!-- Nếu có script riêng thì thêm ở đây -->
+</th:block>
+
+</html>

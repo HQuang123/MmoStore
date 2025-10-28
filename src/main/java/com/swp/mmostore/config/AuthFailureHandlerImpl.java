@@ -1,7 +1,6 @@
 package com.swp.mmostore.config;
 
 import com.swp.mmostore.entity.User;
-import com.swp.mmostore.repository.UserRepository;
 import com.swp.mmostore.service.LoginRegistrationService;
 import com.swp.mmostore.util.AppConstant;
 import jakarta.servlet.ServletException;
@@ -20,27 +19,27 @@ import java.io.IOException;
 public class AuthFailureHandlerImpl extends SimpleUrlAuthenticationFailureHandler {
 
     @Autowired
-    LoginRegistrationService userService;
+    LoginRegistrationService loginRegistrationService;
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
         String email = request.getParameter("username");
-        User user= userService.getUserByEmail(email);
+        User user= loginRegistrationService.getUserByEmail(email);
         if(user != null ){
             //if user email exists
             if(user.getStatus()){ //get account status
                 if(user.getAccountStatusNonLocked()){
                     //if account is not locked, -> login failed -> increase failed attempt
                     if(user.getAccountFailedAttempt() < AppConstant.ATTEMPT_COUNT){
-                        userService.userFailedAttemptIncrease(user);
+                        loginRegistrationService.userFailedAttemptIncrease(user);
                     }
                     //if attemp = 3 -> lock account
                     else{
-                        userService.userAccountLock(user);
+                        loginRegistrationService.userAccountLock(user);
                         exception = new LockedException("Your account is locked! Failed attempt 3");
                     }
                 }else{
-                    if(userService.isUnlockAccountTimeExpired(user)){
+                    if(loginRegistrationService.isUnlockAccountTimeExpired(user)){
                         exception = new LockedException("Your account is unlocked, now you can not login to system");
                     }
                     else{

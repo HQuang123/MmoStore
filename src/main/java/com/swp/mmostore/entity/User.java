@@ -40,7 +40,7 @@ public class User {
     @Column(name = "Role", length = 255, insertable = false)
     private String role; // Note: ENUM might need a custom converter, but String works for now
 
-    @Column(name = "Balance", precision = 10, scale = 2, insertable = false)
+    @Column(name = "Balance", columnDefinition = "Decimal(10,2) DEFAULT 0.00", precision = 10, scale = 2, insertable = false)
     private BigDecimal balance;
 
     @Column(name = "Status", columnDefinition = "Boolean DEFAULT true", insertable = false)

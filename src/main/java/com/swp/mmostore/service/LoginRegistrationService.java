@@ -1,13 +1,16 @@
 package com.swp.mmostore.service;
 
 import com.swp.mmostore.entity.User;
+import com.swp.mmostore.entity.VerificationToken;
 import com.swp.mmostore.repository.UserRepository;
+import com.swp.mmostore.repository.VerificationTokenRepository;
 import com.swp.mmostore.util.AppConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -20,13 +23,17 @@ public class LoginRegistrationService {
     //--> must use @Lazy annotation
     private PasswordEncoder passwordEncoder;
 
+    private VerificationTokenRepository verificationTokenRepository;
+
     @Autowired
-    public LoginRegistrationService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public LoginRegistrationService(UserRepository userRepository, PasswordEncoder passwordEncoder, VerificationTokenRepository verificationTokenRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.verificationTokenRepository = verificationTokenRepository;
     }
     @Autowired
     private EmailService emailService;
+
     public User saveUser(User user) {
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
@@ -116,6 +123,49 @@ public class LoginRegistrationService {
 
     private static final Random RANDOM = new Random();
     //Tạo token và gửi email
+    public void generateRegisterTokenAndSendEmail(User user, String siteUrl) {
+        User unverifiedUser = userRepository.findByEmail(user.getEmail());
+        //set status to false
+        user.setStatus(false);
+        userRepository.save(user);
+        String token = String.format("%05d", RANDOM.nextInt(100_000));
+        VerificationToken verificationToken = new VerificationToken(token, unverifiedUser);
+        verificationTokenRepository.save(verificationToken);
+        emailService.sendVerificationEmail(unverifiedUser, token, siteUrl);
+    }
+
+    public void resendVerificationEmail(User unverifiedUser, String siteUrl) {
+        VerificationToken verificationToken = verificationTokenRepository.findByUser(unverifiedUser);
+        if(verificationToken != null){
+            verificationTokenRepository.delete(verificationToken);
+        }
+        String token = String.format("%05d", RANDOM.nextInt(100_000));
+        VerificationToken newVerificationToken = new VerificationToken(token, unverifiedUser); //tao moi token
+        verificationTokenRepository.save(newVerificationToken);
+        emailService.sendVerificationEmail(unverifiedUser, token, siteUrl);
+    }
+
+
+    public String verifyUserToken(String token) {
+        VerificationToken verificationToken = verificationTokenRepository.findByToken(token);
+
+        if (verificationToken == null) {
+            return "invalid"; // Token not found
+        }
+
+        if (verificationToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            verificationTokenRepository.delete(verificationToken); // Clean up expired token
+            return "expired"; // Token is expired
+        }
+
+        User user = verificationToken.getUser();
+        user.setStatus(true);
+        userRepository.save(user);
+
+        verificationTokenRepository.delete(verificationToken); // Token is used, delete it
+        return "success";
+    }
+
     public boolean generateResetTokenAndSendEmail(String email) {
         User user = userRepository.findByEmail(email);
         if (user == null) return false;

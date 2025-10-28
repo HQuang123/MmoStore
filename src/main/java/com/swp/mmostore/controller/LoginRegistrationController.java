@@ -1,13 +1,13 @@
 package com.swp.mmostore.controller;
 
 import com.swp.mmostore.entity.User;
+import com.swp.mmostore.repository.UserRepository;
 import com.swp.mmostore.service.CloudStorageService;
 import com.swp.mmostore.service.LoginRegistrationService;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -15,14 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.Map;
 
@@ -38,7 +31,13 @@ public class LoginRegistrationController {
     CloudStorageService cloudStorageService;
 
     @Autowired
-    LoginRegistrationService userService;
+    LoginRegistrationService loginRegistrationService;
+    private UserRepository userRepository;
+
+    private String getSiteURL(HttpServletRequest request) {
+        String siteURL = request.getRequestURL().toString();
+        return siteURL.replace(request.getServletPath(), "");
+    }
 
     @GetMapping("/login")
     public String login(){
@@ -51,12 +50,12 @@ public class LoginRegistrationController {
     }
 
     @PostMapping("/save-user")
-    public String saveUserDetails(@ModelAttribute User user, @RequestParam("file") MultipartFile file, Model model, HttpSession session)
+    public String saveUserDetails(@ModelAttribute User user, @RequestParam("file") MultipartFile file, HttpServletRequest request, RedirectAttributes redirectAttributes)
             throws IOException {
 
         String email = user.getEmail();
-        if(userService.getUserByEmail(email) != null){
-            session.setAttribute("errorMsg","Email đã tồn tại");
+        if(loginRegistrationService.getUserByEmail(email) != null){
+            redirectAttributes.addFlashAttribute("errorMsg","Email đã tồn tại");
             return "redirect:/register";
         }
         String profileImageUrl;
@@ -65,7 +64,7 @@ public class LoginRegistrationController {
                 profileImageUrl = cloudStorageService.uploadFile(file);
             } catch (Exception e){
                 e.printStackTrace();
-                session.setAttribute("errorMsg","Lỗi khi up ảnh");
+                redirectAttributes.addFlashAttribute("errorMsg","Lỗi khi up ảnh");
                 return "redirect:/register";
             }
         }
@@ -73,15 +72,50 @@ public class LoginRegistrationController {
             profileImageUrl = "https://storage.googleapis.com/mmostore/default.jpg";
         }
         user.setProfileImage(profileImageUrl);
-        User savedUser = userService.saveUser(user);
+        User savedUser = loginRegistrationService.saveUser(user);
+        //Change status back to inactive for verification
+        String siteUrl = getSiteURL(request);
+        loginRegistrationService.generateRegisterTokenAndSendEmail(savedUser, siteUrl);
+        // Generate verification token
         if (!ObjectUtils.isEmpty(savedUser)) {
-            session.setAttribute("successMsg", "Bạn đã đăng ký thành công");
+            redirectAttributes.addFlashAttribute("successMsg", "Bạn đã đăng ký thành công, hãy vào email để nhấn vào đường link xác nhận tài khoản");
         } else {
-            session.setAttribute("errorMsg", "Hiện tại dịch vụ đang gián đoạn, hãy thử lại sau");
+            redirectAttributes.addFlashAttribute("errorMsg", "Hiện tại dịch vụ đang gián đoạn, hãy thử lại sau");
         }
-
         return "redirect:/register";
     }
+
+    @GetMapping("/resend-verification")
+    public String resendVerificationEmail() { return "resend-verification";}
+
+    @PostMapping("/resend-verification")
+    public String processResendVerification(@RequestParam("email") String email, RedirectAttributes redirectAttributes, HttpServletRequest request){
+        try{
+            String siteUrl = getSiteURL(request);
+            loginRegistrationService.resendVerificationEmail(loginRegistrationService.getUserByEmail(email), siteUrl);
+            redirectAttributes.addFlashAttribute("successMsg", "Đã gửi link xác nhận !");
+
+        }catch (Exception e){
+            redirectAttributes.addFlashAttribute("errorMsg", "Lỗi server!");
+        }
+        return "redirect:/login";
+    }
+
+    @GetMapping("/verify-email")
+    public String verifyEmail(@RequestParam("token") String token, RedirectAttributes redirectAttributes) {
+        String result = loginRegistrationService.verifyUserToken(token);
+        if(result.equalsIgnoreCase("success")){
+            redirectAttributes.addFlashAttribute("successMsg", "Tài khoản đã được xác thực thành công, vui lòng đăng nhập lại !");
+        }
+        else if("expired".equalsIgnoreCase(result) ){
+            redirectAttributes.addFlashAttribute("errorMsg", "Đường dẫn quá hạn, hãy đăng ký lại");
+        }
+        else{
+            redirectAttributes.addFlashAttribute("errorMsg", "Sai mã số !");
+        }
+        return "redirect:/login";
+    }
+
     // Gửi token qua email
     @GetMapping("/forgot-password")
     public String forgotPasswordPage() {
@@ -92,7 +126,7 @@ public class LoginRegistrationController {
     public String processForgotPassword(@RequestParam("email") String email,
                                         RedirectAttributes redirectAttributes,
                                         Model model) {
-        boolean sent = userService.generateResetTokenAndSendEmail(email);
+        boolean sent = loginRegistrationService.generateResetTokenAndSendEmail(email);
         if (sent) {
             redirectAttributes.addAttribute("email", email); // Spring tự encode
             return "redirect:/confirm-token";
@@ -114,7 +148,7 @@ public class LoginRegistrationController {
     @ResponseBody
     public Map<String, Boolean> verifyToken(@RequestParam String email, @RequestParam String token) {
         System.out.println("API verify-token called: email=" + email + ", token=" + token);
-        boolean valid = userService.verifyResetToken(email, token);
+        boolean valid = loginRegistrationService.verifyResetToken(email, token);
         return Collections.singletonMap("valid", valid);
     }
 
@@ -132,7 +166,7 @@ public class LoginRegistrationController {
             return "confirm-token";
         }
 
-        boolean success = userService.resetPassword(email, token, password);
+        boolean success = loginRegistrationService.resetPassword(email, token, password);
         if (success) {
             return "redirect:/login?success=true"; // hoặc LOGIN_VIEW
         } else {

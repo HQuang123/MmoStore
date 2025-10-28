@@ -1,6 +1,7 @@
 package com.swp.mmostore.service;
 
 import com.google.api.client.util.Value;
+import com.swp.mmostore.entity.User;
 import com.swp.mmostore.util.EmailTemplate;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -37,6 +38,20 @@ public class EmailService {
         message.setSubject(subject);
         message.setText(content);
         mailSender.send(message);
+    }
+
+    public void sendVerificationEmail(User user, String token, String siteURL) {
+        String recipientAddress = user.getEmail();
+        String subject = "Confirm Your Registration";
+        String verificationUrl = siteURL + "/verify-email?token=" + token;
+        String message = "Thank you for registering. Please click the link below to verify your email address:";
+
+        SimpleMailMessage email = new SimpleMailMessage();
+        email.setTo(recipientAddress);
+        email.setSubject(subject);
+        email.setText(message + "\r\n" + verificationUrl);
+
+        mailSender.send(email);
     }
     // Public API: generic async email sender with retry
     @Async

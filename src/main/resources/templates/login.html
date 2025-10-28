@@ -29,6 +29,8 @@
                         <!-- Logout and Signin Error Alert -->
                         <div th:if="${param.error}" class="alert alert-danger text-center">[[${session.SPRING_SECURITY_LAST_EXCEPTION.message}]]</div>
                         <div th:if="${param.logout}" class="alert alert-success text-center">Logout Successfully.</div>
+                        <div th:if="${successMsg}" class="alert alert-success text-center" th:text="${successMsg}"></div>
+                        <div th:if="${errorMsg}" class="alert alert-danger text-center" th:text="${errorMsg}"></div>
                         <div th:if="${param.success}" class="alert alert-success text-center">
                             Password reset success !
                         </div>
@@ -43,20 +45,20 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Password</label> <input
+                                <label class="form-label">Mật khẩu</label> <input
                                     class="form-control" name="password" type="password" />
                             </div>
-                            <button type="submit" class="btn bg-danger text-white col-md-12">Submit</button>
+                            <button type="submit" class="btn bg-danger text-white col-md-12">Đăng nhập</button>
                         </form>
 
                         <div class="text-center mt-3">
-                            <a class="btn btn-outline-primary col-md-12" href="/oauth2/authorization/google">Continue with Google</a>
+                            <a class="btn btn-outline-primary col-md-12" href="/oauth2/authorization/google">Đăng nhập với Gmail</a>
                         </div>
 
                     </div>
                     <div class="card-footer text-center">
-                        <a href="/forgot-password" class="text-decoration-none">Forgot Password ?</a><br>Don't have an account?
-                        <a href="/register" class="text-decoration-none"> Create One</a>
+                        <a href="/forgot-password" class="text-decoration-none">Forgot Password ?</a><br>Không có tài khoản
+                        <a href="/register" class="text-decoration-none"> Tạo mới</a>
                     </div>
                 </div>
             </div>

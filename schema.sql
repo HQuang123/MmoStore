@@ -193,3 +193,11 @@ CREATE TABLE `Notifications` (
                                  FOREIGN KEY (`DeleteBy`) REFERENCES `User`(`UserID`)
 );
 
+CREATE TABLE VerificationToken (
+                                    ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                                    Token VARCHAR(255) NOT NULL UNIQUE,
+                                    ExpiryDate DATETIME NOT NULL,
+                                    UserID INT NOT NULL UNIQUE,
+                                    FOREIGN KEY (UserID) REFERENCES User(UserID)
+);
+
