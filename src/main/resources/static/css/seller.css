@@ -1,23 +1,53 @@
-body {
-    font-family: "Segoe UI", sans-serif;
-}
-#sidebar {
-    position: relative;
-}
-
-
-#sidebar .nav-link {
-    padding: 10px 15px;
-    border-radius: 10px;
-    transition: 0.2s;
+/* Toàn bộ CSS chỉ áp dụng cho khu vực có class .seller-layout */
+.seller-layout {
+    display: flex;
+    flex-wrap: nowrap;
+    min-height: calc(100vh - 56px); /* trừ chiều cao navbar */
 }
 
-#sidebar .nav-link:hover, #sidebar .nav-link.active {
-    background-color: rgba(255,255,255,0.2);
+/* Sidebar bên trái */
+.seller-layout #sidebar {
+    position: sticky; /* trượt cùng nội dung */
+    top: 56px; /* chiều cao navbar */
+    align-self: flex-start;
+    height: calc(100vh - 56px);
+    overflow-y: auto;
+    background-color: rgba(18, 17, 17, 0.99); /* 🤍 nền trắng sáng */
+    color: rgb(255, 255, 255); /* 🖤 chữ đen */
+    padding: 20px;
+    border-right: 1px solid #dee2e6; /* viền xám nhẹ để phân cách */
+    margin-left: -12px;
 }
 
-#page-content {
-    margin-top: -950px;
-    margin-left: 300px;
-    min-height: 100vh;
+/* Khi hover vào link trong sidebar */
+.seller-layout #sidebar .nav-link {
+    color: #ffffff; /* chữ đen */
+    font-weight: 500;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    border-radius: 8px;
+}
+
+.seller-layout #sidebar .nav-link:hover {
+    background-color: #212529; /* nền đen khi hover */
+    color: rgb(255, 255, 255); /* chữ trắng */
+}
+
+/* Link đang active */
+.seller-layout #sidebar .nav-link.active {
+    background-color: #000000; /* nền đen đậm */
+    color: #ffffff; /* chữ trắng */
+    font-weight: 600;
+}
+
+/* Nội dung chính */
+.seller-layout #page-content {
+    flex: 1;
+    overflow: hidden;
+    background-color: #ffffff; /* nền trắng */
+    padding: 20px;
+    color: rgba(18, 17, 17, 0.99); /* chữ đen */
+}
+.text-muted {
+    --bs-text-opacity: 1;
+    color: #f8f9fa !important;
 }

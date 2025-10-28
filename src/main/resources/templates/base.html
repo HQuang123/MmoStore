@@ -3,7 +3,7 @@
       th:fragment="layout(content, cssFragment, jsFragment)">
 <head>
     <meta charset="UTF-8">
-    <title>Tạp hóa SWP391</title>
+    <title>MMO Store</title>
     <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
             rel="stylesheet"
@@ -25,19 +25,31 @@
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
 
     <style type="text/css">
-
-
         /* change the color of active category */
         .list-group-item.active {
             z-index: 2;
-
             background-color: #5adc51;
             border-color: #5adc51;
         }
+
+        /* --- START STICKY FOOTER FIX --- */
+
+        /* 1. Make the body a flex container, at least as tall as the window */
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* 100% of the viewport height */
+        }
+
+        .content-wrapper {
+            flex-grow: 1;
+        }
+
+
     </style>
 
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 <!-- Start navbar -->
 <nav class="navbar navbar-expand-lg bg-success navbar-dark">
     <div class="container-fluid">
@@ -77,40 +89,40 @@
                                             aria-current="page" href="/admin/">ADMIN</a></li>
 
                 </th:block>
-
                 <th:block th:if="${currentLoggedInUserDetails != null}">
-                    <li class="nav-item dropdown">
-
-                        <a class="nav-link active dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-user-check"></i> [[${currentLoggedInUserDetails.name}]] </a>
-
-                        <ul class="dropdown-menu">
-                            <!-- Nếu user có ROLE_SELLER -->
-                            <li th:if="${currentLoggedInUserDetails.role.contains('ROLE_SELLER')}">
-                                <a class="dropdown-item" href="/seller/statistic">Quản lý Shop</a>
-                                <a class="dropdown-item" href="/admin/">Dashboard</a>
-
-                            </li>
-                            <li></li>
-                            <li><a class="dropdown-item" href="/user/detail">Thông tin cá nhân</a></li>
-                            <li><a class="dropdown-item" href="/user/wallet">Quản lý ví</a></li>
-                        </ul>
+                    <th:block th:with="isSellerOrUser=${currentLoggedInUserDetails.role.contains('ROLE_SELLER') or currentLoggedInUserDetails.role.contains('ROLE_USER')}">
+                        <li th:if="${isSellerOrUser}" class="nav-item dropdown">
+                            <a class="nav-link active dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-check"></i> [[${currentLoggedInUserDetails.name}]]
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li th:if="${currentLoggedInUserDetails.role.contains('ROLE_SELLER')}">
+                                    <a class="dropdown-item" href="/seller/statistic">Quản lý Shop</a>
+                                    <a class="dropdown-item" href="/admin/">Dashboard</a>
+                                </li>
+                                <li><a class="dropdown-item" href="/user/detail">Thông tin cá nhân</a></li>
+                                <li><a class="dropdown-item" href="/user/wallet">Quản lý ví</a></li>
+                            </ul>
+                        </li>
+                        <li th:unless="${isSellerOrUser}" class="nav-item">
+                            <a class="nav-link active" href="#"> <i class="fas fa-user-check"></i> [[${currentLoggedInUserDetails.name}]]
+                            </a>
+                        </li>
+                    </th:block>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/logout">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
                     </li>
-
-                    <li class="nav-item"><a class="nav-link active"
-                                            aria-current="page" href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                 </th:block>
-
             </ul>
-
         </div>
     </div>
 </nav>
 <!-- End of navbar -->
-<div th:replace="${content}"></div>
-
+<div class="content-wrapper" th:insert="${content}"></div>
 <!-- start footer -->
-<div class="container-fluid p-1 bg-success text-center text-white" style="margin-top: 200px;">
+<div class="container-fluid p-1 bg-success text-center text-white" style="margin-top: 0px;">
     <p class="mt-2"><i><b>Tap hoa SWP391</b></i><br><a th:ref="@{/login}" style="text-decoration:none; color:white;" target="_blank">Nhóm 6</a><br>Copyright &copy; 2024. All rights Reserved</p>
 </div>
 <script

@@ -37,7 +37,7 @@ public class WalletService {
         // Ghi lại lịch sử giao dịch (Deposit record)
         Deposit deposit = new Deposit();
         deposit.setUser(user);
-        deposit.setAmount(amount.negate()); // số âm để biểu thị trừ
+        deposit.setAmount(amount); // số âm để biểu thị trừ
         deposit.setPaymentMethod(reason);
         deposit.setStatus(DepositStatus.Completed);
         deposit.setActionType(ActionType.Withdraw);
