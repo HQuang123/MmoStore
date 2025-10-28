@@ -29,9 +29,9 @@ public class ShopController {
      */
     @GetMapping("/{shopId}")
     public String viewShopPage(@PathVariable Integer shopId, Model model) {
-            ShopViewDTO shopDTO = shopService.findShopViewById(shopId);
-            model.addAttribute("shop", shopDTO);
-            return "shop-information";
+        ShopViewDTO shopDTO = shopService.findShopViewById(shopId);
+        model.addAttribute("shop", shopDTO);
+        return "shop-information";
     }
 
     /**
@@ -45,21 +45,26 @@ public class ShopController {
             @RequestParam(value = "size", defaultValue = "9") int size,
             @RequestParam(value = "sort", defaultValue = "createAt,desc") String sort) {
 
-            ShopViewDTO shop = shopService.findShopViewById(shopId);
-            model.addAttribute("shop", shop);
+        ShopViewDTO shop = shopService.findShopViewById(shopId);
+        model.addAttribute("shop", shop);
 
-            String[] sortParams = sort.split(",");
-            Sort.Direction direction = sortParams[1].equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-            Sort sortOrder = Sort.by(direction, sortParams[0]);
-            Pageable pageable = PageRequest.of(page, size, sortOrder);
+        String[] sortParams = sort.split(",");
+        Sort.Direction direction = sortParams[1].equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Sort sortOrder = Sort.by(direction, sortParams[0]);
+        Pageable pageable = PageRequest.of(page, size, sortOrder);
 
-            Page<ProductSummaryDTO> productPage = productService.findProductsByShopId(shopId, pageable);
-            model.addAttribute("productPage", productPage);
+        Page<ProductSummaryDTO> productPage = productService.findProductsByShopId(shopId, pageable);
 
-            model.addAttribute("currentPage", page);
-            model.addAttribute("totalPages", productPage.getTotalPages());
+        if (productPage.getTotalPages() > 0 && page >= productPage.getTotalPages()) {
+            return "redirect:/shops/" + shopId + "/products?page=0";
+        }
 
-            return "shop-products";
+        model.addAttribute("productPage", productPage);
+
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", productPage.getTotalPages());
+
+        return "shop-products";
 
     }
 }
