@@ -81,7 +81,7 @@
             </div>
         </div>
 
-        <nav aria-label="Page navigation">
+        <nav th:if="${productPage.totalPages > 0}" aria-label="Page navigation">
             <ul class="pagination justify-content-center mt-4">
                 <li class="page-item" th:classappend="${productPage.first} ? 'disabled'">
                     <a class="page-link"
@@ -90,7 +90,8 @@
                     </a>
                 </li>
 
-                <li class="page-item" th:each="i : ${#numbers.sequence(0, productPage.totalPages - 1)}"
+                <li class="page-item"
+                    th:each="i : ${#numbers.sequence(0, productPage.totalPages - 1)}"
                     th:classappend="${i == currentPage} ? 'active'">
                     <a class="page-link"
                        th:href="@{/shops/{id}/products(id=${shop.shopId}, page=${i})}"
