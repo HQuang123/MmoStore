@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class ShopController {
 
     private final ShopService shopService;
-    private final ProductService productService; // --- INJECT PRODUCT SERVICE ---
+    private final ProductService productService;
 
     /**
      * Handles the main shop profile page

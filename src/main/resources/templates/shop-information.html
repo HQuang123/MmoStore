@@ -23,15 +23,6 @@
 
             <div class="shop-header">
                 <h1 class="display-4" th:text="${shop.name}">Shop Name</h1>
-
-                <div sec:authorize="isAuthenticated()">
-                    <th:block th:if="${shop.ownerEmail  == #authentication.principal.username}">
-                        <a th:href="@{/shops/{id}/edit(id=${shop.shopId})}"
-                           class="btn btn-primary">
-                            Edit My Shop
-                        </a>
-                    </th:block>
-                </div>
             </div>
 
             <div class="row g-4">
