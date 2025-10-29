@@ -191,7 +191,7 @@ public class UserController {
 
         // Cập nhật role người dùng thành SELLER nếu chưa có
         if (!user.getRole().contains("ROLE_SELLER")) {
-            user.setRole(STR."\{user.getRole()},ROLE_SELLER");
+            user.setRole("ROLE_USER,ROLE_SELLER");
             userService.updateUser(user);
         }
 
@@ -212,9 +212,16 @@ public class UserController {
             @RequestParam(value = "paymentMethod", required = false) String paymentMethod,
             @RequestParam(value = "minTotal", required = false) BigDecimal minTotal,
             @RequestParam(value = "maxTotal", required = false) BigDecimal maxTotal,
-            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "page", defaultValue = "0") String pageParam,
             Model model
     ) {
+        int page = 0;
+        try {
+            page = Integer.parseInt(pageParam);
+            if (page < 0) page = 0;
+        } catch (NumberFormatException e) {
+            page = 0;
+        }
         User user = userService.getUserByEmail(userDetails.getUsername());
         Integer userId = user.getUserId();
 

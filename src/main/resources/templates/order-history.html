@@ -19,15 +19,13 @@
 <section class="container-fluid order-history-page">
     <div class="row justify-content-center">
         <div class="col-md-10">
+            <h2 class="page-title">📦 Order History</h2>
 
-            <h2 class="page-title">Order History</h2>
-
-            <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 filter-container">
-
-                <form class="filter-form d-flex align-items-end flex-wrap gap-2" method="get" action="/user/orders">
-                    <!-- Lọc theo trạng thái -->
+            <!-- Filter Section -->
+            <div class="filter-container">
+                <form class="filter-form" method="get" action="/user/orders">
                     <div>
-                        <label class="form-label fw-bold">Status</label>
+                        <label class="form-label">Status</label>
                         <select name="status" class="form-select">
                             <option value="">-- All Status --</option>
                             <option th:each="st : ${statuses}"
@@ -39,46 +37,49 @@
                     </div>
 
                     <div>
-                        <label class="form-label fw-bold">Min Total</label>
+                        <label class="form-label">Min Total</label>
                         <input type="text" id="minTotal" class="form-control" name="minTotal"
-                               th:value="${param.minTotal}" placeholder="Ví dụ: 1,000,000">
+                               th:value="${param.minTotal}" placeholder="e.g. 1,000,000">
                     </div>
 
                     <div>
-                        <label class="form-label fw-bold">Max Total</label>
+                        <label class="form-label">Max Total</label>
                         <input type="text" id="maxTotal" class="form-control" name="maxTotal"
-                               th:value="${param.maxTotal}" placeholder="Ví dụ: 10,000,000">
+                               th:value="${param.maxTotal}" placeholder="e.g. 10,000,000">
                     </div>
 
-                    <!--  Lọc theo ngày -->
                     <div>
-                        <label class="form-label fw-bold">From Date</label>
+                        <label class="form-label">From Date</label>
                         <input type="date" name="startDate" th:value="${param.startDate}">
                     </div>
 
                     <div>
-                        <label class="form-label fw-bold">To Date</label>
+                        <label class="form-label">To Date</label>
                         <input type="date" name="endDate" th:value="${param.endDate}">
                     </div>
 
-                    <!-- Nút -->
                     <div class="d-flex gap-2 align-items-end">
-                        <button type="submit" class="btn btn-secondary filter-btn">Filter</button>
-                        <a href="/user/orders" class="btn btn-outline-danger">Clear</a>
+                        <button type="submit" class="btn btn-secondary filter-btn">
+                            <i class="bi bi-funnel"></i> Filter
+                        </button>
+                        <a href="/user/orders" class="btn btn-outline-danger">
+                            <i class="bi bi-x-circle"></i> Clear
+                        </a>
                     </div>
                 </form>
             </div>
 
-                <form th:action="@{/user/orders}" method="get" class="mb-3">
-                    <div class="input-group">
-                        <input type="text" name="productName" th:value="${param.productName}" class="form-control" placeholder="Search by product name">
-                        <button class="btn btn-primary" type="submit">Search</button>
-                    </div>
-                </form>
+            <!-- Search -->
+            <form th:action="@{/user/orders}" method="get" class="mb-3">
+                <div class="input-group">
+                    <input type="text" name="productName" th:value="${param.productName}"
+                           class="form-control" placeholder="🔍 Search by product name">
+                    <button class="btn btn-primary" type="submit">Search</button>
+                </div>
+            </form>
 
-
-
-                <!--  Orders Table -->
+            <!-- Orders Table -->
+            <div class="table-responsive">
                 <table class="table table-striped">
                     <thead>
                     <tr>
@@ -99,26 +100,20 @@
                     </tr>
                     </tbody>
                 </table>
+            </div>
 
-                <!-- Pagination -->
-                <div class="pagination">
-                    <a th:if="${currentPage > 0}"
-                       th:href="@{/user/orders(page=${currentPage - 1}, orderId=${param.orderId}, startDate=${param.startDate}, endDate=${param.endDate})}">
-                        Previous
-                    </a>
-
-                    <span>Trang <span th:text="${currentPage + 1}"></span> / <span
-                            th:text="${totalPages}"></span></span>
-
-                    <a th:if="${currentPage + 1 < totalPages}"
-                       th:href="@{/user/orders(page=${currentPage + 1}, orderId=${param.orderId}, startDate=${param.startDate}, endDate=${param.endDate})}">
-                        Next
-                    </a>
-                </div>
-
-
+            <!-- Pagination -->
+            <div class="pagination">
+                <a th:if="${currentPage > 0}"
+                   th:href="@{/user/orders(page=${currentPage - 1})}">Previous</a>
+                <span>Page <span th:text="${currentPage + 1}"></span> / <span th:text="${totalPages}"></span></span>
+                <a th:if="${currentPage + 1 < totalPages}"
+                   th:href="@{/user/orders(page=${currentPage + 1})}">Next</a>
+            </div>
         </div>
+    </div>
 </section>
+
 
 </body>
 </html>

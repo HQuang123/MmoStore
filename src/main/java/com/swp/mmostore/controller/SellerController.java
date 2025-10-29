@@ -72,7 +72,7 @@ public class  SellerController {
 
     @GetMapping("/seller/orders")
     public String viewShopOrders(
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "0") String pageParam,
             @RequestParam(value = "minQuantity", required = false) Integer minQuantity,
             @RequestParam(value = "minTotal", required = false) BigDecimal minTotal,
             @RequestParam(value = "maxTotal", required = false) BigDecimal maxTotal,
@@ -83,6 +83,14 @@ public class  SellerController {
             @RequestParam(value = "status", required = false) String status,
             Model model
     ) {
+        int page = 0;
+        try {
+            page = Integer.parseInt(pageParam);
+            if (page < 0) page = 0;
+        } catch (NumberFormatException e) {
+            page = 0;
+        }
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
         User user = userService.getUserByEmail(email);
