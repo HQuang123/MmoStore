@@ -48,7 +48,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:if="${ empty withdrawPage}">
+                <tr th:if="${withdrawPage == null or #lists.isEmpty(withdrawPage.content)}">
                     <td colspan="5" style="text-align: center; color: #6c757d; padding: 40px;">
                         Không có đơn.
                     </td>

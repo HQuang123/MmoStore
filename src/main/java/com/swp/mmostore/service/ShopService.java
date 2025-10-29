@@ -1,5 +1,6 @@
 package com.swp.mmostore.service;
 
+import com.swp.mmostore.dto.ShopViewDTO;
 import com.swp.mmostore.dto.ProductSalesDTO;
 import com.swp.mmostore.entity.Shop;
 import com.swp.mmostore.repository.OrderRepository;
@@ -23,6 +24,10 @@ public class ShopService {
 
     @Autowired
     private ProductRepository productRepository;
+
+    public ShopViewDTO findShopViewById(Integer shopId){
+        return shopRepository.findShopViewById(shopId);
+    }
 
     public Page<Shop> findPaginatedAndFiltered(int page, int size, String keyword, Boolean isDeleted) {
         Pageable pageable = PageRequest.of(page, size);

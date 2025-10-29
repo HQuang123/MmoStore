@@ -116,4 +116,13 @@ public class ProductService {
     public List<RatingDTO> getRatingsByProduct(Integer productId) {
         return ratingRepository.findAllByProductId(productId);
     }
+
+    public Page<ProductSummaryDTO> findProductsByShopId(Integer shopId, Pageable pageable) {
+
+        List<ProductSummaryDTO> products = productRepository.findProductsByShopId(shopId, pageable);
+
+        long totalProducts = productRepository.countProductsByShopId(shopId);
+
+        return new PageImpl<>(products, pageable, totalProducts);
+    }
 }
