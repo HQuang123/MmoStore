@@ -1,13 +1,18 @@
 package com.swp.mmostore.service;
 
+import com.swp.mmostore.entity.PasswordResetToken;
 import com.swp.mmostore.entity.User;
+import com.swp.mmostore.entity.VerificationToken;
+import com.swp.mmostore.repository.PasswordResetTokenRepository;
 import com.swp.mmostore.repository.UserRepository;
+import com.swp.mmostore.repository.VerificationTokenRepository;
 import com.swp.mmostore.util.AppConstant;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.MailException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -20,13 +25,20 @@ public class LoginRegistrationService {
     //--> must use @Lazy annotation
     private PasswordEncoder passwordEncoder;
 
+    private VerificationTokenRepository verificationTokenRepository;
+
     @Autowired
-    public LoginRegistrationService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    private PasswordResetTokenRepository passwordResetTokenRepository;
+
+    @Autowired
+    public LoginRegistrationService(UserRepository userRepository, PasswordEncoder passwordEncoder, VerificationTokenRepository verificationTokenRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.verificationTokenRepository = verificationTokenRepository;
     }
     @Autowired
     private EmailService emailService;
+
     public User saveUser(User user) {
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
@@ -116,54 +128,91 @@ public class LoginRegistrationService {
 
     private static final Random RANDOM = new Random();
     //Tạo token và gửi email
-    public boolean generateResetTokenAndSendEmail(String email) {
-        User user = userRepository.findByEmail(email);
-        if (user == null) return false;
-
-        // Tạo token ngẫu nhiên 5 số
+    public void generateRegisterTokenAndSendEmail(User user, String siteUrl) {
+        userRepository.save(user);
         String token = String.format("%05d", RANDOM.nextInt(100_000));
+        VerificationToken verificationToken = new VerificationToken(token, user);
+        verificationTokenRepository.save(verificationToken);
+        emailService.sendVerificationToken(user, token, siteUrl);
+    }
 
-
-        // Gửi email
-        String subject = "Mã xác thực đặt lại mật khẩu";
-        String content = "Mã xác thực của bạn là: " + token;
-        try {
-            emailService.sendEmail(email, subject, content);
-            user.setResetToken(token);
-            userRepository.save(user);
-            return true;
-        } catch (MailException e) {
-            e.printStackTrace();
-            return false;
+    public void resendVerificationEmail(User unverifiedUser, String siteUrl) {
+        //only process when user is not verified and status of user is false (inactive)
+        if (unverifiedUser != null && !unverifiedUser.getStatus()) {
+            VerificationToken verificationToken = verificationTokenRepository.findByUser(unverifiedUser);
+            if (verificationToken != null) {
+                verificationTokenRepository.delete(verificationToken);
+            }
+            String token = String.format("%05d", RANDOM.nextInt(100_000));
+            VerificationToken newVerificationToken = new VerificationToken(token, unverifiedUser); //tao moi token
+            verificationTokenRepository.save(newVerificationToken);
+            emailService.sendVerificationToken(unverifiedUser, token, siteUrl);
         }
+    }
+
+
+    public String verifyUserToken(String token) {
+        VerificationToken verificationToken = verificationTokenRepository.findByToken(token);
+
+        if (verificationToken == null) {
+            return "invalid"; // Token not found
+        }
+
+        if (verificationToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            verificationTokenRepository.delete(verificationToken); // Clean up expired token
+            return "expired"; // Token is expired
+        }
+
+        User user = verificationToken.getUser();
+        user.setStatus(true);
+        userRepository.save(user);
+
+        verificationTokenRepository.delete(verificationToken); // Token is used, delete it
+        return "success";
+    }
+
+    @Transactional
+    public void generateResetTokenAndSendEmail(String email, String siteUrl) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) return ;
+        //check to see if there is old token -> then delete
+        PasswordResetToken oldToken = passwordResetTokenRepository.findByUser(user);
+        if(oldToken !=  null){
+            passwordResetTokenRepository.delete(oldToken);
+            passwordResetTokenRepository.flush();
+        }
+        // create new one
+        String token = String.format("%05d", RANDOM.nextInt(100_000));
+        PasswordResetToken newToken = new PasswordResetToken(token, user);
+        passwordResetTokenRepository.save(newToken);
+        emailService.sendResetPasswordToken(user, token, siteUrl);
     }
 
     // Xác thực token
-    public boolean verifyResetToken(String email, String token) {
-        User user = userRepository.findByEmail(email);
-        if (user == null) return false;
-
-        return token.equals(user.getResetToken());
+    @Transactional
+    public String verifyResetToken(String token) {
+        PasswordResetToken passwordResetToken = passwordResetTokenRepository.findByToken(token);
+        if(passwordResetToken == null){
+            return "invalid";
+        }else if(passwordResetToken.getExpiryDate().isBefore(LocalDateTime.now())){
+            passwordResetTokenRepository.delete(passwordResetToken);
+            return "expired";
+        }
+        return "valid";
     }
 
     // Cập nhật mật khẩu
-    public boolean resetPassword(String email, String token, String newPassword) {
-        User user = userRepository.findByEmail(email);
-        if (user == null) {
-            System.out.println("Không tìm thấy user: " + email);
-            return false;
+    @Transactional
+    public void resetPassword(String token, String newPassword) {
+        PasswordResetToken passwordResetToken = passwordResetTokenRepository.findByToken(token);
+        if(passwordResetToken == null){
+            throw new RuntimeException("Invalid token");
         }
 
-        System.out.println("Token trong DB: " + user.getResetToken());
-        System.out.println("Token người nhập: " + token);
-
-        if (user.getResetToken() == null) return false;
-        if (!token.equals(user.getResetToken())) return false;
-
+        User user = passwordResetToken.getUser();
         user.setPassword(passwordEncoder.encode(newPassword));
-        user.setResetToken(null);
         userRepository.save(user);
-        return true;
+        passwordResetTokenRepository.delete(passwordResetToken);
     }
 
 
