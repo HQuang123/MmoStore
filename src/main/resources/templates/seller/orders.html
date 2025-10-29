@@ -9,12 +9,13 @@
 
 <!-- Custom JS -->
 <th:block th:fragment="jsFragment">
-    <script src="/javascript/seller-order_story.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="/javascript/seller-order_history.js"></script>
 </th:block>
 
 <!-- CONTENT -->
 <th:block th:fragment="content">
-    <!-- ✅ Thêm class seller-layout để tách biệt CSS -->
+    <!-- Thêm class seller-layout để tách biệt CSS -->
     <div class="seller-layout container-fluid">
         <!-- SIDEBAR -->
         <div id="sidebar" class="col-md-3 col-lg-2">
@@ -45,6 +46,11 @@
                     </a>
                 </li>
             </ul>
+            <li class="nav-item mb-2">
+                <a class="nav-link text-white" th:href="@{/seller/shop/edit}">
+                    <i class="fa-solid fa-file-invoice"></i> Edit Shop Information
+                </a>
+            </li>
         </div>
 
         <!-- MAIN CONTENT -->
@@ -93,7 +99,12 @@
                     <a th:href="@{/seller/orders}" class="btn btn-secondary">Clear</a>
                 </div>
             </form>
-
+            <!-- EXPORT BUTTON  -->
+            <div class="d-flex justify-content-end mb-2">
+                <button id="btnExportXLSX" class="btn btn-success me-2" title="Export to Excel"><i
+                        class="fa-solid fa-file-excel me-1"></i> Export XLSX
+                </button>
+            </div>
             <!-- ORDER TABLE -->
             <table class="table table-bordered table-hover">
                 <thead class="table-dark">

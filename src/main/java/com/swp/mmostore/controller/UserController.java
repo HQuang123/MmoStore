@@ -9,6 +9,7 @@ import com.swp.mmostore.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -200,7 +201,6 @@ public class UserController {
     }
 
 
-
     @GetMapping("/user/orders")
     public String orderHistory(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -212,19 +212,13 @@ public class UserController {
             @RequestParam(value = "paymentMethod", required = false) String paymentMethod,
             @RequestParam(value = "minTotal", required = false) BigDecimal minTotal,
             @RequestParam(value = "maxTotal", required = false) BigDecimal maxTotal,
-            @RequestParam(value = "page", defaultValue = "0") String pageParam,
+            @RequestParam(value = "page", defaultValue = "0") int page,
             Model model
     ) {
-        int page = 0;
-        try {
-            page = Integer.parseInt(pageParam);
-            if (page < 0) page = 0;
-        } catch (NumberFormatException e) {
-            page = 0;
-        }
         User user = userService.getUserByEmail(userDetails.getUsername());
         Integer userId = user.getUserId();
 
+        // --- Chuẩn hóa input ---
         orderId = (orderId != null && !orderId.isBlank()) ? orderId : null;
         status = (status != null && !status.isBlank()) ? status : null;
         paymentMethod = (paymentMethod != null && !paymentMethod.isBlank()) ? paymentMethod : null;
@@ -233,6 +227,11 @@ public class UserController {
         LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
         LocalDateTime endDateTime = endDate != null ? endDate.plusDays(1).atStartOfDay() : null;
 
+        // --- Validate page ---
+        if (page < 0) page = 0;
+        int pageSize = 2;
+
+        Pageable pageable = PageRequest.of(page, pageSize);
         Page<OrderStatisticDTO> orderPage = orderService.getOrderHistory(
                 userId,
                 orderId,
@@ -243,14 +242,33 @@ public class UserController {
                 paymentMethod,
                 minTotal,
                 maxTotal,
-                PageRequest.of(page, 2)
+                pageable
         );
 
-        System.out.println("minTotal = " + minTotal + ", maxTotal = " + maxTotal);
+        int totalPages = orderPage.getTotalPages();
 
+        // --- Nếu page vượt quá tổng số trang, set về last page và gọi lại service ---
+        if (page >= totalPages && totalPages > 0) {
+            page = totalPages - 1;
+            pageable = PageRequest.of(page, pageSize);
+            orderPage = orderService.getOrderHistory(
+                    userId,
+                    orderId,
+                    productName,
+                    startDateTime,
+                    endDateTime,
+                    status,
+                    paymentMethod,
+                    minTotal,
+                    maxTotal,
+                    pageable
+            );
+        }
+
+        // --- Add model attributes ---
         model.addAttribute("orderPage", orderPage);
         model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", orderPage.getTotalPages());
+        model.addAttribute("totalPages", totalPages);
 
         // render enum Status trong dropdown
         model.addAttribute("statuses", DepositStatus.values());

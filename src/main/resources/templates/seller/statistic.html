@@ -13,7 +13,11 @@
 
 <!-- JS riêng -->
 <th:block th:fragment="jsFragment">
-    <!-- JS tùy chọn -->
+    <th:block th:fragment="jsFragment">
+        <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+        <script src="/javascript/seller-statictis.js"></script>
+    </th:block>
+
 </th:block>
 <th:block th:fragment="content">
     <div th:if="${successMsg}" class="alert alert-success text-center" th:text="${successMsg}"></div>
@@ -49,6 +53,11 @@
                             <li class="nav-item mb-2">
                                 <a class="nav-link text-white" th:href="@{/seller/orders}">
                                     <i class="fa-solid fa-file-invoice"></i> Orders
+                                </a>
+                            </li>
+                            <li class="nav-item mb-2">
+                                <a class="nav-link text-white" th:href="@{/seller/shop/edit}">
+                                    <i class="fa-solid fa-file-invoice"></i> Edit Shop Information
                                 </a>
                             </li>
                         </ul>
@@ -126,6 +135,12 @@
                                 </div>
 
                                 <div th:if="${!#lists.isEmpty(reportList)}">
+                                    <div class="d-flex justify-content-end mb-2">
+                                        <button id="btnExportXLSX" class="btn btn-success me-2" title="Export to Excel">
+                                            <i class="fa-solid fa-file-excel me-1"></i> Export XLSX
+                                        </button>
+
+                                    </div>
                                     <table class="table table-hover align-middle">
                                         <thead class="table-light">
                                         <tr>
