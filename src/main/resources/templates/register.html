@@ -10,7 +10,7 @@
     </th:block>
 
     <th:block th:fragment="jsFragment">
-        <script src="#"></script>
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     </th:block>
 </head>
 <body>
@@ -74,6 +74,10 @@
                                     class="form-control" name="file" type="file" />
                             </div>
 
+                            <div class="g-recaptcha mt-3"
+                                 data-sitekey="6LfbQfsrAAAAACD8QBG7-VdRtXXMWIuV6C7uZzoU">
+                            </div>
+
 
 
                             <button id="submitBtn" type="submit" class="btn bg-danger mt-3 text-white col-md-12" disabled>Đăng ký</button>
@@ -124,6 +128,21 @@
             if (form) {
                 form.addEventListener('submit', function (e) {
                     validatePasswords();
+                    var recaptchaResponse = grecaptcha.getResponse();
+                    if (recaptchaResponse.length === 0) {
+                        e.preventDefault(); // Stop the form submission
+
+                        // You can show a message in your 'errorMsg' p tag
+                        var errorP = document.querySelector('p[th\\:if="${errorMsg}"]');
+                        if(errorP) {
+                            errorP.textContent = 'Please verify you are not a robot.';
+                            errorP.className = 'text-danger fw-bold text-center mt-2';
+                        } else {
+                            // Fallback if the 'p' tag isn't rendered
+                            alert('Please verify you are not a robot.');
+                        }
+                        return; // Stop here
+                    }
                     if (!form.checkValidity()) {
                         e.preventDefault();
                         if (confirmInput) confirmInput.reportValidity();

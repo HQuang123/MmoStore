@@ -6,7 +6,6 @@ import com.swp.mmostore.util.EmailTemplate;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -14,7 +13,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.logging.Logger;
 @Slf4j
 @Service
 public class EmailService {
@@ -40,11 +38,25 @@ public class EmailService {
         mailSender.send(message);
     }
 
-    public void sendVerificationEmail(User user, String token, String siteURL) {
+    public void sendVerificationToken(User user, String token, String siteURL) {
         String recipientAddress = user.getEmail();
-        String subject = "Confirm Your Registration";
+        String subject = "Xác thực đăng ký tài khoản";
         String verificationUrl = siteURL + "/verify-email?token=" + token;
-        String message = "Thank you for registering. Please click the link below to verify your email address:";
+        String message = "Cảm ơn bạn vì đã đăng ký tài khoản ! Vui lòng truy cập đường link bên dưới để xác thực tài khoản";
+
+        SimpleMailMessage email = new SimpleMailMessage();
+        email.setTo(recipientAddress);
+        email.setSubject(subject);
+        email.setText(message + "\r\n" + verificationUrl);
+
+        mailSender.send(email);
+    }
+
+    public void sendResetPasswordToken(User user, String token, String siteURL) {
+        String recipientAddress = user.getEmail();
+        String subject = "Xác thực đặt lại mật khẩu";
+        String verificationUrl = siteURL + "/reset-password?token=" + token;
+        String message = "Vui lòng truy cập đường link bên dưới để đặt lại mật khẩu ! ";
 
         SimpleMailMessage email = new SimpleMailMessage();
         email.setTo(recipientAddress);

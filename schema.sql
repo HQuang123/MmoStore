@@ -200,4 +200,11 @@ CREATE TABLE VerificationToken (
                                     UserID INT NOT NULL UNIQUE,
                                     FOREIGN KEY (UserID) REFERENCES User(UserID)
 );
+CREATE TABLE PasswordResetToken (
+                                   ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                                   Token VARCHAR(255) NOT NULL UNIQUE,
+                                   ExpiryDate DATETIME NOT NULL,
+                                   UserID INT NOT NULL UNIQUE,
+                                   FOREIGN KEY (UserID) REFERENCES User(UserID)
+);
 

@@ -43,7 +43,7 @@ public class User {
     @Column(name = "Balance", columnDefinition = "Decimal(10,2) DEFAULT 0.00", precision = 10, scale = 2, insertable = false)
     private BigDecimal balance;
 
-    @Column(name = "Status", columnDefinition = "Boolean DEFAULT true", insertable = false)
+    @Column(name = "Status", columnDefinition = "Boolean DEFAULT true")
     private Boolean status;
 
     @Column(name = "CreateAt", insertable = false)
@@ -140,11 +140,12 @@ public class User {
         this.password = password;
     }
 
-    public User(String name, String email, String phoneNumber, String password, String provider, String providerId) {
+    public User(String name, String email, String phoneNumber, String password, Boolean status, String provider, String providerId) {
         this.name = name;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.password = password;
+        this.status = status;
         this.provider = provider;
         this.providerId = providerId;
     }
