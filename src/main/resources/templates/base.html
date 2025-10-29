@@ -86,7 +86,7 @@
                     <li class="nav-item"><a class="nav-link active"
                                             aria-current="page" href="/register">REGISTER</a></li>
                     <li class="nav-item"><a class="nav-link active"
-                                            aria-current="page" href="/admin/">ADMIN</a></li>
+                                            aria-current="page" href="/admin">ADMIN</a></li>
 
                 </th:block>
                 <th:block th:if="${currentLoggedInUserDetails != null}">
@@ -98,7 +98,9 @@
                             <ul class="dropdown-menu">
                                 <li th:if="${currentLoggedInUserDetails.role.contains('ROLE_SELLER')}">
                                     <a class="dropdown-item" href="/seller/statistic">Quản lý Shop</a>
-                                    <a class="dropdown-item" href="/admin/">Dashboard</a>
+                                </li>
+                                <li th:if="${currentLoggedInUserDetails.role.contains('ROLE_ADMIN')}">
+                                    <a class="dropdown-item" href="/admin">Dashboard</a>
                                 </li>
                                 <li><a class="dropdown-item" href="/user/detail">Thông tin cá nhân</a></li>
                                 <li><a class="dropdown-item" href="/user/wallet">Quản lý ví</a></li>

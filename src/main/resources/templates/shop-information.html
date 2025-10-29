@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base::layout(~{::section}, ~{::cssFragment}, ~{::jsFragment})}"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${shop.name}">Shop Details</title>
+    <th:block th:fragment="cssFragment">
+        <link rel="stylesheet" href="/css/shop-information.css">
+    </th:block>
+
+    <th:block th:fragment="jsFragment">
+        <script src="#"></script>
+    </th:block>
+</head>
+<body>
+
+<section>
+    <div class="container my-5">
+
+        <div th:if="${shop}">
+
+            <div class="shop-header">
+                <h1 class="display-4" th:text="${shop.name}">Shop Name</h1>
+            </div>
+
+            <div class="row g-4">
+
+                <div class="col-lg-4">
+                    <div class="card shadow-sm">
+                        <div th:if="${shop.hasImage()}" class="shop-image-container card-img-top">
+                            <img th:src="${shop.shopImageUrl}" th:alt="${shop.name + ' image'}">
+                        </div>
+                        <div th:unless="${shop.hasImage()}"
+                             class="shop-image-container card-img-top d-flex align-items-center justify-content-center text-muted p-5">
+                            <span>No Image Available</span>
+                        </div>
+
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">Shop Details</h5>
+
+                            <p class="card-text">
+                                <strong>Avg. Product Rating:</strong>
+                                <span th:if="${shop.avgRating > 0}">
+                                <span class="rating-star">★</span>
+                                <strong th:text="${#numbers.formatDecimal(shop.avgRating, 1, 1)}">4.5</strong> / 5.0
+                            </span>
+                                <span th:unless="${shop.avgRating > 0}" class="text-muted">
+                                No product ratings yet
+                            </span>
+                            </p>
+
+                            <p class="card-text">
+                                <strong>Products:</strong>
+                                <span th:text="${shop.productCount}">0</span> items
+                            </p>
+
+                            <p class="card-text">
+                                <strong>Owner:</strong>
+                                <span th:text="${shop.ownerUsername}">Shop Owner</span>
+                            </p>
+
+                            <p class="card-text" th:if="${shop.createAt}">
+                                <strong>Established:</strong>
+                                <span th:text="${#temporals.format(shop.createAt, 'dd MMMM yyyy')}">
+                                10 January 2024
+                            </span>
+                            </p>
+
+                            <p class="card-text mt-3" th:if="${shop.lastUpdated}">
+                                <small class="text-muted"
+                                       th:text="'Last updated: ' + ${#temporals.format(shop.lastUpdated, 'dd-MM-yyyy HH:mm')}">
+                                    Last updated...
+                                </small>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-8">
+                    <h2>About This Shop</h2>
+
+                    <p class="description-box bg-light p-3 rounded" th:text="${shop.description}">
+                        Shop description goes here. This text is a placeholder
+                        for what will be a detailed description of the shop,
+                        its mission, and the products it sells.
+                    </p>
+
+                    <hr class="my-4">
+
+                    <a th:href="@{/shops/{id}/products(id=${shop.shopId})}"
+                       class="btn btn-success btn-lg w-100">
+                        View All Products
+                        <span class="badge bg-light text-dark ms-2" th:text="${shop.productCount}">0</span>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+</body>
+</html>
