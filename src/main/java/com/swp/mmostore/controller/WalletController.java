@@ -80,6 +80,6 @@ public class WalletController {
         model.addAttribute("isSuccess", isSuccess);
         Deposit deposit = depositRepository.findById(Integer.parseInt(depositId)).orElse(null);
         model.addAttribute("deposit", deposit);
-        return "/user/momo-redirect";
+        return "user/momo-redirect";
     }
 }
