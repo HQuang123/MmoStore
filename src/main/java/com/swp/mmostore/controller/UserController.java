@@ -2,12 +2,14 @@ package com.swp.mmostore.controller;
 
 
 import com.swp.mmostore.dto.OrderStatisticDTO;
+import com.swp.mmostore.entity.DepositStatus;
 import com.swp.mmostore.entity.Shop;
 import com.swp.mmostore.entity.User;
 import com.swp.mmostore.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -146,7 +148,8 @@ public class UserController {
 
 
     @PostMapping("/user/seller_register")
-    public String registerSeller(@RequestParam("name") String name,
+    public String registerSeller(RedirectAttributes redirectAttributes,
+                                 @RequestParam("name") String name,
                                  @RequestParam("description") String description,
                                  @RequestParam("shopImage") MultipartFile shopImage,
                                  HttpSession session) {
@@ -162,7 +165,7 @@ public class UserController {
         }
 
         try {
-            walletService.deductMoney(user.getUserId(), BigDecimal.valueOf(10), "MoMo");
+            walletService.deductMoney(user.getUserId(), BigDecimal.valueOf(200000), "MMO");
         } catch (RuntimeException e) {
             session.setAttribute("errorMsg", e.getMessage());
             return "redirect:/user/seller_register";
@@ -189,14 +192,13 @@ public class UserController {
 
         // Cập nhật role người dùng thành SELLER nếu chưa có
         if (!user.getRole().contains("ROLE_SELLER")) {
-            user.setRole(user.getRole()+",ROLE_SELLER");
+            user.setRole("ROLE_USER,ROLE_SELLER");
             userService.updateUser(user);
         }
 
-        session.setAttribute("successMsg", "Đăng ký cửa hàng thành công! Hãy bắt đầu bán hàng ngay.");
-        return "redirect:/user/detail";
+        redirectAttributes.addFlashAttribute("successMsg", "Đăng ký cửa hàng thành công! Hãy bắt đầu bán hàng ngay.");
+        return "redirect:/seller/statistic";
     }
-
 
 
     @GetMapping("/user/orders")
@@ -216,6 +218,7 @@ public class UserController {
         User user = userService.getUserByEmail(userDetails.getUsername());
         Integer userId = user.getUserId();
 
+        // --- Chuẩn hóa input ---
         orderId = (orderId != null && !orderId.isBlank()) ? orderId : null;
         status = (status != null && !status.isBlank()) ? status : null;
         paymentMethod = (paymentMethod != null && !paymentMethod.isBlank()) ? paymentMethod : null;
@@ -224,6 +227,11 @@ public class UserController {
         LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
         LocalDateTime endDateTime = endDate != null ? endDate.plusDays(1).atStartOfDay() : null;
 
+        // --- Validate page ---
+        if (page < 0) page = 0;
+        int pageSize = 2;
+
+        Pageable pageable = PageRequest.of(page, pageSize);
         Page<OrderStatisticDTO> orderPage = orderService.getOrderHistory(
                 userId,
                 orderId,
@@ -234,12 +242,37 @@ public class UserController {
                 paymentMethod,
                 minTotal,
                 maxTotal,
-                PageRequest.of(page, 10)
+                pageable
         );
 
+        int totalPages = orderPage.getTotalPages();
+
+        // --- Nếu page vượt quá tổng số trang, set về last page và gọi lại service ---
+        if (page >= totalPages && totalPages > 0) {
+            page = totalPages - 1;
+            pageable = PageRequest.of(page, pageSize);
+            orderPage = orderService.getOrderHistory(
+                    userId,
+                    orderId,
+                    productName,
+                    startDateTime,
+                    endDateTime,
+                    status,
+                    paymentMethod,
+                    minTotal,
+                    maxTotal,
+                    pageable
+            );
+        }
+
+        // --- Add model attributes ---
         model.addAttribute("orderPage", orderPage);
         model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", orderPage.getTotalPages());
+        model.addAttribute("totalPages", totalPages);
+
+        // render enum Status trong dropdown
+        model.addAttribute("statuses", DepositStatus.values());
+        model.addAttribute("selectedStatus", status);
 
         return "order-history";
     }

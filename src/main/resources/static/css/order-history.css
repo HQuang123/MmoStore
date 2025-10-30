@@ -1,159 +1,204 @@
 /* ================================
-   ORDER HISTORY PAGE ONLY
+   ORDER HISTORY PAGE - MMO STORE THEME
    ================================ */
 
-/* Giới hạn phạm vi để tránh đụng CSS khác */
 .order-history-page {
-    background-color: #f8f9fa;
-    padding: 40px 0;
-    min-height: 80vh;
+    background-color: #f2f1f6;
+    padding: 50px 0;
+    min-height: 85vh;
     font-family: 'Segoe UI', Tahoma, sans-serif;
+    color: #333;
+}
+
+/* Container */
+.order-history-page .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
 }
 
 /* Tiêu đề */
 .order-history-page .page-title {
     text-align: center;
     font-weight: 700;
-    font-size: 28px;
-
-    margin-bottom: 30px;
+    font-size: clamp(22px, 3vw, 30px);
+    color: #2E7D32; /* xanh chủ đạo */
+    margin-bottom: 35px;
+    letter-spacing: 0.5px;
 }
 
-/* Form lọc đơn hàng */
-.order-history-page .filter-form {
+/* ================================
+   FILTER SECTION
+   ================================ */
+.filter-container {
     background: #ffffff;
-    border-radius: 12px;
-    padding: 20px 25px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-    margin-bottom: 30px;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    padding: 25px 30px;
+    margin-bottom: 25px;
 }
 
-.order-history-page .filter-form .form-label {
-    color: #333;
+.filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 15px 20px;
+}
+
+.filter-form .form-label {
     font-weight: 600;
+    color: #2E7D32;
+    margin-bottom: 6px;
 }
 
-.order-history-page .filter-form input {
+.filter-form input,
+.filter-form select {
     border: 1px solid #ccc;
-    border-radius: 6px;
-    transition: all 0.2s ease-in-out;
+    border-radius: 8px;
+    padding: 8px 12px;
+    width: 100%;
+    transition: all 0.2s ease;
+    background-color: #fff;
 }
 
-.order-history-page .filter-form input:focus {
-    background-color: #1E7B57;
-    box-shadow: 0 0 4px rgb(220, 53, 69);
+.filter-form input:focus,
+.filter-form select:focus {
+    border-color: #43A047;
+    box-shadow: 0 0 6px rgba(67, 160, 71, 0.3);
+    outline: none;
 }
 
-.order-history-page .filter-form button {
-    background-color: #1E7B57;
+/* Buttons */
+.filter-form .btn-secondary {
+    background-color: #2E7D32;
+    color: #fff;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
+    padding: 8px 18px;
+    font-weight: 600;
+    transition: background-color 0.25s ease;
+}
+.filter-form .btn-secondary:hover {
+    background-color: #1B5E20;
+}
+
+.filter-form .btn-outline-danger {
+    border: 1px solid #d32f2f;
+    color: #d32f2f;
+    border-radius: 8px;
+    padding: 8px 18px;
+    transition: all 0.25s ease;
+}
+.filter-form .btn-outline-danger:hover {
+    background-color: #d32f2f;
+    color: #fff;
+}
+
+/* ================================
+   SEARCH BOX
+   ================================ */
+.input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+    max-width: 400px;
+    width: 100%;
+}
+
+.input-group input {
+    flex: 1;
+    border: 1px solid #ccc;
+    border-radius: 8px 0 0 8px;
+    padding: 8px 12px;
+}
+
+.input-group button {
+    border: none;
+    border-radius: 0 8px 8px 0;
+    background-color: #2E7D32;
     color: #fff;
     font-weight: 600;
-    transition: all 0.2s ease-in-out;
+    padding: 8px 14px;
+    transition: background-color 0.2s ease;
+}
+.input-group button:hover {
+    background-color: #1B5E20;
 }
 
-.order-history-page .filter-form button:hover {
-    background-color: #5d4037;
+/* ================================
+   ORDER TABLE
+   ================================ */
+.table-responsive {
+    overflow-x: auto;
 }
 
-/* Bảng đơn hàng */
 .order-history-page table {
     width: 100%;
     border-collapse: collapse;
-    background: #ffffff;
+    background-color: #ffffff;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    min-width: 700px;
 }
 
 .order-history-page thead {
-    background-color: #1E7B57;
-    color: #ffffff;
+    background-color: #2E7D32;
+    color: #fff;
 }
 
 .order-history-page th,
 .order-history-page td {
     text-align: center;
-    padding: 12px 15px;
+    padding: 14px 16px;
     border-bottom: 1px solid #eee;
-    vertical-align: middle;
+    font-size: 15px;
 }
 
 .order-history-page tbody tr:hover {
-    background-color: #f6f6f6;
+    background-color: #f9f9f9;
+    transition: background-color 0.2s ease;
 }
 
-/* Phân trang */
-.order-history-page .pagination {
+/* ================================
+   PAGINATION
+   ================================ */
+.pagination {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 16px;
-    margin-top: 25px;
+    gap: 10px;
+    margin-top: 30px;
+    flex-wrap: wrap;
     font-weight: 600;
 }
 
-.order-history-page .pagination a {
-    color: #795548;
-    text-decoration: none;
-    border: 1px solid #795548;
+.pagination a {
+    color: #2E7D32;
+    border: 1px solid #2E7D32;
     padding: 6px 14px;
-    border-radius: 6px;
-    transition: all 0.2s ease-in-out;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s ease;
 }
-
-.order-history-page .pagination a:hover {
-    background-color: #795548;
+.pagination a:hover {
+    background-color: #2E7D32;
     color: #fff;
 }
-
-.order-history-page .pagination span {
+.pagination span {
     color: #333;
 }
-.filter-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-    gap: 20px;
-}
 
-.filter-form {
-    display: flex;
-    align-items: flex-end;
-    gap: 10px;
-}
-
-.filter-form .form-label {
-    font-weight: 600;
-    margin-bottom: 5px;
-}
-
-.filter-form .form-control {
-    min-width: 160px;
-}
-
-.filter-btn {
-    white-space: nowrap;
-    height: 38px;
-}
-
-/* Responsive: tự xuống hàng trên màn hình nhỏ */
-@media (max-width: 768px) {
-    .filter-container {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
+/* ================================
+   RESPONSIVE
+   ================================ */
+@media (max-width: 992px) {
     .filter-form {
-        width: 100%;
-        flex-wrap: wrap;
+        flex-direction: column;
+        align-items: stretch;
     }
-
-    .filter-btn {
+    .filter-form button,
+    .filter-form a.btn {
         width: 100%;
-        margin-top: 5px;
     }
 }

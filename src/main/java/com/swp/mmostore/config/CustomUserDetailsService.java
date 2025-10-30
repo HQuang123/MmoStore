@@ -32,7 +32,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email);
         if (user == null) {
-            throw new UsernameNotFoundException("User not found");
+            throw new UsernameNotFoundException("Không tìm thấy tài khoản");
+        }
+        if(!user.getStatus()){
+            throw new UsernameNotFoundException("Tài khoản chưa được xác minh. Hãy đăng ký lại");
         }
 
         List<GrantedAuthority> authorities = Arrays.stream(user.getRole().split(","))

@@ -10,6 +10,7 @@ import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServ
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     //the id token retrieved will be used to fetch the user details from gmail
     @Autowired
     private LoginRegistrationService userService;
+    
+    @Autowired
     private UserRepository userRepository;
 
     public CustomOAuth2UserService() {
@@ -38,14 +41,34 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String email = oAuth2User.getAttribute("email");
         String name = oAuth2User.getAttribute("name");
         String phone = "";
+        Boolean status = true;
         //this variable will be used to check the id of user of a specific provider
         String providerId = oAuth2User.getAttribute("sub");
         String provider = "google";
         String password =   UUID.randomUUID().toString();
         String profileImg = oAuth2User.getAttribute("picture");
-        User user = userService.findByProviderId(providerId);
+
+        User user = userRepository.findByEmail(email);
+
+        if (user != null){
+            //if user is not null but their account is deleted
+            if(user.getIsDeleted()) {
+                throw new OAuth2AuthenticationException(
+                        new OAuth2Error(
+                                "account_deleted",
+                                "User account is deleted.",
+                                null
+                        )
+                    );
+                }
+            //if user is not null and account not deleted but they use basic authen before, now they want to use sso
+            user.setProviderId(providerId);
+            user.setProvider(provider);
+            user.setName(name);
+            userRepository.save(user);
+        }
         if (user == null){
-            user = new User(name, email,phone,password,provider,providerId);
+            user = new User(name, email,phone,password, status, provider,providerId);
             user.setProfileImage(profileImg);
             userService.saveUser(user);
         }

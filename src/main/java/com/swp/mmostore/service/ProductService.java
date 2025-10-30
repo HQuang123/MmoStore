@@ -206,4 +206,13 @@ public class ProductService {
         }
         return formattedFields;
     }
+
+    public Page<ProductSummaryDTO> findProductsByShopId(Integer shopId, Pageable pageable) {
+
+        List<ProductSummaryDTO> products = productRepository.findProductsByShopId(shopId, pageable);
+
+        long totalProducts = productRepository.countProductsByShopId(shopId);
+
+        return new PageImpl<>(products, pageable, totalProducts);
+    }
 }

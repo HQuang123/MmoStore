@@ -33,7 +33,7 @@ public class AdminController {
 
     @GetMapping
     public String viewAdminPage(){
-        return "admin-dashboard";
+        return "/admin/admin-dashboard";
     }
 
     @GetMapping("/users")
@@ -57,7 +57,7 @@ public class AdminController {
         model.addAttribute("status", status == null ? "" : status);
         model.addAttribute("keyword", keyword == null ? "" : keyword);
 
-        return "user-list";
+        return "/admin/user-list";
     }
 
 
@@ -95,7 +95,7 @@ public class AdminController {
         model.addAttribute("keyword", keyword == null ? "" : keyword);
         model.addAttribute("status", status == null ? "" : status);
 
-        return "shop-list";
+        return "/admin/shop-list";
     }
 
 
@@ -133,7 +133,7 @@ public class AdminController {
         model.addAttribute("keyword", keyword == null ? "" : keyword);
         model.addAttribute("status", status == null ? "" : status);
 
-        return "category-list";
+        return "/admin/category-list";
     }
 
     @PostMapping("/categories/{id}/toggle-status")
@@ -158,7 +158,7 @@ public class AdminController {
                               @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
                               RedirectAttributes redirectAttributes) throws IOException {
         if (result.hasErrors()) {
-            return "category-form";
+            return "/admin/category-form";
         }
 
         categoryService.saveCategory(category, imageFile);
@@ -175,7 +175,7 @@ public class AdminController {
         }
         model.addAttribute("category", category);
         model.addAttribute("isEdit", true);
-        return "category-form";
+        return "/admin/category-form";
     }
 
     // ✅ Handle Edit Category form submission (supports changing image)

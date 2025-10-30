@@ -29,7 +29,7 @@ public class Rating {
     private Integer ratingPoint; // value between 1 and 5
 
     @Column(name = "Feedback", columnDefinition = "TEXT")
-    @Pattern(regexp = "^[\\p{L}\\p{M}\\d\\s,]+$\n", message = "Mô tả chứa ký tự lạ")
+//    @Pattern(regexp = "^[\\p{L}\\p{M}\\d\\s,]+$\n", message = "Mô tả chứa ký tự lạ")
     private String feedback;
 
     @Column(name = "IsDeleted")

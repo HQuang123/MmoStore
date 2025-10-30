@@ -91,9 +91,10 @@
         </div>
         <div class="register-section">
             <th:block th:if="${currentLoggedInUserDetails != null}">
-                <div th:if="${!currentLoggedInUserDetails.role.contains('ROLE_SELLER')} or ${!currentLoggedInUserDetails.role.contains('ROLE_ADMIN')}">
+                <div th:if="${!(currentLoggedInUserDetails.role.contains('ROLE_SELLER') || currentLoggedInUserDetails.role.contains('ROLE_ADMIN'))}">
                     <h2>Đăng ký bán hàng</h2>
-                    <p>Tạo một gian hàng của bạn trên trang của chúng tôi.
+                    <p>
+                        Tạo một gian hàng của bạn trên trang của chúng tôi.
                         Đội ngũ hỗ trợ sẽ liên lạc để giúp bạn tối ưu khả năng bán hàng.
                     </p>
                     <a href="/user/seller_register" class="shop-register btn btn-primary">ĐĂNG KÝ</a>
