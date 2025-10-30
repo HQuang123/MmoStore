@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base :: layout(~{::content}, ~{::cssFragment}, ~{::jsFragment})}">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Item</title>
+</head>
+
+<th:block th:fragment="cssFragment">
+    <link rel="stylesheet" th:href="@{/css/seller.css}">
+</th:block>
+
+<th:block th:fragment="jsFragment">
+
+    <script>
+        async function loadProductFields() {
+            const productId = document.getElementById("productSelect").value;
+            const container = document.getElementById("fieldsContainer");
+            container.innerHTML = "";
+
+            if (!productId) return;
+
+            const response = await fetch(`/api/product-list/${productId}/fields`);
+            const rawFields = await response.json();
+
+
+            const fields = {};
+
+            if (rawFields && typeof rawFields === "object") {
+                Object.entries(rawFields).forEach(([key, value]) => {
+                    if (key?.trim()) {
+                        fields[key.trim()] = value ?? "";
+                    }
+                });
+            }
+
+
+            if (Object.keys(fields).length === 0) {
+                container.innerHTML = "<p style='color: black!important;' class='text-muted'>No custom fields for this product.</p>";
+                return;
+            }
+
+            for (const [key, defaultValue] of Object.entries(fields)) {
+                const div = document.createElement("div");
+                div.className = "mb-3";
+
+                div.innerHTML = `
+                <label class="form-label">${key}</label>
+                <input type="text" class="form-control" name="${key}" value="${defaultValue || ''}" placeholder="Enter ${key}">
+            `;
+
+                container.appendChild(div);
+            }
+        }
+    </script>
+</th:block>
+
+<th:block th:fragment="content">
+    <div class="container mt-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h3 class="mb-4">Create New Item</h3>
+
+                <form id="itemForm" th:action="@{/seller/items/save}" method="post">
+
+                    <!-- Product Selection -->
+                    <div class="mb-3">
+                        <label class="form-label">Select Product</label>
+                        <select id="productSelect" name="productId" class="form-select" onchange="loadProductFields()">
+                            <option value="">-- Choose Product --</option>
+                            <option th:each="p : ${products}"
+                                    th:value="${p.productId}"
+                                    th:text="${p.title}"></option>
+                        </select>
+                    </div>
+
+                    <div id="messageBox" class="alert d-none" role="alert"></div>
+
+                    <!-- Dynamic Fields -->
+                    <div id="fieldsContainer"></div>
+
+                    <div class="text-end mt-4">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fa fa-save"></i> Create Item
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="/javascript/seller/create-item.js"></script>
+</th:block>
+</html>

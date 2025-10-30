@@ -4,12 +4,15 @@ import com.swp.mmostore.dto.ProductDetailDTO;
 import com.swp.mmostore.dto.ProductSummaryDTO;
 import com.swp.mmostore.entity.Category;
 import com.swp.mmostore.entity.Product;
+import com.swp.mmostore.entity.Shop;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.domain.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Integer> {
@@ -134,4 +137,33 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     @Query("SELECT COUNT(p) FROM Product p WHERE p.shop.shopId = :shopId")
     long countByShopId(@Param("shopId") Integer shopId);
+
+    @Query("""
+    SELECT 
+        p.productId,
+        p.title,
+        p.description,
+        p.price,
+        p.productImageUrl,
+        COALESCE(AVG(r.ratingPoint), 0)
+    FROM Product p
+    LEFT JOIN p.ratings r
+    WHERE p.shop.shopId = :shopId
+      AND (:keyword IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')))
+      AND (:category IS NULL OR p.category.name = :category)
+      AND (:minPrice IS NULL OR p.price >= :minPrice)
+      AND (:maxPrice IS NULL OR p.price <= :maxPrice)
+      GROUP BY p.id, p.title, p.description, p.price, p.shop.name
+""")
+    Page<ProductSummaryDTO> findFilteredProductsByShop(
+            @Param("shopId") Integer shopId,
+            @Param("keyword") String keyword,
+            @Param("category") String category,
+            @Param("minPrice") BigDecimal minPrice,
+            @Param("maxPrice") BigDecimal maxPrice,
+            Pageable pageable
+    );
+
+        List<Product> findByShop(Shop shop);
+
 }

@@ -1,18 +1,19 @@
 package com.swp.mmostore.service;
 
 import com.swp.mmostore.dto.*;
+import com.swp.mmostore.entity.Item;
 import com.swp.mmostore.entity.Product;
 import com.swp.mmostore.entity.Rating;
-import com.swp.mmostore.repository.ProductRepository;
-import com.swp.mmostore.repository.RatingRepository;
-import com.swp.mmostore.repository.ShopRepository;
+import com.swp.mmostore.entity.Shop;
+import com.swp.mmostore.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.math.BigDecimal;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ProductService {
@@ -25,6 +26,12 @@ public class ProductService {
 
     @Autowired
     private RatingRepository ratingRepository;
+    @Autowired
+    private CategoryRepository categoryRepository;
+    @Autowired
+    private CloudStorageService cloudStorageService;
+    @Autowired
+    private ItemRepository itemRepository;
 
     public List<Product> loadAllProduct() {
         return productRepository.findAll();
@@ -115,5 +122,88 @@ public class ProductService {
 
     public List<RatingDTO> getRatingsByProduct(Integer productId) {
         return ratingRepository.findAllByProductId(productId);
+    }
+
+    public Page<ProductSummaryDTO> getFilteredProductsByShop(
+            Integer shopId,
+            String keyword,
+            String category,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            Pageable pageable
+    ) {
+        return productRepository.findFilteredProductsByShop(shopId, keyword, category, minPrice, maxPrice, pageable);
+    }
+
+    public void saveProduct(ProductFormDTO form, Shop shop) {
+        Product product = (form.getId() != null)
+                ? productRepository.findById(form.getId()).orElse(new Product())
+                : new Product();
+
+        product.setTitle(form.getTitle());
+        product.setDescription(form.getDescription());
+        product.setPrice(form.getPrice());
+        product.setQuantity(0);
+        product.setCategory(categoryRepository.findById(form.getCategoryId()).orElse(null));
+        product.setShop(shop);
+
+
+
+        // 🔹 Handle dynamic fields (custom attributes)
+        if (form.getFields() != null && !form.getFields().isEmpty()) {
+            // Clean up: remove empty keys or values
+            form.getFields().entrySet().removeIf(e ->
+                    (e.getKey() == null || e.getKey().trim().isEmpty()) &&
+                            (e.getValue() == null || e.getValue().toString().trim().isEmpty())
+            );
+            product.setFields(form.getFields());
+        } else {
+            product.setFields(null);
+        }
+
+
+        // Xử lý upload ảnh
+        String shopImageUrl = "https://storage.googleapis.com/mmostore/default-shop.jpg"; // default image;
+        if (form.getImageFile() != null && !form.getImageFile().isEmpty()) {
+            try {
+                shopImageUrl = cloudStorageService.uploadFile(form.getImageFile());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if (form.getExistingImageUrl() != null && !form.getExistingImageUrl().isEmpty()) {
+            // Giữ lại ảnh cũ nếu không có ảnh mới
+            shopImageUrl = form.getExistingImageUrl();
+        }
+
+        product.setProductImageUrl(shopImageUrl);
+        productRepository.save(product);
+    }
+
+    public List<Product> getProductsBySeller(Shop shop) {
+        // Find the shop linked to this user
+        if (shop == null) {
+            return List.of();
+        }
+        return productRepository.findByShop(shop);
+    }
+
+    public Item saveItem(Item item) {
+        return itemRepository.save(item);
+    }
+
+    public Map<String, Object> getConvertFields(Map<String, Object> fields) {
+        Map<String, Object> formattedFields = new LinkedHashMap<>();
+
+        if (fields != null) {
+            for (int i = 0; i < fields.size() / 2; i++) {
+                String key = (String) fields.get("newKey" + i);
+                String value = (String) fields.get("newValue" + i);
+
+                if (key != null && !key.isBlank()) {
+                    formattedFields.put(key, value != null ? value : "");
+                }
+            }
+        }
+        return formattedFields;
     }
 }
