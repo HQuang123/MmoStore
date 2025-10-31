@@ -243,4 +243,11 @@ public class LoginRegistrationService {
 
 
 
+    public void updatePassword(String email, String rawPassword, PasswordEncoder encoder) {
+        String encoded = encoder.encode(rawPassword);
+        userRepository.updatePasswordByEmail(encoded, email);
+    }
+
+
+
 }

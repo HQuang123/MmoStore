@@ -5,6 +5,7 @@ import com.swp.mmostore.dto.OrderStatisticDTO;
 import com.swp.mmostore.entity.DepositStatus;
 import com.swp.mmostore.entity.Shop;
 import com.swp.mmostore.entity.User;
+import com.swp.mmostore.repository.UserRepository;
 import com.swp.mmostore.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,6 +38,9 @@ public class UserController {
 
     @Autowired
     private LoginRegistrationService userService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private CloudStorageService cloudStorageService;
@@ -144,8 +149,8 @@ public class UserController {
         return "redirect:/user/detail";
     }
 
-
     @PostMapping("/user/reset-password")
+    @Transactional
     public String resetPassword(@RequestParam String oldPassword,
                                 @RequestParam String newPassword,
                                 @RequestParam String confirmPassword,
@@ -161,19 +166,17 @@ public class UserController {
             return "redirect:/user/detail";
         }
 
-        // Kiểm tra khớp xác nhận
+        // Kiểm tra xác nhận
         if (!newPassword.equals(confirmPassword)) {
             redirectAttributes.addFlashAttribute("errorMsg", "Mật khẩu xác nhận không khớp!");
             return "redirect:/user/detail";
         }
 
-        // Mã hóa mật khẩu mới (chỉ 1 lần)
-        user.setPassword(passwordEncoder.encode(newPassword));
-        userService.saveUser(user);
-
+        userService.updatePassword(email, newPassword, passwordEncoder);
         redirectAttributes.addFlashAttribute("successMsg", "Đổi mật khẩu thành công!");
         return "redirect:/user/detail";
     }
+
 
 
 
