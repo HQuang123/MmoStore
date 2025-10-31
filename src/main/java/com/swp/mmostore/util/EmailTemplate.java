@@ -9,20 +9,19 @@ public class EmailTemplate {
         // Define the template using a Text Block (""").
         // %s is a placeholder for a String.
         String emailTemplate = """
-        Hello %s,
+        Xin chào quý khách %s,
 
-        We have received your withdrawal request submitted on %s.
-        Our team is now processing it.
+        Chúng tôi đã nhận được yêu cầu rút tiền của bạn %s.
+        Hiện tại chúng tôi đang xử lý yêu cầu của bạn.
 
-        Here are the details of your request:
-        - Amount: %s
-        - Bank Information: %s
+        Sau đây là thông tin cụ thể yêu cầu rút tiền của bạn:
+        - Số tiền: %s
+        - Thông tin ngân hàng nhận: %s
 
-        You can expect the funds to be reflected in your account within 3-5
-        business days.
+        Bạn có thể được hoàn trả tiền trong khoảng từ 3-5 ngày làm việc.
 
-        Thank you,
-        The AwesomeApp Team
+        Cảm ơn bạn,
+        Đội ngũ hỗ trợ khách hàng MMOStore
         """;
 
         // Use String.format() to inject the values into the template.

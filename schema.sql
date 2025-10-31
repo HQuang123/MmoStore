@@ -7,6 +7,7 @@ CREATE TABLE User (
                       Role                      VARCHAR(50),
                       Status                    BOOLEAN DEFAULT TRUE,   -- TRUE = active, FALSE = inactive
                       Balance                   DECIMAL(15,2) DEFAULT 0,
+                      OnHoldBalance                   DECIMAL(15,2) DEFAULT 0,
                       PhoneNumber               VARCHAR(20),
                       ProfileImage              VARCHAR(500),
                       AccountStatusNonLocked    BOOLEAN DEFAULT TRUE,
@@ -206,5 +207,12 @@ CREATE TABLE PasswordResetToken (
                                    ExpiryDate DATETIME NOT NULL,
                                    UserID INT NOT NULL UNIQUE,
                                    FOREIGN KEY (UserID) REFERENCES User(UserID)
+);
+CREATE TABLE WithdrawalOtp (
+                               ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                               Token VARCHAR(255) NOT NULL UNIQUE,
+                               ExpiryDate DATETIME NOT NULL,
+                               WithdrawalID INT NOT NULL UNIQUE,
+                               FOREIGN KEY (WithdrawalID) REFERENCES Withdrawal(ID)
 );
 

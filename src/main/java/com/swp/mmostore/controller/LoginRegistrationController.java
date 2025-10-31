@@ -9,16 +9,20 @@ import com.swp.mmostore.service.LoginRegistrationService;
 import com.swp.mmostore.service.RecaptchaService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
+import org.bouncycastle.math.raw.Mod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.xml.validation.Validator;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
@@ -41,6 +45,8 @@ public class LoginRegistrationController {
     RecaptchaService recaptchaService;
     @Autowired
     private PasswordResetTokenRepository passwordResetTokenRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     private String getSiteURL(HttpServletRequest request) {
         String siteURL = request.getRequestURL().toString();
@@ -53,13 +59,16 @@ public class LoginRegistrationController {
     }
 
     @GetMapping("/register")
-    public String register(){
+    public String register(Model model){
+        model.addAttribute("user", new User());
         return "register";
     }
 
     @PostMapping("/save-user")
-    public String saveUserDetails(@ModelAttribute User user, @RequestParam("file") MultipartFile file, HttpServletRequest request, RedirectAttributes redirectAttributes, @RequestParam("g-recaptcha-response") String recaptchaResponse)
-            throws IOException {
+    public String saveUserDetails(@Valid @ModelAttribute User user,BindingResult bindingResult, @RequestParam("file") MultipartFile file, HttpServletRequest request, RedirectAttributes redirectAttributes, @RequestParam("g-recaptcha-response") String recaptchaResponse) throws IOException {
+        if(bindingResult.hasErrors()){
+            return "register";
+        }
         boolean isRecaptchaValid = recaptchaService.validateRecaptcha(recaptchaResponse);
         if(!isRecaptchaValid){
             redirectAttributes.addFlashAttribute("errorMessage", "CAPTCHA validation failed. Please try again.");
@@ -113,16 +122,22 @@ public class LoginRegistrationController {
     }
 
     @GetMapping("/verify-email")
-    public String verifyEmail(@RequestParam("token") String token, RedirectAttributes redirectAttributes) {
-        String result = loginRegistrationService.verifyUserToken(token);
-        if(result.equalsIgnoreCase("success")){
-            redirectAttributes.addFlashAttribute("successMsg", "Tài khoản đã được xác thực thành công, vui lòng đăng nhập lại !");
-        }
-        else if("expired".equalsIgnoreCase(result) ){
+    public String verifyEmail(@RequestParam("token") String token, @RequestParam("userEmail") String email, RedirectAttributes redirectAttributes) {
+        User user = userRepository.findByEmail(email);
+        if(user == null){
+            //avoid to let the hacker know if the mail non exists
             redirectAttributes.addFlashAttribute("errorMsg", "Đường dẫn quá hạn, hãy đăng ký lại");
-        }
-        else{
-            redirectAttributes.addFlashAttribute("errorMsg", "Sai mã số !");
+        }else{
+            String result = loginRegistrationService.verifyUserToken(token);
+            if(result.equalsIgnoreCase("success")){
+                redirectAttributes.addFlashAttribute("successMsg", "Tài khoản đã được xác thực thành công, vui lòng đăng nhập lại !");
+            }
+            else if("expired".equalsIgnoreCase(result) ){
+                redirectAttributes.addFlashAttribute("errorMsg", "Đường dẫn quá hạn, hãy đăng ký lại");
+            }
+            else{
+                redirectAttributes.addFlashAttribute("errorMsg", "Sai mã số !");
+            }
         }
         return "redirect:/login";
     }
@@ -146,11 +161,18 @@ public class LoginRegistrationController {
     }
 
     @GetMapping("/reset-password")
-    public String resetPasswordPage(@RequestParam("token") String token, Model model, RedirectAttributes redirectAttributes) {
-        String validationResult = loginRegistrationService.verifyResetToken(token);
-        if(!"valid".equalsIgnoreCase(validationResult)){
+    public String resetPasswordPage(@RequestParam("token") String token, @RequestParam("userEmail") String email, Model model, RedirectAttributes redirectAttributes) {
+        User user = userRepository.findByEmail(email);
+        if(user == null){
             redirectAttributes.addFlashAttribute("errorMsg", "Link đã hết hạn");
             return "redirect:/login";
+        }
+        else{
+            String validationResult = loginRegistrationService.verifyResetToken(token);
+            if(!"valid".equalsIgnoreCase(validationResult)){
+                redirectAttributes.addFlashAttribute("errorMsg", "Link đã hết hạn");
+                return "redirect:/login";
+            }
         }
         //add token to the model so -> can pass to the post handler
         model.addAttribute("token", token);
@@ -162,7 +184,7 @@ public class LoginRegistrationController {
     @PostMapping("/reset-password")
     public String processResetPassword(@RequestParam("token") String token,
                                        @RequestParam("password") String password,
-                                       Model model, RedirectAttributes redirectAttributes) {
+                                       RedirectAttributes redirectAttributes) {
         String validateResult = loginRegistrationService.verifyResetToken(token);
         if(!validateResult.equalsIgnoreCase("valid")){
             redirectAttributes.addFlashAttribute("errorMsg","Link bị lỗi hoặc hết hạn");

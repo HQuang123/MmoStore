@@ -24,14 +24,14 @@ public class User {
     private Integer userId;
 
     @Column(name = "Name", length = 50)
-//    @Pattern(regexp = "^[\\p{L}\\p{M}\\d\\s,]+$\n", message = "Tên chứa ký tự lạ")
+    @Pattern(regexp = "^[a-zA-Z0-9_\\- ()\\[\\]]{3,50}$", message = "Tên chứa ký tự lạ. Chỉ được phép dùng chữ cái, số, dấu cách, dấu gạch ngang (-), dấu gạch dưới (_), và các dấu ngoặc đơn/vuông. Tên phải dài từ 3 đến 50 ký tự.")
     private String name;
 
     @Column(name = "Email", length = 100, unique = true)
     private String email;
 
     @Column(name = "PhoneNumber")
-//    @Pattern(regexp = "^\\d{8,12}$\n", message = "Số điện thoại không hợp lệ")
+    @Pattern(regexp = "^\\d{8,15}$", message = "Số điện thoại không hợp lệ")
     private String phoneNumber;
 
     @Column(name = "Password", length = 255)
@@ -42,6 +42,9 @@ public class User {
 
     @Column(name = "Balance", columnDefinition = "Decimal(10,2) DEFAULT 0.00", precision = 10, scale = 2, insertable = false)
     private BigDecimal balance;
+
+    @Column(name = "OnHoldBalance", columnDefinition = "Decimal(10,2) DEFAULT 0.00", precision = 10, scale = 2, insertable = false)
+    private BigDecimal onHoldBalance;
 
     @Column(name = "Status", columnDefinition = "Boolean DEFAULT true")
     private Boolean status;
@@ -128,6 +131,11 @@ public class User {
     public void removeDeposit(Deposit deposit) {
         deposits.remove(deposit);
         deposit.setUser(null);
+    }
+
+    @Transient
+    public BigDecimal getAvailableBalance(){
+        return this.balance.subtract(this.onHoldBalance);
     }
 
     // Constructor is fine
