@@ -87,9 +87,9 @@ public class MomoService {
         return momoAPI.createMomoQR(request);
     }
 
-    private String signHmacSHA256(String data, String key) throws Exception {
+    public String signHmacSHA256(String data, String secretKey) throws Exception {
         Mac hmacSHA256 = Mac.getInstance("HmacSHA256");
-        SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
         hmacSHA256.init(secretKeySpec);
         byte[] bytes = hmacSHA256.doFinal(data.getBytes(StandardCharsets.UTF_8));
         StringBuilder hexString = new StringBuilder();

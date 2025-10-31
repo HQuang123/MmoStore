@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 public class Payout {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "PayoutID")
+    @Column(name = "ID")
     private Integer payoutId;
 
     @Column(name = "Amount", precision = 15, scale = 2)

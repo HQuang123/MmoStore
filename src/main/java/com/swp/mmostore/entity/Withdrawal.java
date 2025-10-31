@@ -34,17 +34,14 @@ public class Withdrawal {
     private String bankAccount;
 
     @Column(name = "AccountHolder")
-//    @Pattern(regexp = "^[\\p{L}\\p{M}\\d\\s,]+$\n", message = "Tên tài khoản chứa ký tự lạ")
+    @Pattern(regexp = "^[\\p{L}\\p{M}\\d\\s,]+$", message = "Tên tài khoản chứa ký tự lạ")
     private String accountHolder;
 
     @Column(name = "status", length = 20, columnDefinition = "VARCHAR(20) DEFAULT 'Pending'")
-    private String status = "Pending"; // Pending, Approved, Rejected
+    private String status = "Unconfirmed"; // Unconfirmed, Pending, Approved, Rejected
 
     @Column(name = "CreateAt", insertable = false)
     private LocalDateTime createAt;
-
-    @Column(name = "CreateBy", insertable = false)
-    private Integer createBy;
 
     @Column(name = "UpdateAt", insertable = false)
     private LocalDateTime updateAt;
@@ -53,7 +50,7 @@ public class Withdrawal {
     private Integer updateBy;
 
     @ManyToOne
-    @JoinColumn(name = "UserID")
+    @JoinColumn(name = "CreateBy")
     private User user;
 
 }

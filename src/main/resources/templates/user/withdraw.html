@@ -18,6 +18,15 @@
 </head>
 <body>
 <section>
+    <script>
+        var tailwind = {
+            config: {
+                corePlugins: {
+                    preflight: false,
+                }
+            }
+        };
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <div class="container mt-5">
@@ -74,10 +83,14 @@
                     }
                 }">
                 <h3 class="card-title mb-4">Withdraw Money</h3>
-                <form th:action="@{/user/wallet/withdraw}" th:object="${withdraw}" method="post">
+                <form th:action="@{/user/wallet/withdraw}" th:object="${withdrawal}" method="post">
                     <div class="mb-3">
-                        <label class="form-label">Tên chủ tài khoản</label>
-                        <input type="text" th:field="*{accountHolder}" class="form-control" placeholder="e.g. Nguyen Van A" required>
+                        <label for="accountHolder" class="form-label">Tên chủ tài khoản</label>
+                        <input id="accountHolder" type="text" th:field="*{accountHolder}" class="form-control" placeholder="e.g. Nguyen Van A" required>
+                        <div style="color: red; font-size: 0.9em;"
+                             th:if="${#fields.hasErrors('accountHolder')}"
+                             th:errors="*{accountHolder}">
+                        </div>
                     </div>
 
                     <div class="mb-3">
@@ -103,8 +116,7 @@
                         <input type="number" id="amount"
                                th:field="*{amount}" class="form-control"
                                min="10000" step="1000"
-                               placeholder="Nhập số tiền ít nhất 10,000 đồng"
-                               th:attr="max=${user.balance?.toPlainString() ?: '0'}" required>
+                               placeholder="Nhập số tiền ít nhất 10,000 đồng" required>
                     </div>
 
                     <div class="flex flex-col sm:flex-row items-center gap-3 mt-5">
