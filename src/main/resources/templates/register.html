@@ -25,65 +25,74 @@
                     <div class="card-header">
                         <p class="fs-4 text-center">Register</p>
 
-<!--                        if success or error message -> remove session message-->
                         <th:block th:if="${successMsg}">
                             <p class="text-success fw-bold text-center mt-2" th:text="${successMsg}"></p>
-<!--                            <th:block th:text="${@commonServiceImpl.removeSessionMessage()}"></th:block>-->
                         </th:block>
                         <th:block th:if="${errorMsg}">
                             <p class="text-danger fw-bold text-center mt-2" th:text="${errorMsg}"></p>
-<!--                            <th:block th:text="${@commonServiceImpl.removeSessionMessage()}"></th:block>-->
                         </th:block>
 
                     </div>
                     <div class="card-body">
-                        <form id="registerForm" action="/save-user" method="post" enctype="multipart/form-data">
+                        <form id="registerForm" th:action="@{/save-user}" th:object="${user}" method="post" enctype="multipart/form-data">
+
                             <div class="row">
                                 <div class="col">
-                                    <label class="form-label">Tên</label> <input
-                                        class="form-control" name="name" type="text" required />
+                                    <label class="form-label">Tên</label>
+                                    <input class="form-control" th:field="*{name}" type="text"
+                                           th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''" />
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}">
+                                        <span th:errors="*{name}"></span>
+                                    </div>
                                 </div>
-
                                 <div class="col">
-                                    <label class="form-label">Số điện thoại</label> <input
-                                        class="form-control" name="phoneNumber" type="text" required />
+                                    <label class="form-label">Số điện thoại</label>
+                                    <input class="form-control" th:field="*{phoneNumber}" type="text"
+                                           th:classappend="${#fields.hasErrors('phoneNumber')} ? 'is-invalid' : ''" />
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('phoneNumber')}">
+                                        <span th:errors="*{phoneNumber}"></span>
+                                    </div>
                                 </div>
                             </div>
-
                             <div class="col">
-                                <label class="form-label">Email</label> <input
-                                    class="form-control" name="email" type="email" required />
+                                <label class="form-label">Email</label>
+                                <input class="form-control" th:field="*{email}" type="email"
+                                       th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''" />
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}">
+                                    <span th:errors="*{email}"></span>
+                                </div>
                             </div>
-
-
                             <div class="row">
                                 <div class="col">
-                                    <label class="form-label">Mật khẩu</label> <input
-                                        class="form-control" name="password" type="password" required/>
+                                    <label class="form-label">Mật khẩu</label>
+                                    <input class="form-control" th:field="*{password}" type="password"
+                                           th:classappend="${#fields.hasErrors('password')} ? 'is-invalid' : ''" />
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('password')}">
+                                        <span th:errors="*{password}"></span>
+                                    </div>
                                 </div>
-
                                 <div class="col">
-                                    <label class="form-label">Nhập lại mật khẩu</label> <input
-                                        class="form-control" name="confirmPassword" type="password" />
+                                    <label class="form-label">Nhập lại mật khẩu</label>
+                                    <input class="form-control" name="confirmPassword" type="password" />
                                     <div id="confirmPasswordHelp" class="form-text text-danger" style="display:none;">Mật khẩu không khớp.</div>
                                 </div>
                             </div>
 
                             <div class="col">
-                                <label class="form-label">Ảnh cá nhân</label> <input
-                                    class="form-control" name="file" type="file" />
+                                <label class="form-label">Ảnh cá nhân</label>
+                                <input id="fileInput" class="form-control" name="file" type="file" accept="image/*" />
                             </div>
 
+                            <div class="text-center mt-3">
+                                <img id="imagePreview" src="#" alt="Xem trước ảnh"
+                                     style="display: none; width: 150px; height: 150px; object-fit: contain; border-radius: 0%; border: 1px solid #ccc;" />
+                            </div>
                             <div class="g-recaptcha mt-3"
                                  data-sitekey="6LfbQfsrAAAAACD8QBG7-VdRtXXMWIuV6C7uZzoU">
                             </div>
 
-
-
                             <button id="submitBtn" type="submit" class="btn bg-danger mt-3 text-white col-md-12" disabled>Đăng ký</button>
                         </form>
-
-
                     </div>
                     <div class="card-footer text-center">
                         <br>Đã có tài khoản ?
@@ -103,6 +112,39 @@
             var help = document.getElementById('confirmPasswordHelp');
             var submitBtn = document.getElementById('submitBtn');
 
+            // === START: NEW CODE FOR IMAGE PREVIEW ===
+            var fileInput = document.getElementById('fileInput');
+            var imagePreview = document.getElementById('imagePreview');
+
+            if (fileInput && imagePreview) {
+                fileInput.addEventListener('change', function() {
+                    var file = this.files[0];
+                    if (file) {
+                        // Check if the file is an image
+                        if (file.type.startsWith('image/')) {
+                            var reader = new FileReader();
+                            reader.onload = function(e) {
+                                imagePreview.src = e.target.result;
+                                imagePreview.style.display = 'block'; // Show the image
+                            }
+                            reader.readAsDataURL(file);
+                        } else {
+                            // Not an image file
+                            alert('Vui lòng chọn một tệp hình ảnh.');
+                            fileInput.value = ''; // Reset the input
+                            imagePreview.src = '#';
+                            imagePreview.style.display = 'none';
+                        }
+                    } else {
+                        // No file selected (e.g., user hit cancel)
+                        imagePreview.src = '#';
+                        imagePreview.style.display = 'none';
+                    }
+                });
+            }
+            // === END: NEW CODE FOR IMAGE PREVIEW ===
+
+
             function validatePasswords() {
                 var pass = passwordInput ? passwordInput.value : '';
                 var confirm = confirmInput ? confirmInput.value : '';
@@ -113,7 +155,6 @@
                     if (help) { help.style.display = 'none'; help.textContent = ''; }
                 } else {
                     if (confirmInput) confirmInput.setCustomValidity('Passwords do not match');
-                    //confirm length == 0-> false, help.style.display = 'none'
                     if (help) { help.style.display = confirm.length ? 'block' : 'none';
                         help.textContent = 'Mật khẩu không khớp.';
                         help.style.color = 'red';}
@@ -132,13 +173,11 @@
                     if (recaptchaResponse.length === 0) {
                         e.preventDefault(); // Stop the form submission
 
-                        // You can show a message in your 'errorMsg' p tag
                         var errorP = document.querySelector('p[th\\:if="${errorMsg}"]');
                         if(errorP) {
                             errorP.textContent = 'Please verify you are not a robot.';
                             errorP.className = 'text-danger fw-bold text-center mt-2';
                         } else {
-                            // Fallback if the 'p' tag isn't rendered
                             alert('Please verify you are not a robot.');
                         }
                         return; // Stop here
@@ -155,7 +194,5 @@
         });
     </script>
 </section>
-
-
 </body>
 </html>

@@ -51,14 +51,11 @@ public class Deposit {
     @Column(name = "UpdateAt", insertable = false)
     private LocalDateTime updateAt;
 
-    @Column(name = "CreateBy", insertable = false)
-    private Integer createBy;
-
     @Column(name = "UpdateBy", insertable = false)
     private Integer updateBy;
 
     @ManyToOne
-    @JoinColumn(name = "UserID")
+    @JoinColumn(name = "CreateBy")
     private User user;
 
 
