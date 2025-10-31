@@ -19,7 +19,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -30,7 +29,7 @@ import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Controller
 public class UserController {
@@ -49,6 +48,10 @@ public class UserController {
 
     @Autowired
     private WalletService walletService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
 
     /** Hiển thị trang user_profile.html */
     @GetMapping("/user/detail")
@@ -140,6 +143,40 @@ public class UserController {
         }
         return "redirect:/user/detail";
     }
+
+
+    @PostMapping("/user/reset-password")
+    public String resetPassword(@RequestParam String oldPassword,
+                                @RequestParam String newPassword,
+                                @RequestParam String confirmPassword,
+                                Principal principal,
+                                RedirectAttributes redirectAttributes) {
+
+        String email = principal.getName();
+        User user = userService.getUserByEmail(email);
+
+        // Kiểm tra mật khẩu cũ
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            redirectAttributes.addFlashAttribute("errorMsg", "Mật khẩu hiện tại không đúng!");
+            return "redirect:/user/detail";
+        }
+
+        // Kiểm tra khớp xác nhận
+        if (!newPassword.equals(confirmPassword)) {
+            redirectAttributes.addFlashAttribute("errorMsg", "Mật khẩu xác nhận không khớp!");
+            return "redirect:/user/detail";
+        }
+
+        // Mã hóa mật khẩu mới (chỉ 1 lần)
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userService.saveUser(user);
+
+        redirectAttributes.addFlashAttribute("successMsg", "Đổi mật khẩu thành công!");
+        return "redirect:/user/detail";
+    }
+
+
+
 
     @GetMapping("/user/seller_register")
     public String showSellerRegisterPage() {

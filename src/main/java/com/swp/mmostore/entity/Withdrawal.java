@@ -43,8 +43,8 @@ public class Withdrawal {
     @Column(name = "CreateAt", insertable = false)
     private LocalDateTime createAt;
 
-    @Column(name = "CreateBy", insertable = false)
-    private Integer createBy;
+//    @Column(name = "CreateBy", insertable = false)
+//    private Integer createBy;
 
     @Column(name = "UpdateAt", insertable = false)
     private LocalDateTime updateAt;
@@ -53,7 +53,7 @@ public class Withdrawal {
     private Integer updateBy;
 
     @ManyToOne
-    @JoinColumn(name = "UserID")
+    @JoinColumn(name = "CreateBy")
     private User user;
 
 }
