@@ -1,7 +1,9 @@
 package com.swp.mmostore.service;
 
+import com.swp.mmostore.dto.ShopStatisticDTO;
 import com.swp.mmostore.dto.ShopViewDTO;
 import com.swp.mmostore.dto.ProductSalesDTO;
+import com.swp.mmostore.entity.Order;
 import com.swp.mmostore.entity.Shop;
 import com.swp.mmostore.repository.OrderRepository;
 import com.swp.mmostore.repository.ProductRepository;
@@ -14,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -24,6 +27,10 @@ public class ShopService {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private OrderRepository orderRepository;
+
 
     public ShopViewDTO findShopViewById(Integer shopId){
         return shopRepository.findShopViewById(shopId);
@@ -61,12 +68,35 @@ public class ShopService {
     }
 
 
-    @Autowired
-    private OrderRepository orderRepository;
 
     public Page<ProductSalesDTO> getSoldProductsByShop(Integer shopId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return orderRepository.findSoldProductsByShop(shopId, pageable);
+    }
+
+
+    public List<ProductSalesDTO> getAllSoldProductsByShop(Integer shopId) {
+        return orderRepository.findAllSoldProductsByShop(shopId);
+    }
+
+
+    public ShopStatisticDTO getStatisticdData(Integer shopId) {
+
+        long totalOrders = orderRepository.countByShopId(shopId);
+        long totalProducts = productRepository.countByShopId(shopId);
+        BigDecimal totalRevenue = orderRepository.sumRevenueByShop(shopId);
+        long pendingOrders = orderRepository.countByShopIdAndStatus(shopId, "PENDING");
+        long completedOrders = orderRepository.countByShopIdAndStatus(shopId, "COMPLETED");
+        long canceledOrders = orderRepository.countByShopIdAndStatus(shopId, "CANCELED");
+
+        return new ShopStatisticDTO(
+                totalOrders,
+                totalProducts,
+                totalRevenue,
+                pendingOrders,
+                completedOrders,
+                canceledOrders
+        );
     }
 
 }

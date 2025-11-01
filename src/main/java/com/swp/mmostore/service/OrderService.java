@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -120,6 +121,19 @@ public class OrderService {
         );
     }
 
+    public List<ShopOrderHistoryDTO> getFilteredOrdersNoPaging(
+            Integer shopId,
+            Integer minQuantity,
+            BigDecimal minTotal,
+            BigDecimal maxTotal,
+            LocalDateTime startDate,
+            LocalDateTime endDate,
+            String status
+    ) {
+        return orderRepository.findFilteredOrdersByShopNoPaging(
+                shopId, minQuantity, minTotal, maxTotal, startDate, endDate, status
+        );
+    }
 
 
 }
