@@ -79,7 +79,7 @@
     </div>
     <!-- Modal Upload Ảnh -->
     <div class="modal fade" id="editImageModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog" style="padding-top: 285px;">
             <div class="modal-content">
                 <form th:action="@{/user/editimage}" method="post" enctype="multipart/form-data">
                     <div class="modal-header">
@@ -94,7 +94,7 @@
                         </div>
 
                         <!-- Xem trước ảnh -->
-                        <div class="text-center mt-3">
+                        <div class="text-center mt-3" style="padding-left: 160px;">
                             <img id="previewImage" src="#" alt="Preview"
                                  style="display:none; width:150px; height:150px; border-radius:50%; object-fit:cover;">
                         </div>
@@ -109,8 +109,8 @@
         </div>
     </div>
     <!-- Modal Reset Password -->
-    <div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
+    <div class="modal fade" id="resetPasswordModal"  tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog" style="padding-top: 190px;">
             <div class="modal-content">
                 <form th:action="@{/user/reset-password}" method="post">
                     <div class="modal-header">

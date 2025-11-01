@@ -245,6 +245,14 @@ public class LoginRegistrationService {
 
     public void updatePassword(String email, String rawPassword, PasswordEncoder encoder) {
         String encoded = encoder.encode(rawPassword);
+        boolean matches = passwordEncoder.matches("654321",
+                "$2a$10$5IxvgR40SEUcnXHl1wN0/uUEkEZu.n2gqCS.LqGRVPiUQKXgq.ZQa");
+
+        if (matches) {
+            System.out.println("Mật khẩu đúng");
+        } else {
+            System.out.println("Sai mật khẩu");
+        }
         userRepository.updatePasswordByEmail(encoded, email);
     }
 
