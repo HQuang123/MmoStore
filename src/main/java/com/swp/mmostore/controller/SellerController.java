@@ -12,7 +12,13 @@ import com.swp.mmostore.repository.CategoryRepository;
 import com.swp.mmostore.repository.ProductRepository;
 import com.swp.mmostore.service.*;
 import com.swp.mmostore.service.*;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -34,6 +40,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDate;
@@ -43,9 +50,7 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-public class SellerController {
-    @Autowired
-    private SellerStatisticService statisticService;
+public class  SellerController {
 
     @Autowired
     private LoginRegistrationService userService;
@@ -75,7 +80,7 @@ public class SellerController {
         User user = userService.getUserByEmail(email);
 
         Shop shop = shopService.findByUserId(user.getUserId());
-        ShopStatisticDTO dashboard = statisticService.getStatisticdData(shop.getShopId());
+        ShopStatisticDTO dashboard = shopService.getStatisticdData(shop.getShopId());
 
         Integer shopId = shop.getShopId();
         int pageSize = 1;
@@ -107,6 +112,54 @@ public class SellerController {
         return "seller/statistic";
     }
 
+
+
+    @GetMapping("/seller/statistic/export")
+    public void exportToExcel(HttpServletResponse response) throws IOException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        User user = userService.getUserByEmail(email);
+        Shop shop = shopService.findByUserId(user.getUserId());
+
+        // Lấy toàn bộ dữ liệu không phân trang
+        List<ProductSalesDTO> reportList = shopService.getAllSoldProductsByShop(shop.getShopId());
+
+        // Thiết lập header cho response
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        String fileName = "ShopStatistic_" + shop.getName().replaceAll("\\s+", "_") + ".xlsx";
+        response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+
+        // Ghi dữ liệu ra file Excel
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Top Selling Products");
+
+            // Header
+            Row headerRow = sheet.createRow(0);
+            String[] headers = {"Product ID", "Product Name", "Price (VNĐ)", "Quantity Sold", "Total Revenue (VNĐ)"};
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+            }
+
+            // Dữ liệu
+            int rowNum = 1;
+            for (ProductSalesDTO item : reportList) {
+                Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(item.getProductId());
+                row.createCell(1).setCellValue(item.getTitle());
+                row.createCell(2).setCellValue(item.getPrice().doubleValue());
+                row.createCell(3).setCellValue(item.getTotalQuantitySold());
+                row.createCell(4).setCellValue(item.getTotalRevenue().doubleValue());
+            }
+
+            // Auto-size cột
+            for (int i = 0; i < headers.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            workbook.write(response.getOutputStream());
+        }
+    }
 
 
     @GetMapping("/seller/orders")
@@ -331,6 +384,81 @@ public class SellerController {
         productRepository.deleteById(id);
         redirectAttributes.addFlashAttribute("message", "Product deleted successfully!");
         return "redirect:/seller/products";
+    }
+
+    @GetMapping("/seller/orders/export")
+    public void exportOrdersToExcel(
+            @RequestParam(value = "minQuantity", required = false) Integer minQuantity,
+            @RequestParam(value = "minTotal", required = false) BigDecimal minTotal,
+            @RequestParam(value = "maxTotal", required = false) BigDecimal maxTotal,
+            @RequestParam(value = "startDate", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(value = "endDate", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(value = "status", required = false) String status,
+            HttpServletResponse response
+    ) throws IOException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        User user = userService.getUserByEmail(email);
+        Shop shop = shopService.findByUserId(user.getUserId());
+
+        // --- Chuẩn hóa input ---
+        status = (status != null && !status.isBlank()) ? status : null;
+        minQuantity = (minQuantity != null && minQuantity > 0) ? minQuantity : null;
+        minTotal = (minTotal != null && minTotal.compareTo(BigDecimal.ZERO) > 0) ? minTotal : null;
+        maxTotal = (maxTotal != null && maxTotal.compareTo(BigDecimal.ZERO) > 0) ? maxTotal : null;
+
+        LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
+        LocalDateTime endDateTime = endDate != null ? endDate.plusDays(1).atStartOfDay() : null;
+
+        // --- Lấy toàn bộ dữ liệu không phân trang ---
+        List<ShopOrderHistoryDTO> orders = orderService.getFilteredOrdersNoPaging(
+                shop.getShopId(),
+                minQuantity,
+                minTotal,
+                maxTotal,
+                startDateTime,
+                endDateTime,
+                status
+        );
+
+        // --- Tạo Excel ---
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Orders");
+        int rowIdx = 0;
+
+        // Header
+        Row header = sheet.createRow(rowIdx++);
+        String[] headers = {"Order ID", "Product ID", "Product Name", "Quantity", "Unit Price", "Total", "Order Date", "Status"};
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = header.createCell(i);
+            cell.setCellValue(headers[i]);
+        }
+
+        // Data
+        for (ShopOrderHistoryDTO dto : orders) {
+            Row row = sheet.createRow(rowIdx++);
+            row.createCell(0).setCellValue(dto.orderId());
+            row.createCell(1).setCellValue(dto.productId());
+            row.createCell(2).setCellValue(dto.productTitle());
+            row.createCell(3).setCellValue(dto.quantity());
+            row.createCell(4).setCellValue(dto.price().toString());
+            row.createCell(5).setCellValue(dto.totalPrice().toString());
+            row.createCell(6).setCellValue(dto.createAt().toString());
+            row.createCell(7).setCellValue(dto.status());
+        }
+
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        // --- Response ---
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=orders.xlsx");
+
+        workbook.write(response.getOutputStream());
+        workbook.close();
     }
 
 

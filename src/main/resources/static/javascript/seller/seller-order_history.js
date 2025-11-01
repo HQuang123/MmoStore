@@ -28,26 +28,19 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // ===================== EXPORT XLSX =====================
-    const btnExportXLSX = document.getElementById("btnExportXLSX");
-    if (btnExportXLSX) {
-        btnExportXLSX.addEventListener("click", function() {
-            const table = document.querySelector("table");
-            if (!table) {
-                alert("Không tìm thấy bảng để xuất!");
-                return;
-            }
+});
+document.addEventListener("DOMContentLoaded", function () {
+    const exportBtn = document.getElementById("btnExportXLSX");
 
-            // Clone bảng để giữ nguyên dữ liệu hiển thị
-            const tableClone = table.cloneNode(true);
+    if (exportBtn) {
+        exportBtn.addEventListener("click", function () {
+            // Lấy toàn bộ dữ liệu filter từ form
+            const form = document.querySelector(".filter-form");
+            const params = new URLSearchParams(new FormData(form));
 
-            // Tạo workbook và sheet từ bảng clone
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.table_to_sheet(tableClone, { raw: true }); // raw: true giữ nguyên nội dung hiển thị
-            XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-
-            // Xuất file
-            XLSX.writeFile(wb, "export.xlsx");
+            // Gửi request export
+            window.location.href = "/seller/orders/export?" + params.toString();
         });
     }
 });
+

@@ -22,7 +22,7 @@ import java.util.Map;
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ProductID")
+    @Column(name = "ID")
     private Integer productId;
 
     @Column(name = "Title", length = 255)

@@ -5,6 +5,7 @@ import com.swp.mmostore.dto.OrderStatisticDTO;
 import com.swp.mmostore.entity.DepositStatus;
 import com.swp.mmostore.entity.Shop;
 import com.swp.mmostore.entity.User;
+import com.swp.mmostore.repository.UserRepository;
 import com.swp.mmostore.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -30,13 +31,16 @@ import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Controller
 public class UserController {
 
     @Autowired
     private LoginRegistrationService userService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private CloudStorageService cloudStorageService;
@@ -49,6 +53,10 @@ public class UserController {
 
     @Autowired
     private WalletService walletService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
 
     /** Hiển thị trang user_profile.html */
     @GetMapping("/user/detail")
@@ -140,6 +148,38 @@ public class UserController {
         }
         return "redirect:/user/detail";
     }
+
+    @PostMapping("/user/reset-password")
+    @Transactional
+    public String resetPassword(@RequestParam String oldPassword,
+                                @RequestParam String newPassword,
+                                @RequestParam String confirmPassword,
+                                Principal principal,
+                                RedirectAttributes redirectAttributes) {
+
+        String email = principal.getName();
+        User user = userService.getUserByEmail(email);
+
+        // Kiểm tra mật khẩu cũ
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            redirectAttributes.addFlashAttribute("errorMsg", "Mật khẩu hiện tại không đúng!");
+            return "redirect:/user/detail";
+        }
+
+        // Kiểm tra xác nhận
+        if (!newPassword.equals(confirmPassword)) {
+            redirectAttributes.addFlashAttribute("errorMsg", "Mật khẩu xác nhận không khớp!");
+            return "redirect:/user/detail";
+        }
+
+        userService.updatePassword(email, newPassword, passwordEncoder);
+        redirectAttributes.addFlashAttribute("successMsg", "Đổi mật khẩu thành công!");
+        return "redirect:/user/detail";
+    }
+
+
+
+
 
     @GetMapping("/user/seller_register")
     public String showSellerRegisterPage() {

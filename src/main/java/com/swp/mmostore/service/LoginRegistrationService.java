@@ -12,11 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
+
+import static org.hibernate.annotations.UuidGenerator.Style.RANDOM;
 
 @Service
 public class LoginRegistrationService {
@@ -126,11 +126,18 @@ public class LoginRegistrationService {
     }
 
 
-    private static final Random RANDOM = new Random();
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+    private static final Base64.Encoder BASE64_ENCODER = Base64.getUrlEncoder().withoutPadding();
+    private String generateSecureToken() {
+        // 32 bytes = 256 bits of entropy, which is very secure
+        byte[] tokenBytes = new byte[32];
+        SECURE_RANDOM.nextBytes(tokenBytes);
+        return BASE64_ENCODER.encodeToString(tokenBytes);
+    }
     //Tạo token và gửi email
     public void generateRegisterTokenAndSendEmail(User user, String siteUrl) {
-        userRepository.save(user);
-        String token = String.format("%05d", RANDOM.nextInt(100_000));
+        saveUser(user);
+        String token = generateSecureToken();
         VerificationToken verificationToken = new VerificationToken(token, user);
         verificationTokenRepository.save(verificationToken);
         emailService.sendVerificationToken(user, token, siteUrl);
@@ -143,7 +150,7 @@ public class LoginRegistrationService {
             if (verificationToken != null) {
                 verificationTokenRepository.delete(verificationToken);
             }
-            String token = String.format("%05d", RANDOM.nextInt(100_000));
+            String token = generateSecureToken();
             VerificationToken newVerificationToken = new VerificationToken(token, unverifiedUser); //tao moi token
             verificationTokenRepository.save(newVerificationToken);
             emailService.sendVerificationToken(unverifiedUser, token, siteUrl);
@@ -182,7 +189,7 @@ public class LoginRegistrationService {
             passwordResetTokenRepository.flush();
         }
         // create new one
-        String token = String.format("%05d", RANDOM.nextInt(100_000));
+        String token = generateSecureToken();
         PasswordResetToken newToken = new PasswordResetToken(token, user);
         passwordResetTokenRepository.save(newToken);
         emailService.sendResetPasswordToken(user, token, siteUrl);
@@ -232,6 +239,13 @@ public class LoginRegistrationService {
 
     public void deleteUser(Integer id) {
         userRepository.deleteById(id);
+    }
+
+
+
+    public void updatePassword(String email, String rawPassword, PasswordEncoder encoder) {
+        String encoded = encoder.encode(rawPassword);
+        userRepository.updatePasswordByEmail(encoded, email);
     }
 
 

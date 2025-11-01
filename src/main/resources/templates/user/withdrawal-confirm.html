@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base::layout(~{::section}, ~{::cssFragment}, ~{::jsFragment})}">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+
+    <th:block th:fragment="cssFragment">
+        <link rel="stylesheet" href="#">
+    </th:block>
+
+    <th:block th:fragment="jsFragment">
+
+    </th:block>
+</head>
+<body>
+<section>
+    <div class="container mt-5 p-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow p-3 mb-5 bg-body rounded">
+                    <div class="card-header">
+                        <p class="fs-4 text-center">Xác nhận Rút tiền</p>
+                        <p class="text-center text-muted">
+                            Một mã OTP đã được gửi đến email của bạn và sẽ hết hạn sau 5 phút.
+                        </p>
+                    </div>
+
+                    <th:block th:if="${errorMessage}">
+                        <div class="alert alert-danger text-center m-3" role="alert">
+                            [[${errorMessage}]]
+                        </div>
+                    </th:block>
+
+                    <th:block th:if="${successMessage}">
+                        <div class="alert alert-success text-center m-3" role="alert">
+                            [[${successMessage}]]
+                        </div>
+                    </th:block>
+
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <h5 class="text-center">Chi tiết Yêu cầu</h5>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <strong>Số tiền:</strong>
+                                    <span th:text="${#numbers.formatDecimal(withdrawal.amount, 0, 'COMMA', 0, 'POINT')} + ' VND'"></span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <strong>Ngân hàng:</strong>
+                                    <span th:text="${withdrawal.bank.displayName}"></span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <strong>Số tài khoản:</strong>
+                                    <span th:text="${withdrawal.bankAccount}"></span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <hr>
+
+                        <form th:action="@{/user/wallet/withdraw/confirm}"  method="post">
+                            <input type="hidden" name="withdrawalID" th:value="${withdrawal.id}" />
+                            <div class="mb-3">
+                                <label for="otp" class="form-label">Mã OTP</label>
+                                <input type="text"
+                                       class="form-control"
+                                       id="otp"
+                                       name="otp"
+                                       maxlength="6"
+                                       pattern="\d{6}"
+                                       title="Mã OTP phải là 6 chữ số"
+                                       required
+                                       autofocus>
+                            </div>
+
+                            <button type="submit" class="btn bg-danger text-white col-12">
+                                Xác nhận
+                            </button>
+                        </form>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a th:href="@{/user/wallet/withdraw}" class="text-decoration-none">Hủy bỏ</a>
+                    </div>
+
+                    <form th:action="@{/user/wallet/withdraw/resend-otp}" method="post" class="m-0">
+                        <input type="hidden" name="withdrawalID" th:value="${withdrawal.id}" />
+                        <button type="submit" class="btn btn-link text-decoration-none p-0">
+                        Gửi lại mã OTP
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

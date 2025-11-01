@@ -13,10 +13,8 @@
 
 <!-- JS riêng -->
 <th:block th:fragment="jsFragment">
-    <th:block th:fragment="jsFragment">
-        <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
-        <script src="/javascript/seller-statictis.js"></script>
-    </th:block>
+    <script src="/javascript/seller/seller-statictis.js"></script>
+</th:block>
 
 </th:block>
 <th:block th:fragment="content">
@@ -136,9 +134,11 @@
 
                                 <div th:if="${!#lists.isEmpty(reportList)}">
                                     <div class="d-flex justify-content-end mb-2">
-                                        <button id="btnExportXLSX" class="btn btn-success me-2" title="Export to Excel">
-                                            <i class="fa-solid fa-file-excel me-1"></i> Export XLSX
-                                        </button>
+                                        <div class="d-flex justify-content-end mb-2">
+                                            <button id="btnExportXLSX" class="btn btn-success me-2">
+                                                <i class="fa-solid fa-file-excel me-1"></i> Export XLSX
+                                            </button>
+                                        </div>
 
                                     </div>
                                     <table class="table table-hover align-middle">

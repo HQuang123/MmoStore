@@ -20,7 +20,7 @@ import java.util.List;
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "OrderID")
+    @Column(name = "ID")
     private Integer orderId;
 
     @Column(name = "Quantity")
@@ -58,6 +58,9 @@ public class Order {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ProductID")
     private Product product;
+    @Column(name = "productName")
+    private String productName;
+
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Item> items = new ArrayList<>();

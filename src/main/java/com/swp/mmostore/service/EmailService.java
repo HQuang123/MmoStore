@@ -41,23 +41,21 @@ public class EmailService {
     public void sendVerificationToken(User user, String token, String siteURL) {
         String recipientAddress = user.getEmail();
         String subject = "Xác thực đăng ký tài khoản";
-        String verificationUrl = siteURL + "/verify-email?token=" + token;
+        //Todo: append userid and change token
+        String verificationUrl = siteURL + "/verify-email?token=" + token + "&userEmail=" + recipientAddress;
         String message = "Cảm ơn bạn vì đã đăng ký tài khoản ! Vui lòng truy cập đường link bên dưới để xác thực tài khoản";
-
         SimpleMailMessage email = new SimpleMailMessage();
         email.setTo(recipientAddress);
         email.setSubject(subject);
         email.setText(message + "\r\n" + verificationUrl);
-
         mailSender.send(email);
     }
 
     public void sendResetPasswordToken(User user, String token, String siteURL) {
         String recipientAddress = user.getEmail();
         String subject = "Xác thực đặt lại mật khẩu";
-        String verificationUrl = siteURL + "/reset-password?token=" + token;
+        String verificationUrl = siteURL + "/reset-password?token=" + token + "&userEmail" + recipientAddress;
         String message = "Vui lòng truy cập đường link bên dưới để đặt lại mật khẩu ! ";
-
         SimpleMailMessage email = new SimpleMailMessage();
         email.setTo(recipientAddress);
         email.setSubject(subject);
