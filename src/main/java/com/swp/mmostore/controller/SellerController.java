@@ -62,8 +62,6 @@ public class SellerController {
     private CategoryRepository categoryRepository;
     @Autowired
     private ProductRepository productRepository;
-    @Autowired
-    private OrderService orderService;
 
     @Autowired
     private CloudStorageService cloudStorageService;
