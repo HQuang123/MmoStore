@@ -54,7 +54,7 @@ public class EmailService {
     public void sendResetPasswordToken(User user, String token, String siteURL) {
         String recipientAddress = user.getEmail();
         String subject = "Xác thực đặt lại mật khẩu";
-        String verificationUrl = siteURL + "/reset-password?token=" + token + "&userEmail" + recipientAddress;
+        String verificationUrl = siteURL + "/reset-password?token=" + token + "&userEmail=" + recipientAddress;
         String message = "Vui lòng truy cập đường link bên dưới để đặt lại mật khẩu ! ";
         SimpleMailMessage email = new SimpleMailMessage();
         email.setTo(recipientAddress);

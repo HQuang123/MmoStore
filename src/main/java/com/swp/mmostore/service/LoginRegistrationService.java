@@ -16,8 +16,6 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static org.hibernate.annotations.UuidGenerator.Style.RANDOM;
-
 @Service
 public class LoginRegistrationService {
     private UserRepository userRepository;
