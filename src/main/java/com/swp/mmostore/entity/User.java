@@ -24,7 +24,10 @@ public class User {
     private Integer userId;
 
     @Column(name = "Name", length = 50)
-    @Pattern(regexp = "^[a-zA-Z0-9_\\- ()\\[\\]]{3,50}$", message = "Tên chứa ký tự lạ. Chỉ được phép dùng chữ cái, số, dấu cách, dấu gạch ngang (-), dấu gạch dưới (_), và các dấu ngoặc đơn/vuông. Tên phải dài từ 3 đến 50 ký tự.")
+    @Pattern(
+            regexp = "^[\\p{L}0-9 _\\-()\\[\\]]{3,50}$",
+            message = "Tên chỉ được chứa chữ cái, số và một số ký tự đặc biệt (_ - ( ) [ ])"
+    )
     private String name;
 
     @Column(name = "Email", length = 100, unique = true)
