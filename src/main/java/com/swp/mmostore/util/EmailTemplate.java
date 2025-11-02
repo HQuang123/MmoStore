@@ -9,20 +9,20 @@ public class EmailTemplate {
         // Define the template using a Text Block (""").
         // %s is a placeholder for a String.
         String emailTemplate = """
-        Xin chào quý khách %s,
-
-        Chúng tôi đã nhận được yêu cầu rút tiền của bạn %s.
-        Hiện tại chúng tôi đang xử lý yêu cầu của bạn.
-
-        Sau đây là thông tin cụ thể yêu cầu rút tiền của bạn:
-        - Số tiền: %s
-        - Thông tin ngân hàng nhận: %s
-
-        Bạn có thể được hoàn trả tiền trong khoảng từ 3-5 ngày làm việc.
-
-        Cảm ơn bạn,
-        Đội ngũ hỗ trợ khách hàng MMOStore
-        """;
+                Xin chào quý khách %s,
+                
+                Chúng tôi đã nhận được yêu cầu rút tiền của bạn %s.
+                Hiện tại chúng tôi đang xử lý yêu cầu của bạn.
+                
+                Sau đây là thông tin cụ thể yêu cầu rút tiền của bạn:
+                - Số tiền: %s
+                - Thông tin ngân hàng nhận: %s
+                
+                Bạn có thể được hoàn trả tiền trong khoảng từ 3-5 ngày làm việc.
+                
+                Cảm ơn bạn,
+                Đội ngũ hỗ trợ khách hàng MMOStore
+                """;
 
         // Use String.format() to inject the values into the template.
         // The order of arguments must match the placeholders (%s) in the template.
@@ -112,24 +112,39 @@ public class EmailTemplate {
     }
 
     public static String withdrawalRejectedEmail(String userName, String amount, String bankInfo, String rejectDate, String reason) {
-        return "<div style=\"font-family:'Inter',Arial,sans-serif;background:#f7f7f9;padding:32px;\">" +
-                "<div style=\"max-width:480px;margin:auto;background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);overflow:hidden;\">" +
-                "<div style=\"background:linear-gradient(90deg,#ef4444 0,#f59e42 100%);padding:24px 0;text-align:center;border-radius:16px 16px 0 0;\">" +
-                "<h2 style=\"color:#fff;font-size:24px;font-weight:700;margin:0;letter-spacing:1px;\">Yêu cầu rút tiền bị từ chối</h2>" +
-                "</div>" +
-                "<div style=\"padding:32px 24px 24px 24px;\">" +
-                "<p style=\"font-size:17px;color:#222;margin-bottom:18px;\">Xin chào <b>" + userName + "</b>,</p>" +
-                "<p style=\"font-size:16px;color:#444;margin-bottom:18px;\">Yêu cầu rút tiền của bạn đã bị từ chối với thông tin sau:</p>" +
-                "<ul style=\"font-size:15px;color:#444;margin-bottom:18px;list-style:none;padding:0;\">" +
-                "<li><b>Số tiền:</b> " + amount + "</li>" +
-                "<li><b>Ngân hàng:</b> " + bankInfo + "</li>" +
-                "<li><b>Thời gian từ chối:</b> " + rejectDate + "</li>" +
-                "<li><b>Lý do từ chối:</b> " + reason + "</li>" +
-                "</ul>" +
-                "<p style=\"font-size:15px;color:#666;margin-bottom:24px;\">Nếu có thắc mắc, vui lòng liên hệ bộ phận chăm sóc khách hàng.</p>" +
-                "</div>" +
-                "<div style=\"background:#f7f7f9;color:#aaa;font-size:13px;text-align:center;padding:16px 8px;border-radius:0 0 16px 16px;\">&copy; 2024 MMOMarket. Mọi quyền được bảo lưu.</div>" +
-                "</div>" +
-                "</div>";
+
+        // The HTML template is now perfectly readable.
+        String htmlTemplate = """
+                <div style="font-family:'Inter',Arial,sans-serif;background:#f7f7f9;padding:32px;">
+                  <div style="max-width:480px;margin:auto;background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);overflow:hidden;">
+                
+                    <div style="background:linear-gradient(90deg,#ef4444 0,#f59e42 100%);padding:24px 0;text-align:center;border-radius:16px 16px 0 0;">
+                      <h2 style="color:#fff;font-size:24px;font-weight:700;margin:0;letter-spacing:1px;">Yêu cầu rút tiền bị từ chối</h2>
+                    </div>
+                
+                    <div style="padding:32px 24px 24px 24px;">
+                      <p style="font-size:17px;color:#222;margin-bottom:18px;">Xin chào <b>%s</b>,</p>
+                      <p style="font-size:16px;color:#444;margin-bottom:18px;">Yêu cầu rút tiền của bạn đã bị từ chối với thông tin sau:</p>
+                
+                      <ul style="font-size:15px;color:#444;margin-bottom:18px;list-style:none;padding:0;">
+                        <li><b>Số tiền:</b> %s</li>
+                        <li><b>Ngân hàng:</b> %s</li>
+                        <li><b>Thời gian từ chối:</b> %s</li>
+                        <li><b>Lý do từ chối:</b> %s</li>
+                      </ul>
+                
+                      <p style="font-size:15px;color:#666;margin-bottom:24px;">Nếu có thắc mắc, vui lòng liên hệ bộ phận chăm sóc khách hàng.</p>
+                    </div>
+                
+                    <div style="background:#f7f7f9;color:#aaa;font-size:13px;text-align:center;padding:16px 8px;border-radius:0 0 16px 16px;">
+                      &copy; 2024 MMOMarket. Mọi quyền được bảo lưu.
+                    </div>
+                
+                  </div>
+                </div>
+                """;
+        // Inject variables.
+        // WARNING: This is still vulnerable to XSS. See the security note below.
+        return String.format(htmlTemplate, userName, amount, bankInfo, rejectDate, reason);
     }
 }

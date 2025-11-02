@@ -42,6 +42,7 @@ public class WalletController {
     public String viewWallet(Model model) {
         User user = (User) model.getAttribute("user");
         model.addAttribute("balance", user.getBalance());
+        model.addAttribute("onHoldBalance", user.getOnHoldBalance());
         return "user/wallet"; // → renders wallet.html
     }
 
