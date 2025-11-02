@@ -9,6 +9,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +28,10 @@ public class WithdrawService {
     private final UserRepository userRepository;
     private final EmailService emailService;
 
-
+    public List<Withdrawal> getWithdrawalHistoryForUser(User user, Pageable pageable) {
+        // Just call the new repository method
+        return withdrawalRepository.findByUserAndStatusNot(user, "UNCONFIRMED", Sort.by(Sort.Direction.DESC, "createAt"));
+    }
     //approve a withdrawl request
     @Transactional
     public Withdrawal approveWithdrawal(Integer id) {
@@ -136,7 +140,7 @@ public class WithdrawService {
 
     public List<Withdrawal> getWithdrawalHistoryForUser(User user) {
         // Call the new method that automatically sorts the results
-        return withdrawalRepository.findByUserOrderByCreateAtDesc(user);
+        return withdrawalRepository.findByUserAndStatusNot(user, "Unconfirmed", Sort.by(Sort.Direction.DESC, "createAt"));
     }
 
     public Page<Withdrawal> findWithdrawals(String keyword, String status, Pageable pageable) {
@@ -158,6 +162,9 @@ public class WithdrawService {
                 } catch (IllegalArgumentException e) {
                     // Handle invalid status string if necessary
                 }
+            }
+            else{
+                predicates.add(cb.notEqual(root.get("status"), "Unconfirmed"));
             }
 
             // Combine all predicates with AND

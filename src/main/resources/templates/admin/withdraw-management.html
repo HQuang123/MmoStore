@@ -18,6 +18,13 @@
 <body>
 <section>
     <div class="container">
+        <div th:if="${successMessage}" class="alert alert-success">
+            <span th:text="${successMessage}"></span>
+        </div>
+
+        <div th:if="${errorMessage}" class="alert alert-danger">
+            <span th:text="${errorMessage}"></span>
+        </div>
         <header class="header">
             <h1>Withdrawal Management</h1>
         </header>
@@ -77,7 +84,8 @@
                                 Approve
                             </button>
 
-                            <form th:action="@{/admin/withdraw/reject/{id}(id=${withdraw.id})}" method="POST" style="display:inline;">
+                            <form th:action="@{/admin/withdraw/reject}" method="POST" style="display:inline;">
+                                <input type="hidden" name="id" th:value="${withdraw.id}">
                                 <button type="submit" class="btn-reject">Reject</button>
                             </form>
                         </div>

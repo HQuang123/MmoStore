@@ -32,7 +32,7 @@ public class AdminController {
     CategoryService categoryService;
 
     @GetMapping
-    public String viewAdminPage() {
+    public String viewAdminPage(){
         return "admin/admin-dashboard";
     }
 
@@ -101,7 +101,7 @@ public class AdminController {
         model.addAttribute("keyword", keyword == null ? "" : keyword);
         model.addAttribute("status", status == null ? "" : status);
 
-        return "dmin/shop-list";
+        return "admin/shop-list";
     }
 
 
