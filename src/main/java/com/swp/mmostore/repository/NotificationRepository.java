@@ -52,4 +52,6 @@ public interface NotificationRepository extends JpaRepository <Notification, Lon
     @Query("SELECT n FROM Notification n WHERE n.user.email = :email AND n.status = :status AND (LOWER(n.title) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(n.content) LIKE LOWER(CONCAT('%', :search, '%'))) ORDER BY n.createAt DESC")
     Page<Notification> findByUser_EmailAndStatusAndTitleContainingIgnoreCaseOrContentContainingIgnoreCaseOrderByCreatedAtDesc(@Param("email") String email, @Param("status") String status, @Param("search") String search, Pageable pageable);
 
+    List<Notification> findByUserEmailAndIdIn(String email, List<Long> ids);
+
 }
