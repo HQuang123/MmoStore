@@ -5,7 +5,6 @@
 
 <th:block th:fragment="cssFragment">
     <link rel="stylesheet" th:href="@{/css/withdraw.css}">
-    <!--    <link rel="stylesheet" th:href="@{/css/homepage.css}">-->
 </th:block>
 
 <th:block th:fragment="jsFragment">
@@ -18,15 +17,6 @@
 </head>
 <body>
 <section>
-    <script>
-        var tailwind = {
-            config: {
-                corePlugins: {
-                    preflight: false,
-                }
-            }
-        };
-    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <div class="container mt-5">
@@ -36,25 +26,25 @@
                     sortCol: -1,
                     sortDir: 'none',
 
-                    sortTable(colIndex, type) {
-                        const table = document.getElementById('withdrawalTable');
-                        if (!table) return;
-                        const tbody = table.querySelector('tbody');
-                        const rows = Array.from(tbody.querySelectorAll('tr'));
+                    allRows: [],
+                    totalItems: 0,
+                    totalPages: 0,
+                    currentPage: 1,
+                    itemsPerPage: 5, // Show 5 items per page
 
-                        // 1. Determine sort direction using component state ('this')
+
+                    sortTable(colIndex, type) {
+                        // 1. Determine sort direction
                         if (this.sortCol === colIndex) {
                             this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
                         } else {
                             this.sortDir = 'desc'; // Default to descending
                         }
-
-
                         this.sortCol = colIndex;
                         const direction = this.sortDir === 'asc' ? 1 : -1;
 
-
-                        const sortedRows = rows.sort((a, b) => {
+                        // 2. MODIFIED: Sort the master 'allRows' list, not just the visible page
+                        const sortedRows = this.allRows.sort((a, b) => {
                             const aVal = a.querySelectorAll('td')[colIndex].innerText;
                             const bVal = b.querySelectorAll('td')[colIndex].innerText;
 
@@ -75,11 +65,59 @@
                             return 0;
                         });
 
+                        // 3. MODIFIED: Update allRows, reset to page 1, and re-render
+                        this.allRows = sortedRows;
+                        this.currentPage = 1;
+                        this.updatePaginatedRows();
+                    },
 
-                        tbody.innerHTML = '';
-                        sortedRows.forEach(row => {
+                    updatePaginatedRows() {
+                        const table = document.getElementById('withdrawalTable');
+                        if (!table) return;
+                        const tbody = table.querySelector('tbody');
+                        if (!tbody) return;
+
+                        const start = (this.currentPage - 1) * this.itemsPerPage;
+                        const end = start + this.itemsPerPage;
+                        const rowsToShow = this.allRows.slice(start, end);
+
+                        tbody.innerHTML = ''; // Clear current page
+                        rowsToShow.forEach((row, index) => {
+                            // Update the STT (first column) to be correct for the page
+                            const sttCell = row.querySelector('td:first-child');
+                            if (sttCell) {
+                                sttCell.innerText = start + index + 1;
+                            }
                             tbody.appendChild(row);
                         });
+                    },
+
+                    nextPage() {
+                        if (this.currentPage < this.totalPages) {
+                            this.currentPage++;
+                            this.updatePaginatedRows();
+                        }
+                    },
+
+                    prevPage() {
+                        if (this.currentPage > 1) {
+                            this.currentPage--;
+                            this.updatePaginatedRows();
+                        }
+                    }
+                    // ---------------------------------
+                }"
+                 x-init="() => {
+                    // ADDED: Initialize pagination when component loads
+                    const table = document.getElementById('withdrawalTable');
+                    if (table) {
+                        const tbody = table.querySelector('tbody');
+                        if (tbody) {
+                            this.allRows = Array.from(tbody.querySelectorAll('tr'));
+                            this.totalItems = this.allRows.length;
+                            this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+                            this.updatePaginatedRows(); // Initial render of page 1
+                        }
                     }
                 }">
                 <h3 class="card-title mb-4">Withdraw Money</h3>
@@ -131,18 +169,26 @@
 
                         <button
                                 type="button"
-                                @click="isModalOpen = true"
+                                @click="isModalOpen = true; $nextTick(() => {
+                                    const table = document.getElementById('withdrawalTable');
+                                    if (table && allRows.length === 0) {
+                                        const tbody = table.querySelector('tbody');
+                                        if (tbody) {
+                                            allRows = Array.from(tbody.querySelectorAll('tr'));
+                                            totalItems = allRows.length;
+                                            totalPages = Math.ceil(totalItems / itemsPerPage);
+                                            updatePaginatedRows();
+                                        }
+                                    }
+                                })"
                                 class="w-full sm:w-auto flex-1 sm:flex-none justify-center inline-flex items-center gap-2 px-6 py-3 bg-white text-gray-700 font-semibold rounded-lg shadow-md border border-gray-300 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 transition-all">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.414-1.414L11 9.586V6z" clip-rule="evenodd" />
-                            </svg>
                             Lịch sử rút tiền
                         </button>
                     </div>
                 </form>
-
                 <div th:if="${successMessage}" class="alert alert-success mt-3" th:text="${successMessage}"></div>
                 <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
 
                 <div
                         x-show="isModalOpen"
@@ -183,17 +229,16 @@
                         </div>
 
                         <div class="p-6">
-                            <div class="overflow-x-auto rounded-xl border border-primary-100">
-                                <div th:if="${withdrawals == null || withdrawals.isEmpty()}" class="text-center p-10">
-                                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                        <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2zm5-4h.01M15 9h.01" />
-                                    </svg>
-                                    <h3 class="mt-2 text-sm font-semibold text-gray-900">Không có lịch sử</h3>
-                                    <p class="mt-1 text-sm text-gray-500">Bạn chưa có giao dịch rút tiền nào.</p>
-                                </div>
+                            <div class="text-center p-10" th:if="${withdrawals == null || withdrawals.isEmpty()}">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                    <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2zm5-4h.01M15 9h.01" />
+                                </svg>
+                                <h3 class="mt-2 text-sm font-semibold text-gray-900">Không có lịch sử</h3>
+                                <p class="mt-1 text-sm text-gray-500">Bạn chưa có giao dịch rút tiền nào.</p>
+                            </div>
 
-                                <table th:if="${withdrawals != null && !withdrawals.isEmpty()}"
-                                       id="withdrawalTable"
+                            <div class="overflow-x-auto rounded-xl border border-primary-100" th:if="${withdrawals != null && !withdrawals.isEmpty()}">
+                                <table id="withdrawalTable"
                                        class="min-w-full divide-y divide-primary-100">
                                     <thead class="bg-primary-50">
                                     <tr>
@@ -228,7 +273,8 @@
                                     <tbody class="bg-white divide-y divide-primary-50">
                                     <tr th:each="w, iterStat : ${withdrawals}" class="hover:bg-primary-50 transition-all">
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold"
-                                            th:text="${iterStat.index + 1}"></td>
+                                            th:text="${iterStat.index + 1}">
+                                        </td>
 
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
                                             th:text="${#numbers.formatInteger(w.amount, 0, 'COMMA')}"></td>
@@ -247,11 +293,41 @@
                                     </tbody>
                                 </table>
                             </div>
+
+                            <div x-show="totalPages > 1"
+                                 class="flex items-center justify-between mt-4 px-1 py-3"
+                                 th:if="${withdrawals != null && !withdrawals.isEmpty()}">
+                                <span class="text-sm text-gray-700">
+                                    Showing
+                                    <span class="font-semibold text-gray-900" x-text="(currentPage - 1) * itemsPerPage + 1"></span>
+                                    to
+                                    <span class="font-semibold text-gray-900" x-text="Math.min(currentPage * itemsPerPage, totalItems)"></span>
+                                    of
+                                    <span class="font-semibold text-gray-900" x-text="totalItems"></span>
+                                    Entries
+                                </span>
+
+                                <div class="inline-flex items-center space-x-2">
+                                    <button
+                                            @click="prevPage()"
+                                            :disabled="currentPage === 1"
+                                            :class="{ 'opacity-50 cursor-not-allowed': currentPage === 1 }"
+                                            class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">
+                                        Previous
+                                    </button>
+                                    <button
+                                            @click="nextPage()"
+                                            :disabled="currentPage === totalPages"
+                                            :class="{ 'opacity-50 cursor-not-allowed': currentPage === totalPages }"
+                                            class="relative inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">
+                                        Next
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div> </div> </div>
-        <div th:if="${withdrawals == null || withdrawals.isEmpty()}">
-            <p class="text-gray-500">Không có lịch sử rút tiền</p>
+                </div>
+            </div>
         </div>
     </div>
 </section>

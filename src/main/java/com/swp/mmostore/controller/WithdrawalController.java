@@ -20,12 +20,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -55,13 +57,22 @@ public class WithdrawalController {
     }
 
     @GetMapping("/user/wallet/withdraw")
-    public String showWithdrawMoneyPage(Model model, RedirectAttributes redirectAttributes) {
+    public String showWithdrawMoneyPage(Model model,
+                                        RedirectAttributes redirectAttributes,
+                                        // 1. Add Pageable parameter
+                                        @PageableDefault(size = 10, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
         model.addAttribute("banks", Bank.listAll());
         model.addAttribute("withdrawal", new Withdrawal());
-        //load history of withdrawl of user
+
         User user = (User) model.getAttribute("user");
+
+        // Call the original service method
         List<Withdrawal> withdrawals = withdrawService.getWithdrawalHistoryForUser(user);
+
+        // Add the List back to the model (not a Page)
         model.addAttribute("withdrawals", withdrawals);
+
         return "user/withdraw";
     }
 
@@ -81,10 +92,6 @@ public class WithdrawalController {
                 redirectAttributes.addFlashAttribute("errorMessage", "Số dư không đủ");
                 return "redirect:/user/wallet/withdraw"; //return to @GET MAPPing
             }
-            //add to onhold amount if the available balance is enough
-            user.setOnHoldBalance(user.getOnHoldBalance().add(withdrawal.getAmount()));
-            userRepository.save(user);
-            //set status unconfirmed
             withdrawal.setStatus("Unconfirmed");
             withdrawal.setUser(user);
             withdrawalRepository.save(withdrawal);
@@ -122,6 +129,10 @@ public class WithdrawalController {
                 redirectAttributes.addFlashAttribute("errorMessage", "Ma OTP khong hop le hoac het han");
                 return "redirect:/user/wallet/withdraw/confirm";
             }
+
+            //after user verify the token --> set onhold  balance
+            user.setOnHoldBalance(user.getOnHoldBalance().add(withdrawal.getAmount()));
+            userRepository.save(user);
             withdrawal.setStatus("Pending");
             withdrawalRepository.save(withdrawal);
             //TODO: Implement MQ for withdrawal
@@ -189,80 +200,89 @@ public class WithdrawalController {
 
     }
 
-@GetMapping("/admin/withdraw")
-public String getWithdrawManagementPage(@RequestParam(value = "keyword", required = false) String keyword, @RequestParam(value = "status", required = false) String status, @RequestParam(value = "page", defaultValue = "1") int page, Model model) {
-    if (page < 1) {
-        page = 1;
-    }
-    //create a pageable object
-    Pageable pageable = PageRequest.of(page - 1, 10, Sort.by("createAt").descending());
-    Page<Withdrawal> withdrawalPage = withdrawService.findWithdrawals(keyword, status, pageable);
-    model.addAttribute("withdrawPage", withdrawalPage);
-    model.addAttribute("currentPage", page);
-    model.addAttribute("keyword", keyword);
-    model.addAttribute("status", status);
-    return "admin/withdraw-management";
-}
-
-@GetMapping("/admin/withdraw/generate-qr/{id}")
-@ResponseBody
-public ResponseEntity<?> getWithdrawDetail(@PathVariable("id") Integer id) {
-    Withdrawal wd = withdrawalRepository.findById(id).orElse(null);
-    if (wd == null) {
-        return ResponseEntity.badRequest().body("Withdrawal request not found");
-    }
-    if (!"Pending".equalsIgnoreCase(wd.getStatus())) {
-        return ResponseEntity.status(400).body(Map.of("error", "Request is not in Pending state."));
-    }
-
-    String vietQrUrl = null;
-    try {
-        String bankName = wd.getBank().getDisplayName();
-        String accountNumber = wd.getBankAccount();
-        String userName = wd.getUser().getName();
-        String code = Bank.findCodeForBankName(bankName);
-        if (code != null && accountNumber != null && !accountNumber.isBlank()) {
-            String token = "jYp8Yod"; // Your placeholder token
-            String filename = code + "-" + accountNumber + "-" + token + ".jpg";
-            String accountName = URLEncoder.encode(userName == null ? "" : userName, StandardCharsets.UTF_8);
-            String addInfo = URLEncoder.encode((wd.getId() != null ? ("WD#" + wd.getId()) : ("WD:" + accountNumber)), StandardCharsets.UTF_8);
-
-            // Don't forget the amount!
-            String amount = String.valueOf(wd.getAmount().longValue());
-
-            vietQrUrl = "https://img.vietqr.io/image/" + filename + "?accountName=" + accountName + "&addInfo=" + addInfo + "&amount=" + amount; // Added amount, as it's critical
+    @GetMapping("/admin/withdraw")
+    public String getWithdrawManagementPage(@RequestParam(value = "keyword", required = false) String keyword, @RequestParam(value = "status", required = false) String status, @RequestParam(value = "page", defaultValue = "1") int page, Model model) {
+        if (page < 1) {
+            page = 1;
         }
-        if (vietQrUrl == null) {
-            return ResponseEntity.status(500).body(Map.of("error", "Could not generate QR URL. Check bank info."));
+        //create a pageable object
+        Pageable pageable = PageRequest.of(page - 1, 10, Sort.by("createAt").descending());
+        Page<Withdrawal> withdrawalPage = withdrawService.findWithdrawals(keyword, status, pageable);
+        model.addAttribute("withdrawPage", withdrawalPage);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("status", status);
+        return "admin/withdraw-management";
+    }
+
+    @GetMapping("/admin/withdraw/generate-qr/{id}")
+    @ResponseBody
+    public ResponseEntity<?> getWithdrawDetail(@PathVariable("id") Integer id) {
+        Withdrawal wd = withdrawalRepository.findById(id).orElse(null);
+        if (wd == null) {
+            return ResponseEntity.badRequest().body("Withdrawal request not found");
         }
-        return ResponseEntity.ok(Map.of("vietQrUrl", vietQrUrl));
-    } catch (Exception e) {
-        return ResponseEntity.status(500).body(Map.of("error", "Server error: " + e.getMessage()));
-    }
-}
+        if (!"Pending".equalsIgnoreCase(wd.getStatus())) {
+            return ResponseEntity.status(400).body(Map.of("error", "Request is not in Pending state."));
+        }
 
-@PostMapping("/admin/withdraw/confirm-approval/{id}")
-@ResponseBody
-public ResponseEntity<?> confirmWithdrawal(@PathVariable("id") Integer id, Model model) {
-    Withdrawal wd = withdrawalRepository.findById(id).orElse(null);
-    if (wd == null) {
-        return ResponseEntity.badRequest().body("Withdrawal request not found");
-    }
-    if (!"Pending".equalsIgnoreCase(wd.getStatus())) {
-        return ResponseEntity.status(400).body(Map.of("error", "Request is not in Pending state."));
-    }
-    try {
-        User user = (User) model.getAttribute("user");
-        //ToDo: add quueu here
-        user.setBalance(user.getBalance().subtract(wd.getAmount()));
-        wd.setStatus("Approved");
-        withdrawalRepository.save(wd);
+        String vietQrUrl = null;
+        try {
+            String bankName = wd.getBank().getDisplayName();
+            String accountNumber = wd.getBankAccount();
+            String userName = wd.getUser().getName();
+            String code = Bank.findCodeForBankName(bankName);
+            if (code != null && accountNumber != null && !accountNumber.isBlank()) {
+                String token = "jYp8Yod"; // Your placeholder token
+                String filename = code + "-" + accountNumber + "-" + token + ".jpg";
+                String accountName = URLEncoder.encode(userName == null ? "" : userName, StandardCharsets.UTF_8);
+                String addInfo = URLEncoder.encode((wd.getId() != null ? ("WD#" + wd.getId()) : ("WD:" + accountNumber)), StandardCharsets.UTF_8);
 
-        return ResponseEntity.ok(Map.of("message", "Withdrawal approved successfully.", "newStatus", "Approved"));
-    } catch (Exception e) {
-        return ResponseEntity.status(500).body(Map.of("error", "Server error: " + e.getMessage()));
+                // Don't forget the amount!
+                String amount = String.valueOf(wd.getAmount().longValue());
+
+                vietQrUrl = "https://img.vietqr.io/image/" + filename + "?accountName=" + accountName + "&addInfo=" + addInfo + "&amount=" + amount; // Added amount, as it's critical
+            }
+            if (vietQrUrl == null) {
+                return ResponseEntity.status(500).body(Map.of("error", "Could not generate QR URL. Check bank info."));
+            }
+            return ResponseEntity.ok(Map.of("vietQrUrl", vietQrUrl));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Server error: " + e.getMessage()));
+        }
     }
-}
+
+    @PostMapping("/admin/withdraw/confirm-approval/{id}")
+    @ResponseBody
+    public ResponseEntity<?> confirmWithdrawal(@PathVariable("id") Integer id, Model model) {
+        Withdrawal wd = withdrawalRepository.findById(id).orElse(null);
+        if (wd == null) {
+            return ResponseEntity.badRequest().body("Withdrawal request not found");
+        }
+        if (!"Pending".equalsIgnoreCase(wd.getStatus())) {
+            return ResponseEntity.status(400).body(Map.of("error", "Request is not in Pending state."));
+        }
+        try {
+            User user = (User) model.getAttribute("user");
+            //ToDo: add quueu here
+            //send email to user
+            withdrawService.approveWithdrawal(id);
+            return ResponseEntity.ok(Map.of("message", "Withdrawal approved successfully.", "newStatus", "Approved"));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Server error: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/admin/withdraw/reject")
+    public String processWithdrawalReject(@RequestParam("withdrawalID") Integer withdrawalId, RedirectAttributes redirectAttributes, Model model) {
+        try{
+            withdrawService.rejectWithdrawal(withdrawalId);
+            redirectAttributes.addFlashAttribute("successMessage","Withdrawal #" + withdrawalId + " has been rejected");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage","Server error: " + e.getMessage());
+        }
+        return "redirect:/admin/withdraw";
+    }
 
 }
 

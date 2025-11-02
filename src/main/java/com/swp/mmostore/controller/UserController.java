@@ -133,7 +133,7 @@ public class UserController {
     /** Cập nhật thông tin user */
     @PostMapping("/user/update")
     public String updateProfile(@ModelAttribute("user") User updatedUser,
-     RedirectAttributes redirectAttributes) {
+                                RedirectAttributes redirectAttributes) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
         User existingUser = userService.getUserByEmail(email);

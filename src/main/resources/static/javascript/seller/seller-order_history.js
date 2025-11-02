@@ -36,6 +36,17 @@ document.addEventListener("DOMContentLoaded", function () {
         exportBtn.addEventListener("click", function () {
             // Lấy toàn bộ dữ liệu filter từ form
             const form = document.querySelector(".filter-form");
+
+            // Xử lý xóa dấu chấm cho các input tiền
+            const minInput = form.querySelector("#minTotal");
+            const maxInput = form.querySelector("#maxTotal");
+            [minInput, maxInput].forEach(input => {
+                if (input && input.value) {
+                    input.value = input.value.replace(/\D/g, ''); // chỉ giữ lại số
+                }
+            });
+
+            // Tạo query string sạch
             const params = new URLSearchParams(new FormData(form));
 
             // Gửi request export
