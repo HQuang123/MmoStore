@@ -40,9 +40,6 @@ public class UserController {
     private LoginRegistrationService userService;
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
     private CloudStorageService cloudStorageService;
 
     @Autowired

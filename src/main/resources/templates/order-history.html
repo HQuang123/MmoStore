@@ -78,29 +78,62 @@
                 </div>
             </form>
 
+
             <!-- Orders Table -->
             <div class="table-responsive">
-                <table class="table table-striped">
+                <table class="table table-striped align-middle">
                     <thead>
                     <tr>
                         <th>Order ID</th>
                         <th>Product Name</th>
                         <th>Create At</th>
                         <th>Status</th>
+                        <th>Quantity</th>
                         <th>Total</th>
+                        <th>Acount</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="order : ${orderPage.content}">
+                    <tr th:each="order, iStat : ${orderPage.content}">
                         <td th:text="${order.orderId}"></td>
                         <td th:text="${order.productName}"></td>
                         <td th:text="${#temporals.format(order.createAt, 'dd-MM-yyyy HH:mm')}"></td>
                         <td th:text="${order.status}"></td>
+                        <td th:text="${order.quantity}"></td>
                         <td th:text="${#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
+                        <td>
+                            <!-- Hiển thị nút chỉ khi có values và status = COMPLETED -->
+                            <div th:if="${order.values != null and !order.values.isEmpty() and order.status == 'COMPLETED'}">
+                                <button class="btn btn-sm btn-info mb-2"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        th:attr="data-bs-target='#detail' + ${order.orderId}"
+                                        aria-expanded="false"
+                                        th:attrappend="aria-controls='detail' + ${order.orderId}">
+                                    👁 Xem
+                                </button>
+
+                                <div class="collapse mt-1" th:id="'detail' + ${order.orderId}">
+                                    <ul class="list-group list-group-flush small"
+                                        style="list-style: none; padding-left: 0; margin-bottom: 0;">
+                                        <li class="list-group-item" th:each="map : ${order.values}">
+                                            <div th:each="entry : ${map.entrySet()}">
+                                                <strong th:text="${entry.key} + ': '"></strong>
+                                                <span th:text="${entry.value}"></span><br/>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Nếu không có values hoặc status != COMPLETED -->
+                            <span th:if="${order.values == null or order.values.isEmpty() or order.status != 'COMPLETED'}">—</span>
+                        </td>
                     </tr>
                     </tbody>
                 </table>
             </div>
+
 
             <!-- Pagination -->
             <div class="pagination">
