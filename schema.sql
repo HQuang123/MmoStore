@@ -7,7 +7,6 @@ CREATE TABLE User (
                       Role                      VARCHAR(50),
                       Status                    BOOLEAN DEFAULT TRUE,   -- TRUE = active, FALSE = inactive
                       Balance                   DECIMAL(15,2) DEFAULT 0,
-                      OnHoldBalance                   DECIMAL(15,2) DEFAULT 0,
                       PhoneNumber               VARCHAR(20),
                       ProfileImage              VARCHAR(500),
                       AccountStatusNonLocked    BOOLEAN DEFAULT TRUE,

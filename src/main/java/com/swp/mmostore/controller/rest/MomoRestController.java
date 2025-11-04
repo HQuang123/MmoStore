@@ -74,26 +74,30 @@ public class MomoRestController {
             if(!momoSignature.equals(reComputeSignature)) {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // Or FORBIDDEN
             }
+            String orderId = payload.get("orderId");
+            String requestId = payload.get("requestId");
+            MomoQueryResponse momoQueryResponse = momoService.queryTransactionStatus(orderId, requestId);
+            String trustedResultCode = momoQueryResponse.getResultCode();
+            log.info("Trusted Result Code: {}", trustedResultCode);
             Integer depositId = Integer.parseInt(payload.get("orderId"));
-            String resultCode = payload.get("resultCode");
             Deposit deposit = depositRepository.findById(depositId).orElse(null);
+
             log.info("Deposit Id la: {}" ,deposit.getId());
             log.info("User id la: {}" ,deposit.getUser().getUserId());
-            log.info("Result code la: {}" ,resultCode);
             log.info("User name la: {}" ,deposit.getUser().getName());
             User user = deposit.getUser();
 
-            if(resultCode.equals("0")) {
+            if(trustedResultCode.equals("0")) {
                 deposit.setStatus(DepositStatus.Completed);
                 //TODO: implement MQ
                 user.setBalance(user.getBalance().add(deposit.getAmount())); //likely to cause error due to
                 depositRepository.save(deposit);
+                userRepository.save(user);
             }
             else{
                 deposit.setStatus(DepositStatus.Failed);
                 depositRepository.save(deposit);
             }
-            userRepository.save(user);
             return ResponseEntity.noContent().build();
         }
         catch (Exception e){
@@ -101,5 +105,4 @@ public class MomoRestController {
             return ResponseEntity.noContent().build(); //momo needs to response back with 204 code to avoid spamming to BE api
         }
     }
-
 }

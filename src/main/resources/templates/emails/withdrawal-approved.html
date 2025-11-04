@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Yêu cầu rút tiền đã được duyệt</title>
+    <style>
+        body { font-family:'Inter', Arial, sans-serif; background:#f7f7f9; padding:32px; margin: 0; }
+        .container { max-width:480px; margin:auto; background:#fff; border-radius:16px; box-shadow:0 4px 24px rgba(0,0,0,0.08); overflow:hidden; }
+        .header { background:linear-gradient(90deg,#22c55e 0,#38bdf8 100%); padding:24px 0; text-align:center; border-radius:16px 16px 0 0; }
+        .header h2 { color:#fff; font-size:24px; font-weight:700; margin:0; letter-spacing:1px; }
+        .content { padding:32px 24px 24px 24px; }
+        .content p { font-size:16px; color:#444; margin-bottom:18px; line-height: 1.5; }
+        .content .greeting { font-size:17px; color:#222; margin-bottom:18px; }
+        .details { font-size:15px; color:#444; margin-bottom:18px; list-style:none; padding:0; }
+        .details li { margin-bottom: 8px; }
+        .footer { background:#f7f7f9; color:#aaa; font-size:13px; text-align:center; padding:16px 8px; border-radius:0 0 16px 16px; }
+    </style>
+</head>
+<body style="font-family:'Inter',Arial,sans-serif;background:#f7f7f9;padding:32px;margin: 0;">
+
+<div class="container" style="max-width:480px;margin:auto;background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);overflow:hidden;">
+
+    <div class="header" style="background:linear-gradient(90deg,#22c55e 0,#38bdf8 100%);padding:24px 0;text-align:center;border-radius:16px 16px 0 0;">
+        <h2 style="color:#fff;font-size:24px;font-weight:700;margin:0;letter-spacing:1px;">Yêu cầu rút tiền đã được duyệt</h2>
+    </div>
+
+    <div class="content" style="padding:32px 24px 24px 24px;">
+
+        <p class="greeting" style="font-size:17px;color:#222;margin-bottom:18px;">
+            Xin chào <b th:text="${userName}">Test User</b>,
+        </p>
+
+        <p style="font-size:16px;color:#444;margin-bottom:18px;line-height: 1.5;">
+            Yêu cầu rút tiền của bạn đã được duyệt với thông tin sau:
+        </p>
+
+        <ul class="details" style="font-size:15px;color:#444;margin-bottom:18px;list-style:none;padding:0;">
+            <li style="margin-bottom: 8px;">
+                <b>Số tiền:</b>
+                <span th:text="${amount}">100,000 VND</span>
+            </li>
+            <li style="margin-bottom: 8px;">
+                <b>Ngân hàng:</b>
+                <span th:text="${bankInfo}">Vietcombank - 12345</span>
+            </li>
+            <li style="margin-bottom: 8px;">
+                <b>Thời gian duyệt:</b>
+                <span th:text="${approveDate}">2025-11-04 10:00</span>
+            </li>
+            <li th:if="${proofFile != null && !proofFile.isEmpty()}" style="margin-bottom: 8px;">
+                <b>Minh chứng chuyển khoản:</b>
+                <a th:href="${proofFile}">Xem minh chứng</a>
+            </li>
+        </ul>
+
+        <p style="font-size:15px;color:#666;margin-bottom:24px;line-height: 1.5;">
+            Nếu có thắc mắc, vui lòng liên hệ bộ phận chăm sóc khách hàng.
+        </p>
+    </div>
+
+    <div class="footer" style="background:#f7f7f9;color:#aaa;font-size:13px;text-align:center;padding:16px 8px;border-radius:0 0 16px 16px;">
+        &copy; 2025 MMOStore.
+    </div>
+
+</div>
+</body>
+</html>

@@ -4,7 +4,6 @@
 
 <th:block th:fragment="cssFragment">
     <link rel="stylesheet" th:href="@{/css/withdraw-management.css}">
-    <!--    <link rel="stylesheet" th:href="@{/css/homepage.css}">-->
 </th:block>
 
 <th:block th:fragment="jsFragment">
@@ -49,6 +48,9 @@
                     <th>Tên người dùng</th>
                     <th>Email</th>
                     <th>Số tiền</th>
+                    <th>Số tài khoản</th>
+                    <th>Chủ tài khoản</th>
+                    <th>Ngân hàng</th>
                     <th>Trạng thái</th>
                     <th>Ngày nộp đơn</th>
                     <th>Hành động</th>
@@ -56,7 +58,7 @@
                 </thead>
                 <tbody>
                 <tr th:if="${withdrawPage == null or #lists.isEmpty(withdrawPage.content)}">
-                    <td colspan="5" style="text-align: center; color: #6c757d; padding: 40px;">
+                    <td colspan="8" style="text-align: center; color: #6c757d; padding: 40px;">
                         Không có đơn.
                     </td>
                 </tr>
@@ -65,6 +67,9 @@
                     <td th:text="${withdraw.user.name}">User name</td>
                     <td th:text="${withdraw.user.email}">user@example.com</td>
                     <td th:text="${#numbers.formatDecimal(withdraw.amount, 0, 'POINT', 0, 'NONE')} + ' ₫'">100.000 ₫</td>
+                    <td th:text="${withdraw.bankAccount}">123456789</td>
+                    <td th:text="${withdraw.accountHolder}">NGUYEN VAN A</td>
+                    <td th:text="${withdraw.bank}"></td>
                     <td>
                         <span th:text="${withdraw.status}"
                               th:classappend="${'Pending'.equalsIgnoreCase(withdraw.status)} ? 'status-pending' :

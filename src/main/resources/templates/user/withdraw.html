@@ -137,6 +137,10 @@
                                 th:field="*{bankAccount}" class="form-control"
                                 placeholder="Your bank account number"
                                 required type="number">
+                        <div style="color: red; font-size: 0.9em;"
+                             th:if="${#fields.hasErrors('bankAccount')}"
+                             th:errors="*{bankAccount}">
+                        </div>
                     </div>
 
                     <div class="mb-3">
@@ -155,6 +159,10 @@
                                th:field="*{amount}" class="form-control"
                                min="10000" step="1000"
                                placeholder="Nhập số tiền ít nhất 10,000 đồng" required>
+                        <div style="color: red; font-size: 0.9em;"
+                             th:if="${#fields.hasErrors('amount')}"
+                             th:errors="*{amount}">
+                        </div>
                     </div>
 
                     <div class="flex flex-col sm:flex-row items-center gap-3 mt-5">
