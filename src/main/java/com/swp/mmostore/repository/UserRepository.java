@@ -25,7 +25,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @EntityGraph(attributePaths = "shop")
     @Query("""
                 SELECT u FROM User u
-                WHERE (:role IS NULL OR u.role = :role)
+                WHERE (:role IS NULL OR u.role LIKE LOWER(CONCAT('%', :role, '%')))
                   AND (:status IS NULL OR u.status = :status)
                   AND (:keyword IS NULL OR LOWER(u.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
                        OR LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%')))
@@ -38,7 +38,12 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @EntityGraph(attributePaths = "shop")
     Page<User> findAll(Pageable pageable);
 
-    List<User> findAllByRoleIgnoreCaseAndIsDeleted(String role, Boolean isDeleted);
+    @Query("SELECT u FROM User u WHERE " +
+            "LOWER(u.role) LIKE CONCAT('%', LOWER(:role), '%') " +
+            "AND u.isDeleted = :isDeleted")
+    List<User> findAllByRoleIgnoreCaseAndIsDeleted(@Param("role") String role,
+                                                             @Param("isDeleted") Boolean isDeleted);
+
 
     // no validate data when reset password
     @Modifying

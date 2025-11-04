@@ -42,6 +42,9 @@ public class AdminController {
                             @RequestParam(required = false) String status,
                             @RequestParam(required = false) String keyword,
                             Model model) {
+        if (page < 0) {
+            return "redirect:/admin/users";
+        }
 
         Page<User> userPage = userService.findPaginatedAndFiltered(page, 10, role, status, keyword);
 
@@ -57,7 +60,7 @@ public class AdminController {
         model.addAttribute("status", status == null ? "" : status);
         model.addAttribute("keyword", keyword == null ? "" : keyword);
 
-        return "/admin/user-list";
+        return "admin/user-list";
     }
 
 
@@ -72,6 +75,9 @@ public class AdminController {
                             @RequestParam(required = false) String keyword,
                             @RequestParam(required = false) String status,
                             Model model) {
+        if (page < 0) {
+            return "redirect:/admin/shops";
+        }
 
         // Convert status string to Boolean
         Boolean isDeleted = null;
@@ -95,7 +101,7 @@ public class AdminController {
         model.addAttribute("keyword", keyword == null ? "" : keyword);
         model.addAttribute("status", status == null ? "" : status);
 
-        return "/admin/shop-list";
+        return "admin/shop-list";
     }
 
 
@@ -110,6 +116,9 @@ public class AdminController {
                                  @RequestParam(required = false) String keyword,
                                  @RequestParam(required = false) String status,
                                  Model model) {
+        if (page < 0) {
+            return "redirect:/admin/categories";
+        }
 
         // Convert status string to Boolean (active/inactive)
         Boolean isDeleted = null;
@@ -133,7 +142,7 @@ public class AdminController {
         model.addAttribute("keyword", keyword == null ? "" : keyword);
         model.addAttribute("status", status == null ? "" : status);
 
-        return "/admin/category-list";
+        return "admin/category-list";
     }
 
     @PostMapping("/categories/{id}/toggle-status")
@@ -148,7 +157,7 @@ public class AdminController {
     public String showAddCategoryForm(Model model) {
         model.addAttribute("category", new Category());
         model.addAttribute("isEdit", false);
-        return "category-form";
+        return "admin/category-form";
     }
 
     // ✅ Handle Add Category form submission (supports image upload)
@@ -158,7 +167,7 @@ public class AdminController {
                               @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
                               RedirectAttributes redirectAttributes) throws IOException {
         if (result.hasErrors()) {
-            return "/admin/category-form";
+            return "admin/category-form";
         }
 
         categoryService.saveCategory(category, imageFile);
@@ -175,7 +184,7 @@ public class AdminController {
         }
         model.addAttribute("category", category);
         model.addAttribute("isEdit", true);
-        return "/admin/category-form";
+        return "admin/category-form";
     }
 
     // ✅ Handle Edit Category form submission (supports changing image)
@@ -186,7 +195,7 @@ public class AdminController {
                                BindingResult result,
                                RedirectAttributes redirectAttributes) throws IOException {
         if (result.hasErrors()) {
-            return "category-form";
+            return "admin/category-form";
         }
 
         category.setCategoryId(id);
