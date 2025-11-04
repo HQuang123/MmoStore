@@ -75,7 +75,8 @@ public class LoginRegistrationController {
             return "redirect:/register";
         }
         String email = user.getEmail();
-        if(loginRegistrationService.getUserByEmail(email) != null){
+        User existingUser = userRepository.findByEmail(email);
+        if(loginRegistrationService.getUserByEmail(email) != null && existingUser.getStatus() && existingUser.getAccountStatusNonLocked()){
             redirectAttributes.addFlashAttribute("errorMsg","Email đã tồn tại");
             return "redirect:/register";
         }
@@ -124,6 +125,7 @@ public class LoginRegistrationController {
     @GetMapping("/verify-email")
     public String verifyEmail(@RequestParam("token") String token, @RequestParam("userEmail") String email, RedirectAttributes redirectAttributes) {
         User user = userRepository.findByEmail(email);
+
         if(user == null){
             //avoid to let the hacker know if the mail non exists
             redirectAttributes.addFlashAttribute("errorMsg", "Đường dẫn quá hạn, hãy đăng ký lại");
@@ -152,11 +154,20 @@ public class LoginRegistrationController {
     public String processForgotPassword(@RequestParam("email") String email,
                                         RedirectAttributes redirectAttributes,
                                         Model model, HttpServletRequest request) {
-//        User user = loginRegistrationService.getUserByEmail(email);
-//        PasswordResetToken passwordResetToken = passwordResetTokenRepository.findByUser(user);
-        String siteUrl  = getSiteURL(request);
+
+        User user = userRepository.findByEmail(email);
+
+        if (user == null || Boolean.TRUE.equals(user.getIsDeleted())) {
+            // Không tồn tại hoặc đã bị xóa
+            redirectAttributes.addFlashAttribute("successMsg", "Email không tồn tại hoặc đã bị xóa!");
+            return "redirect:/forgot-password";
+        }
+
+        // Nếu tồn tại và đang hoạt động
+        String siteUrl = getSiteURL(request);
         loginRegistrationService.generateResetTokenAndSendEmail(email, siteUrl);
-        redirectAttributes.addFlashAttribute("successMsg", "Password reset link đã được gửi tới mail");
+
+        redirectAttributes.addFlashAttribute("successMsg", "Đường dẫn đặt lại mật khẩu đã được gửi đến email của bạn!");
         return "redirect:/login";
     }
 

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 
 import java.io.IOException;
@@ -22,44 +23,35 @@ public class AuthFailureHandlerImpl extends SimpleUrlAuthenticationFailureHandle
     LoginRegistrationService loginRegistrationService;
 
     @Override
-    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception)
+            throws IOException, ServletException {
+
         String email = request.getParameter("username");
-        User user= loginRegistrationService.getUserByEmail(email);
-        if(user != null ){
-            //if user email exists
-            if(user.getStatus()){ //get account status
-                if(user.getAccountStatusNonLocked()){
-                    //if account is not locked, -> login failed -> increase failed attempt
-                    if(user.getAccountFailedAttempt() < AppConstant.ATTEMPT_COUNT){
-                        loginRegistrationService.userFailedAttemptIncrease(user);
-                    }
-                    //if attemp = 3 -> lock account
-                    else{
-                        loginRegistrationService.userAccountLock(user);
-                        exception = new LockedException("Your account is locked! Failed attempt 3");
-                    }
-                }else{
-                    if(loginRegistrationService.isUnlockAccountTimeExpired(user)){
-                        exception = new LockedException("Your account is unlocked, now you can not login to system");
-                    }
-                    else{
-                        exception = new LockedException("Your account is locked! Please try after sometimes");
-                    }
+        User user = loginRegistrationService.getUserByEmail(email);
+
+        if (user != null) {
+            if (Boolean.TRUE.equals(user.getIsDeleted())) {
+                exception = new LockedException("Account does not exist! Please register first.");
+            } else if (!user.getStatus()) {
+                exception = new LockedException("Your account is inactive! Please verify your email.");
+            } else if (!user.getAccountStatusNonLocked()) {
+                if (loginRegistrationService.isUnlockAccountTimeExpired(user)) {
+                    exception = new LockedException("Your account is unlocked, you can login now!");
+                } else {
+                    exception = new LockedException("Your account is locked! Please try again later.");
                 }
+            } else if (user.getAccountFailedAttempt() >= AppConstant.ATTEMPT_COUNT) {
+                loginRegistrationService.userAccountLock(user);
+                exception = new LockedException("Your account has been locked after 3 failed attempts.");
             }
-            else {
-                exception = new LockedException("Your account is inactive! Please contact admin");
-            }
+        } else {
+            exception = new UsernameNotFoundException("Account does not exist! Please register first.");
         }
-        else{
-            exception = new LockedException("Your account does not exist! Please register first");
-        }
+
         super.setDefaultFailureUrl("/login?error");
-        //cai nay modify AuthenticationException (LockedException) -> dua vao SpringSecurity_LastException
         super.onAuthenticationFailure(request, response, exception);
-        //Comment this line to redirect to login page when login failed to avoid resubmission
-        //response.sendRedirect("/login?error");
     }
+
 
 
 }

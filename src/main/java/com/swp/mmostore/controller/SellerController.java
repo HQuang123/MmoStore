@@ -8,7 +8,6 @@ import com.swp.mmostore.entity.Shop;
 import com.swp.mmostore.entity.User;
 import com.swp.mmostore.service.*;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -55,8 +54,7 @@ public class  SellerController {
 
     @GetMapping("/seller/statistic")
     public String viewDashboard(Model model,
-                                @RequestParam(defaultValue = "0") int page,
-                                HttpSession session) {
+                                @RequestParam(defaultValue = "0") int page) {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
@@ -72,7 +70,7 @@ public class  SellerController {
         if (page < 0) page = 0;
 
         // --- Tạo Pageable tạm để lấy tổng số trang ---
-        Pageable tempPageable = PageRequest.of(0, pageSize);
+        //Pageable tempPageable = PageRequest.of(0, pageSize);
         Page<ProductSalesDTO> tempPage = shopService.getSoldProductsByShop(shopId, 0, pageSize);
         int totalPages = tempPage.getTotalPages();
 
@@ -81,7 +79,7 @@ public class  SellerController {
             page = totalPages - 1;
         }
 
-        Pageable pageable = PageRequest.of(page, pageSize);
+        //Pageable pageable = PageRequest.of(page, pageSize);
         Page<ProductSalesDTO> reportPage = shopService.getSoldProductsByShop(shopId, page, pageSize);
 
         // --- Add model attributes ---

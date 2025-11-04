@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org"
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
       th:replace="~{base::layout(~{::section}, ~{::cssFragment}, ~{::jsFragment})}">
 <head>
     <meta charset="UTF-8">
@@ -19,15 +19,15 @@
 <section class="container-fluid order-history-page">
     <div class="row justify-content-center">
         <div class="col-md-10">
-            <h2 class="page-title">📦 Order History</h2>
+            <h2 class="page-title">📦 Lịch sử đơn hàng</h2>
 
-            <!-- Filter Section -->
+            <!-- Khu vực lọc -->
             <div class="filter-container">
                 <form class="filter-form" method="get" action="/user/orders">
                     <div>
-                        <label class="form-label">Status</label>
+                        <label class="form-label">Trạng thái</label>
                         <select name="status" class="form-select">
-                            <option value="">-- All Status --</option>
+                            <option value="">-- Tất cả trạng thái --</option>
                             <option th:each="st : ${statuses}"
                                     th:value="${st.name()}"
                                     th:text="${st.name()}"
@@ -37,60 +37,60 @@
                     </div>
 
                     <div>
-                        <label class="form-label">Min Total</label>
+                        <label class="form-label">Tổng tối thiểu</label>
                         <input type="text" id="minTotal" class="form-control" name="minTotal"
-                               th:value="${param.minTotal}" placeholder="e.g. 1,000,000">
+                               th:value="${param.minTotal}" placeholder="vd: 1,000,000">
                     </div>
 
                     <div>
-                        <label class="form-label">Max Total</label>
+                        <label class="form-label">Tổng tối đa</label>
                         <input type="text" id="maxTotal" class="form-control" name="maxTotal"
-                               th:value="${param.maxTotal}" placeholder="e.g. 10,000,000">
+                               th:value="${param.maxTotal}" placeholder="vd: 10,000,000">
                     </div>
 
                     <div>
-                        <label class="form-label">From Date</label>
+                        <label class="form-label">Từ ngày</label>
                         <input type="date" name="startDate" th:value="${param.startDate}">
                     </div>
 
                     <div>
-                        <label class="form-label">To Date</label>
+                        <label class="form-label">Đến ngày</label>
                         <input type="date" name="endDate" th:value="${param.endDate}">
                     </div>
 
                     <div class="d-flex gap-2 align-items-end">
                         <button type="submit" class="btn btn-secondary filter-btn">
-                            <i class="bi bi-funnel"></i> Filter
+                            <i class="bi bi-funnel"></i> Lọc
                         </button>
                         <a href="/user/orders" class="btn btn-outline-danger">
-                            <i class="bi bi-x-circle"></i> Clear
+                            <i class="bi bi-x-circle"></i> Xóa lọc
                         </a>
                     </div>
                 </form>
             </div>
 
-            <!-- Search -->
+            <!-- Tìm kiếm -->
             <form th:action="@{/user/orders}" method="get" class="mb-3">
                 <div class="input-group">
                     <input type="text" name="productName" th:value="${param.productName}"
-                           class="form-control" placeholder="🔍 Search by product name">
-                    <button class="btn btn-primary" type="submit">Search</button>
+                           class="form-control" placeholder="🔍 Tìm theo tên sản phẩm">
+                    <button class="btn btn-primary" type="submit">Tìm kiếm</button>
                 </div>
             </form>
 
 
-            <!-- Orders Table -->
+            <!-- Bảng đơn hàng -->
             <div class="table-responsive">
                 <table class="table table-striped align-middle">
                     <thead>
                     <tr>
-                        <th>Order ID</th>
-                        <th>Product Name</th>
-                        <th>Create At</th>
-                        <th>Status</th>
-                        <th>Quantity</th>
-                        <th>Total</th>
-                        <th>Acount</th>
+                        <th>Mã đơn hàng</th>
+                        <th>Tên sản phẩm</th>
+                        <th>Ngày tạo</th>
+                        <th>Trạng thái</th>
+                        <th>Số lượng</th>
+                        <th>Tổng cộng</th>
+                        <th>Chi tiết</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -110,7 +110,7 @@
                                         th:attr="data-bs-target='#detail' + ${order.orderId}"
                                         aria-expanded="false"
                                         th:attrappend="aria-controls='detail' + ${order.orderId}">
-                                    👁 Xem
+                                    👁 Xem chi tiết
                                 </button>
 
                                 <div class="collapse mt-1" th:id="'detail' + ${order.orderId}">
@@ -135,18 +135,17 @@
             </div>
 
 
-            <!-- Pagination -->
+            <!-- Phân trang -->
             <div class="pagination">
                 <a th:if="${currentPage > 0}"
-                   th:href="@{/user/orders(page=${currentPage - 1})}">Previous</a>
-                <span>Page <span th:text="${currentPage + 1}"></span> / <span th:text="${totalPages}"></span></span>
+                   th:href="@{/user/orders(page=${currentPage - 1})}">Trước</a>
+                <span>Trang <span th:text="${currentPage + 1}"></span> / <span th:text="${totalPages}"></span></span>
                 <a th:if="${currentPage + 1 < totalPages}"
-                   th:href="@{/user/orders(page=${currentPage + 1})}">Next</a>
+                   th:href="@{/user/orders(page=${currentPage + 1})}">Sau</a>
             </div>
         </div>
     </div>
 </section>
-
 
 </body>
 </html>

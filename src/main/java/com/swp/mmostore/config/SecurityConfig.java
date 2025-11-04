@@ -50,7 +50,7 @@ public class SecurityConfig {
             .cors(cors -> cors.disable())
             .authorizeHttpRequests(req -> req
                 .requestMatchers("/user/**").hasRole("USER") //localhost:8080/user/product?productId=1
-
+                    .requestMatchers("seller/**").hasRole("SELLER")
                 .requestMatchers("/admin/**").hasRole("ADMIN") //localhost:8080/product --> ko authen -> bam nut Mua hang
 
                   //GetMapping   localhot:8080/user//

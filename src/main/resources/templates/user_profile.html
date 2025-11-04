@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en"
+<html lang="vi"
       xmlns:th="http://www.thymeleaf.org"
       th:replace="~{base :: layout(~{::section}, ~{::#css}, ~{::#js})}">
 <head>
     <meta charset="UTF-8">
-    <title>User Profile</title>
+    <title>Hồ sơ người dùng</title>
     <th:block id="css"></th:block>
 </head>
 <body>
@@ -22,7 +22,7 @@
     </div>
     <div class="mb-3">
         <a th:href="@{/}" class="btn btn-outline-primary btn-sm">
-            ← Back to Home
+            ← Quay lại trang chủ
         </a>
     </div>
 
@@ -31,34 +31,32 @@
             <div class="col-md-8">
                 <div class="card shadow p-4 mb-5 bg-body rounded">
                     <div class="card-header text-center bg-primary text-white">
-                        <h4>User Profile</h4>
+                        <h4>Hồ sơ người dùng</h4>
                     </div>
 
                     <div class="card-body">
                         <div class="row mb-3">
                             <div class="col-md-4 text-center">
-                                <!--                                <img th:if="${blobName != null}"-->
-                                <!--                                     th:src="@{/user/image(blobName=${blobName})}"-->
                                 <img th:src="${user.profileImage}"
-                                     alt="User Profile Image"
+                                     alt="Ảnh đại diện người dùng"
                                      style="width:150px; height:150px; border-radius:50%; object-fit:cover;">
                                 <a href="#" class="btn btn-primary ms-2" data-bs-toggle="modal"
                                    data-bs-target="#editImageModal">
-                                    Edit Image
+                                    Chỉnh sửa ảnh
                                 </a>
                             </div>
 
                             <div class="col-md-8">
-                                <p><strong>User ID:</strong> <span th:text="${user.userId}"></span></p>
-                                <p><strong>Name:</strong> <span th:text="${user.name}"></span></p>
+                                <p><strong>ID người dùng:</strong> <span th:text="${user.userId}"></span></p>
+                                <p><strong>Họ tên:</strong> <span th:text="${user.name}"></span></p>
                                 <p><strong>Email:</strong> <span th:text="${user.email}"></span></p>
-                                <p><strong>Phone Number:</strong> <span th:text="${user.phoneNumber}"></span></p>
-                                <p><strong>Role:</strong>
+                                <p><strong>Số điện thoại:</strong> <span th:text="${user.phoneNumber}"></span></p>
+                                <p><strong>Vai trò:</strong>
                                     <span th:text="${#strings.replace(user.role, 'ROLE_', '')}"></span>
                                 </p>
-                                <p><strong>Create At:</strong> <span th:text="${user.createdAt}"></span></p>
+                                <p><strong>Ngày tạo:</strong> <span th:text="${user.createdAt}"></span></p>
                                 <p>
-                                    <strong>Balance:</strong>
+                                    <strong>Số dư:</strong>
                                     <span th:text="${#numbers.formatDecimal(user.balance, 0, 'POINT', 0, 'POINT')}"></span> VNĐ
                                 </p>
                             </div>
@@ -66,17 +64,18 @@
                     </div>
 
                     <div class="card-footer text-center">
-                        <a href="/user/edit" class="btn btn-primary ms-2">Edit Profile</a>
+                        <a href="/user/edit" class="btn btn-primary ms-2">Chỉnh sửa hồ sơ</a>
                         <button type="button" class="btn btn-warning ms-2" data-bs-toggle="modal"
                                 data-bs-target="#resetPasswordModal">
-                            Reset Password
+                            Đổi mật khẩu
                         </button>
-                        <a href="/user/delete" class="btn btn-danger ms-2">DELETE</a>
+                        <a href="/user/delete" class="btn btn-danger ms-2">Xóa tài khoản</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
     <!-- Modal Upload Ảnh -->
     <div class="modal fade" id="editImageModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog" style="padding-top: 285px;">
@@ -95,26 +94,27 @@
 
                         <!-- Xem trước ảnh -->
                         <div class="text-center mt-3" style="padding-left: 160px;">
-                            <img id="previewImage" src="#" alt="Preview"
+                            <img id="previewImage" src="#" alt="Xem trước"
                                  style="display:none; width:150px; height:150px; border-radius:50%; object-fit:cover;">
                         </div>
                     </div>
 
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-success">Upload</button>
+                        <button type="submit" class="btn btn-success">Tải lên</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-    <!-- Modal Reset Password -->
-    <div class="modal fade" id="resetPasswordModal"  tabindex="-1" aria-hidden="true">
+
+    <!-- Modal Đổi mật khẩu -->
+    <div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog" style="padding-top: 190px;">
             <div class="modal-content">
                 <form th:action="@{/user/reset-password}" method="post">
                     <div class="modal-header">
-                        <h5 class="modal-title">Đặt lại mật khẩu</h5>
+                        <h5 class="modal-title">Đổi mật khẩu</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
                     </div>
 

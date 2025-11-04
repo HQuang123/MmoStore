@@ -5,7 +5,6 @@ import com.swp.mmostore.dto.OrderStatisticDTO;
 import com.swp.mmostore.entity.DepositStatus;
 import com.swp.mmostore.entity.Shop;
 import com.swp.mmostore.entity.User;
-import com.swp.mmostore.repository.UserRepository;
 import com.swp.mmostore.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +30,7 @@ import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Controller
@@ -54,24 +54,18 @@ public class UserController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-
-    /** Hiển thị trang user_profile.html */
+    /**
+     * Hiển thị trang user_profile.html
+     */
     @GetMapping("/user/detail")
     public String viewUserDetail(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
         User user = userService.getUserByEmail(email);
-
-        // Lấy tên blob (chỉ phần cuối)
-//        String blobName = null;
-//        if (user.getProfileImage() != null && user.getProfileImage().contains("/")) {
-//            blobName = user.getProfileImage().substring(user.getProfileImage().lastIndexOf("/") + 1);
-//        }
-
         model.addAttribute("user", user);
         //model.addAttribute("blobName", blobName);
 
-        return "user_profile"; // -> hiển thị HTML
+        return "user_profile";
     }
 
     @GetMapping("/user/image")
@@ -117,7 +111,9 @@ public class UserController {
     }
 
 
-    /**  Trang chỉnh sửa user */
+    /**
+     * Trang chỉnh sửa user
+     */
     @GetMapping("/user/edit")
     public String editProfile(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -127,7 +123,9 @@ public class UserController {
         return "user_editprofile";
     }
 
-    /** Cập nhật thông tin user */
+    /**
+     * Cập nhật thông tin user
+     */
     @PostMapping("/user/update")
     public String updateProfile(@ModelAttribute("user") User updatedUser,
                                 RedirectAttributes redirectAttributes) {
@@ -140,7 +138,7 @@ public class UserController {
             existingUser.setPhoneNumber(updatedUser.getPhoneNumber());
             userService.updateUser(existingUser);
             redirectAttributes.addFlashAttribute("successMsg", "Information update success");
-        }else{
+        } else {
             redirectAttributes.addFlashAttribute("successMsg", "Information update fail");
         }
         return "redirect:/user/detail";
@@ -173,9 +171,6 @@ public class UserController {
         redirectAttributes.addFlashAttribute("successMsg", "Đổi mật khẩu thành công!");
         return "redirect:/user/detail";
     }
-
-
-
 
 
     @GetMapping("/user/seller_register")
@@ -224,7 +219,7 @@ public class UserController {
 
 
         // Tạo và lưu shop mới
-        Shop shop = new Shop(name,description,user,shopImageUrl);
+        Shop shop = new Shop(name, description, user, shopImageUrl);
         shopService.save(shop);
 
         // Cập nhật role người dùng thành SELLER nếu chưa có
@@ -315,10 +310,9 @@ public class UserController {
     }
 
 
-
-    @Autowired
-    private  LoginRegistrationService  loginRegistrationService;
-    /** Xóa tài khoản user */
+    /**
+     * Xóa tài khoản user
+     */
     @GetMapping("/user/delete")
     public String deleteUser(RedirectAttributes redirectAttributes) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -326,12 +320,13 @@ public class UserController {
         User existingUser = userService.getUserByEmail(email);
 
         if (existingUser != null) {
-            loginRegistrationService.updateUserStatus(false,existingUser.getUserId());
-            //userService.deleteUser(existingUser.getUserId());
+            userService.updateUserStatus(false, existingUser.getUserId());
+            existingUser.setIsDeleted(true);
+            userService.updateUser(existingUser);
             redirectAttributes.addFlashAttribute("successMsg", "Your account has been deleted successfully.");
             // Sau khi xóa, đăng xuất người dùng
             SecurityContextHolder.clearContext();
-            return "redirect:/logout"; // hoặc redirect về trang chủ tùy logic app
+            return "redirect:/logout";
         } else {
             redirectAttributes.addFlashAttribute("errorMsg", "User not found!");
             return "redirect:/user/detail";
