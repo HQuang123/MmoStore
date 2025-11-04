@@ -1,0 +1,57 @@
+.notification-card {
+    border-bottom: 1px solid #dee2e6;
+    padding: 12px 15px;
+    border-radius: 8px;
+    transition: all 0.25s ease; /* smooth hover transition */
+    cursor: pointer;
+}
+
+/* ✅ Unread notifications: bold + blue accent */
+.notification-card.unread {
+    background-color: #f0f4ff;        /* soft blue background */
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(13, 110, 253, 0.1);
+}
+
+/* ✅ Read notifications: neutral white */
+.notification-card.read {
+    background-color: #ffffff;
+    font-weight: 400;
+    opacity: 0.95;
+    border-left: 4px solid transparent;
+}
+
+/* 🪶 Hover effect for both read and unread */
+.notification-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    background-color: #f9fbff;
+}
+
+/* 🔤 Text styles */
+.notification-title {
+    font-size: 1rem;
+    margin-bottom: 2px;
+}
+
+.notification-content {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.notification-date {
+    color: #adb5bd;
+    font-size: 0.8rem;
+}
+
+/* 📄 Page layout */
+.page-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.btn-custom {
+    font-size: 0.9rem;
+    padding: 5px 12px;
+}

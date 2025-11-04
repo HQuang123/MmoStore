@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base::layout(~{::section}, ~{::cssFragment}, ~{::jsFragment})}">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Notifications</title>
+
+    <th:block th:fragment="cssFragment">
+        <link rel="stylesheet" href="/css/notifications-list.css">
+    </th:block>
+
+    <th:block th:fragment="jsFragment">
+        <script src="/javascript/notifications-list.js"></script>
+    </th:block>
+</head>
+<body>
+<section>
+    <div class="container mt-4 mb-5">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="page-title">🔔 Your Notifications</div>
+            <form th:action="@{/notifications/mark-all-read}" method="post" class="m-0">
+                <button type="submit" class="btn btn-sm btn-outline-primary btn-custom">
+                    Đánh dấu xem tất cả
+                </button>
+            </form>
+        </div>
+
+        <div class="mt-3 d-flex align-items-center justify-content-between">
+            <!-- Filter Section -->
+            <form th:action="@{/notifications}" method="get" class="d-flex align-items-center">
+                <label for="statusFilter" class="me-2 fw-semibold">Filter:</label>
+                <select name="status" id="statusFilter" class="form-select form-select-sm filter-select me-2">
+                    <option value="" th:selected="${status == null or status == ''}">Tất cả</option>
+                    <option value="Unread" th:selected="${status == 'Unread'}">Unread</option>
+                </select>
+                <button type="submit" class="btn btn-sm btn-secondary btn-custom">Filter</button>
+            </form>
+        </div>
+        <hr>
+
+        <div th:if="${notifications.size() == 0}" class="alert alert-info mt-3">
+            Không có thông báo.
+        </div>
+
+        <!-- ✅ Notification list (no outer form) -->
+        <div th:each="n : ${notifications}" class="mb-2">
+            <div th:class="'notification-card rounded-2 p-3 d-flex justify-content-between align-items-start '
+                + (${n.status == 'Unread'} ? 'unread' : 'read')">
+
+                <div>
+                    <input type="checkbox" name="selectedIds" th:value="${n.id}" class="form-check-input me-2">
+                </div>
+
+                <div class="flex-grow-1">
+                    <div class="notification-title fw-bold" th:text="${n.title}">Notification title</div>
+                    <div class="notification-content text-muted" th:text="${n.content}">Notification content</div>
+                    <div class="notification-date small text-secondary"
+                         th:text="${#dates.format(n.createAt, 'dd/MM/yyyy HH:mm')}"></div>
+                </div>
+
+                <div class="ms-3">
+                    <form th:if="${n.status == 'Unread'}" th:action="@{/notifications/mark-read/{id}(id=${n.id})}"
+                          method="post">
+                        <button type="submit" class="btn btn-sm btn-outline-success">Mark Read</button>
+                    </form>
+                    <form th:if="${n.status == 'Read'}" th:action="@{/notifications/mark-unread/{id}(id=${n.id})}"
+                          method="post">
+                        <button type="submit" class="btn btn-sm btn-outline-warning">Mark Unread</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ✅ Separate Bulk Action Form -->
+        <form th:action="@{/notifications/bulk-action}" method="post" class="mt-3">
+            <div class="d-flex justify-content-end align-items-center gap-2">
+                <div class="form-check me-auto">
+                    <input class="form-check-input" type="checkbox" id="selectAll">
+                    <label class="form-check-label" for="selectAll">Select All</label>
+                </div>
+
+                <select name="action" class="form-select w-auto">
+                    <option value="">Choose Action...</option>
+                    <option value="mark-read">Mark as Read</option>
+                    <option value="mark-unread">Mark as Unread</option>
+                </select>
+                <button type="submit" class="btn btn-primary">Apply</button>
+            </div>
+        </form>
+
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+            <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert"
+                 aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body" th:text="${success}">Thành công!</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                            aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
