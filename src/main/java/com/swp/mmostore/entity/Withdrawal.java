@@ -21,7 +21,7 @@ public class Withdrawal {
     private Integer id;
 
     @Column(name = "Amount")
-    @Min(value = 5000)
+    @Min(value = 10000)
     private BigDecimal amount;
 
     // --- Bank Details transformed to use the Bank enum ---

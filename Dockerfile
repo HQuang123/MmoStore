@@ -9,4 +9,4 @@ FROM amazoncorretto:21-alpine
 COPY --from=build /app/target/MmoStore-0.0.1-SNAPSHOT.jar /run/MmoStore-0.0.1-SNAPSHOT.jar
 EXPOSE 8080
 
-ENTRYPOINT ["java","-jar","/run/MmoStore-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java","--enable-preview","-jar","/run/MmoStore-0.0.1-SNAPSHOT.jar"]

@@ -43,6 +43,7 @@ public class WithdrawalController {
     private final EmailService emailService;
     private final NotificationService notificationService;
     private final WithdrawalOtpRepository withdrawalOtpRepository;
+    private final EmailTemplate emailTemplate;
 
     private String generateOtp() {
         return String.format("%06d", new java.util.Random().nextInt(1_000_000));
@@ -88,10 +89,11 @@ public class WithdrawalController {
                 return "user/withdraw";
             }
             //compare amount to withdraw with available balance (real balance - onHold balance)
-            if (withdrawal.getAmount().compareTo(user.getAvailableBalance()) > 0) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Số dư không đủ");
-                return "redirect:/user/wallet/withdraw"; //return to @GET MAPPing
-            }
+//            if (withdrawal.getAmount().compareTo(user.getAvailableBalance()) > 0) {
+//                redirectAttributes.addFlashAttribute("errorMessage", "Số dư không đủ");
+//                return "redirect:/user/wallet/withdraw"; //return to @GET MAPPing
+//            }
+
             withdrawal.setStatus("Unconfirmed");
             withdrawal.setUser(user);
             withdrawalRepository.save(withdrawal);
@@ -124,22 +126,21 @@ public class WithdrawalController {
             }
             Withdrawal withdrawal = withdrawalRepository.findById(withdrawalId).orElse(null);
             WithdrawalOtp withdrawalOtp = withdrawalOtpRepository.findByTokenAndWithdrawal(otp, withdrawal);
-            if (withdrawalOtp == null) {
+            if (withdrawalOtp == null && withdrawalOtp.isExpired()) {
                 redirectAttributes.addFlashAttribute("withdrawal", withdrawal);
                 redirectAttributes.addFlashAttribute("errorMessage", "Ma OTP khong hop le hoac het han");
                 return "redirect:/user/wallet/withdraw/confirm";
             }
+            //TODO: Implement MQ for withdrawal @ShiroHoang
 
             //after user verify the token --> set onhold  balance
-            user.setOnHoldBalance(user.getOnHoldBalance().add(withdrawal.getAmount()));
+//            user.setOnHoldBalance(user.getOnHoldBalance().add(withdrawal.getAmount()));
             userRepository.save(user);
             withdrawal.setStatus("Pending");
             withdrawalRepository.save(withdrawal);
-            //TODO: Implement MQ for withdrawal
             String subject = "[MMOStore] Đã nộp đơn rút tiền";
-            String content = EmailTemplate.withdrawalRequestEmail(user.getName(), withdrawal.getAmount().toString(), withdrawal.getBank().getDisplayName() + "-" + withdrawal.getBankAccount(), new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
+            String content = emailTemplate.withdrawalRequestEmail(user.getName(), withdrawal.getAmount().toString(), withdrawal.getBank().getDisplayName() + "-" + withdrawal.getBankAccount(), new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
             emailService.sendEmailAsync(user.getEmail(), subject, content);
-            //
             notificationService.createNotificationForUser(user.getUserId(), "Yêu cầu rút tiền", "Yêu cầu rút " + withdrawal.getAmount() + " VND đã được gửi và đang chờ duyệt !");
             try {
                 notificationService.createNotificationForRole("ROLE_ADMIN", "Yêu cầu rút tiền của người dùng đang chờ", "New withdrawal request of " + withdrawal.getAmount().toString() + " by " + user.getEmail() + "  pending approval.");
@@ -159,7 +160,7 @@ public class WithdrawalController {
     public String resendWithdrawlOtp(@RequestParam("withdrawalID") Integer withdrawalId, RedirectAttributes redirectAttributes, Model model) {
         try {
             User user = (User) model.getAttribute("user");
-            Withdrawal withdrawal = withdrawalRepository.findById(withdrawalId).orElseThrow(() -> new RuntimeException("Yeu cau rut tien khong tim that"));
+            Withdrawal withdrawal = withdrawalRepository.findById(withdrawalId).orElseThrow(() -> new RuntimeException("Yêu cầu rút tiền không tìm thấy"));
             if (withdrawal.getUser().getUserId() != user.getUserId()) {
                 redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: Yêu cầu không hợp lệ.");
                 return "redirect:/user/wallet/withdraw";
@@ -220,10 +221,10 @@ public class WithdrawalController {
     public ResponseEntity<?> getWithdrawDetail(@PathVariable("id") Integer id) {
         Withdrawal wd = withdrawalRepository.findById(id).orElse(null);
         if (wd == null) {
-            return ResponseEntity.badRequest().body("Withdrawal request not found");
+            return ResponseEntity.badRequest().body("Không tìm thấy yêu cầu rút tiền");
         }
         if (!"Pending".equalsIgnoreCase(wd.getStatus())) {
-            return ResponseEntity.status(400).body(Map.of("error", "Request is not in Pending state."));
+            return ResponseEntity.status(400).body(Map.of("error", "Yêu cầu không trong trạng thái đúng"));
         }
 
         String vietQrUrl = null;
@@ -257,27 +258,27 @@ public class WithdrawalController {
     public ResponseEntity<?> confirmWithdrawal(@PathVariable("id") Integer id, Model model) {
         Withdrawal wd = withdrawalRepository.findById(id).orElse(null);
         if (wd == null) {
-            return ResponseEntity.badRequest().body("Withdrawal request not found");
+            return ResponseEntity.badRequest().body("Không tìm thấy yêu cầu rút tiền");
         }
         if (!"Pending".equalsIgnoreCase(wd.getStatus())) {
-            return ResponseEntity.status(400).body(Map.of("error", "Request is not in Pending state."));
+            return ResponseEntity.status(400).body(Map.of("error", "Yêu cầu không trong trạng thái đúng"));
         }
         try {
             User user = (User) model.getAttribute("user");
             //ToDo: add quueu here
             //send email to user
             withdrawService.approveWithdrawal(id);
-            return ResponseEntity.ok(Map.of("message", "Withdrawal approved successfully.", "newStatus", "Approved"));
+            return ResponseEntity.ok(Map.of("message", "Yêu cầu rút tiền xác nhận thành công.", "newStatus", "Approved"));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("error", "Server error: " + e.getMessage()));
         }
     }
 
     @PostMapping("/admin/withdraw/reject")
-    public String processWithdrawalReject(@RequestParam("withdrawalID") Integer withdrawalId, RedirectAttributes redirectAttributes, Model model) {
+    public String processWithdrawalReject(@RequestParam("id") Integer withdrawalId, RedirectAttributes redirectAttributes, Model model) {
         try{
             withdrawService.rejectWithdrawal(withdrawalId);
-            redirectAttributes.addFlashAttribute("successMessage","Withdrawal #" + withdrawalId + " has been rejected");
+            redirectAttributes.addFlashAttribute("successMessage","Yêu cầu rút tiền #" + withdrawalId + " đã bị từ chối");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage","Server error: " + e.getMessage());
         }
