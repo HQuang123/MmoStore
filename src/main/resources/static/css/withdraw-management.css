@@ -8,7 +8,7 @@ body {
 
 /* Main Content Container */
 .container {
-    max-width: 1200px;
+    max-width: 100%;
     margin: 0 auto;
     background-color: #ffffff;
     border-radius: 10px;
@@ -73,8 +73,8 @@ body {
 
 /* Table Styling */
 .table-wrapper {
-    padding: 0 30px 10px 30px;
-    overflow-x: auto; /* For small screens */
+    width: 100%;
+    overflow-x: auto; /* This is the magic line */
 }
 
 table {

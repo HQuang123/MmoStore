@@ -46,8 +46,6 @@ public class User {
     @Column(name = "Balance", columnDefinition = "Decimal(10,2) DEFAULT 0.00", precision = 10, scale = 2, insertable = false)
     private BigDecimal balance;
 
-    @Column(name = "OnHoldBalance", columnDefinition = "Decimal(10,2) DEFAULT 0.00", precision = 10, scale = 2, insertable = false)
-    private BigDecimal onHoldBalance;
 
     @Column(name = "Status", columnDefinition = "Boolean DEFAULT true")
     private Boolean status;
@@ -134,11 +132,6 @@ public class User {
     public void removeDeposit(Deposit deposit) {
         deposits.remove(deposit);
         deposit.setUser(null);
-    }
-
-    @Transient
-    public BigDecimal getAvailableBalance(){
-        return this.balance.subtract(this.onHoldBalance);
     }
 
     // Constructor is fine

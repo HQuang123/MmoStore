@@ -1,41 +1,61 @@
 package com.swp.mmostore.util;
 
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+
+
+@Service
 public class EmailTemplate {
-    public static String verificationEmail(String code) {
-        return STR."<div style=\"font-family:'Inter',Arial,sans-serif;background:#f7f7f9;padding:32px;\"><div style=\"max-width:480px;margin:auto;background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);overflow:hidden;\"><div style=\"background:linear-gradient(90deg,#ef4444 0,#f59e42 100%);padding:24px 0;text-align:center;border-radius:16px 16px 0 0;\"><h2 style=\"color:#fff;font-size:24px;font-weight:700;margin:0;letter-spacing:1px;\">Xác thực tài khoản - MMOMarket</h2></div><div style=\"padding:32px 24px 24px 24px;\"><p style=\"font-size:17px;color:#222;margin-bottom:18px;\">Xin chào,</p><p style=\"font-size:16px;color:#444;margin-bottom:28px;\">Bạn đã yêu cầu xác thực tài khoản hoặc đổi mật khẩu tại <b>MMOMarket</b>. Vui lòng sử dụng mã OTP bên dưới để hoàn tất quá trình xác thực:</p><div style=\"text-align:center;margin-bottom:28px;\"><span style=\"display:inline-block;background:#ef4444;color:#fff;font-size:36px;font-weight:700;letter-spacing:8px;padding:18px 40px;border-radius:10px;box-shadow:0 2px 8px rgba(239,68,68,0.12);\">\{code}</span></div><p style=\"font-size:15px;color:#666;margin-bottom:16px;text-align:center;\">Mã OTP có hiệu lực trong <b>5 phút</b>. Vui lòng không chia sẻ mã này cho bất kỳ ai để đảm bảo an toàn tài khoản.</p><p style=\"font-size:15px;color:#666;margin-bottom:24px;text-align:center;\">Nếu bạn không thực hiện yêu cầu này, hãy bỏ qua email hoặc liên hệ bộ phận hỗ trợ.</p><div style=\"text-align:center;margin-bottom:8px;\"><a href='http://localhost:8080/authen/login' style='display:inline-block;background:#ef4444;color:#fff;font-weight:600;padding:12px 36px;border-radius:8px;text-decoration:none;font-size:16px;box-shadow:0 2px 8px rgba(239,68,68,0.10);transition:background 0.2s;'>Đăng nhập MMOMarket</a></div></div><div style=\"background:#f7f7f9;color:#aaa;font-size:13px;text-align:center;padding:16px 8px;border-radius:0 0 16px 16px;\">&copy; 2024 MMOMarket. Mọi quyền được bảo lưu.</div></div></div>";
+
+    @Autowired
+    private TemplateEngine templateEngine;
+
+    public String verificationEmail(String code) {
+        Context context = new Context();
+        context.setVariable("code", code);
+
+        // Process the new template file
+        return templateEngine.process("emails/verification-email", context);
     }
 
-    public static String withdrawalRequestEmail(String userName, String amount, String bankInfo, String requestDate) {
-        // Define the template using a Text Block (""").
-        // %s is a placeholder for a String.
-        String emailTemplate = """
-                Xin chào quý khách %s,
-                
-                Chúng tôi đã nhận được yêu cầu rút tiền của bạn %s.
-                Hiện tại chúng tôi đang xử lý yêu cầu của bạn.
-                
-                Sau đây là thông tin cụ thể yêu cầu rút tiền của bạn:
-                - Số tiền: %s
-                - Thông tin ngân hàng nhận: %s
-                
-                Bạn có thể được hoàn trả tiền trong khoảng từ 3-5 ngày làm việc.
-                
-                Cảm ơn bạn,
-                Đội ngũ hỗ trợ khách hàng MMOStore
-                """;
+    public String withdrawalRequestEmail(String userName, String amount, String bankInfo, String requestDate) {
+        Context context = new Context();
+        context.setVariable("userName", userName);
+        context.setVariable("amount", amount);
+        context.setVariable("bankInfo", bankInfo);
+        context.setVariable("requestDate", requestDate);
 
-        // Use String.format() to inject the values into the template.
-        // The order of arguments must match the placeholders (%s) in the template.
-        return String.format(
-                emailTemplate,
-                userName,
-                requestDate,
-                amount,
-                bankInfo
-        );
+        // Process the new template file
+        return templateEngine.process("emails/withdrawal-request", context);
     }
 
-    public static String sellerRegistrationSuccessEmail(String userName) {
+    public String withdrawalApprovedEmail(String userName, String amount, String bankInfo, String approveDate, String proofFile) {
+        Context context = new Context();
+        context.setVariable("userName", userName);
+        context.setVariable("amount", amount);
+        context.setVariable("bankInfo", bankInfo);
+        context.setVariable("approveDate", approveDate);
+        context.setVariable("proofFile", proofFile); // Pass the link to the template
+
+        // Process the new template file
+        return templateEngine.process("emails/withdrawal-approved", context);
+    }
+
+    public String withdrawalRejectedEmail(String userName, String amount, String bankInfo, String rejectDate, String reason) {
+        Context context = new Context();
+        context.setVariable("userName", userName);
+        context.setVariable("amount", amount);
+        context.setVariable("bankInfo", bankInfo);
+        context.setVariable("rejectDate", rejectDate);
+        context.setVariable("reason", reason);
+        // 2. Process the template file into a single HTML string
+        return templateEngine.process("emails/withdrawal-rejected", context);
+    }
+
+    public String sellerRegistrationSuccessEmail(String userName) {
         return "<div style=\"font-family:'Inter',Arial,sans-serif;background:#f7f7f9;padding:32px;\">" +
                 "<div style=\"max-width:480px;margin:auto;background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);overflow:hidden;\">" +
                 "<div style=\"background:linear-gradient(90deg,#ef4444 0,#f59e42 100%);padding:24px 0;text-align:center;border-radius:16px 16px 0 0;\">" +
@@ -51,7 +71,7 @@ public class EmailTemplate {
                 "</div>";
     }
 
-    public static String sellerVerificationEmail(String userName, String verifyLink) {
+    public String sellerVerificationEmail(String userName, String verifyLink) {
         return "<div style=\"font-family:'Inter',Arial,sans-serif;background:#f7f7f9;padding:32px;\">" +
                 "<div style=\"max-width:480px;margin:auto;background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);overflow:hidden;\">" +
                 "<div style=\"background:linear-gradient(90deg,#ef4444 0,#f59e42 100%);padding:24px 0;text-align:center;border-radius:16px 16px 0 0;\">" +
@@ -70,7 +90,7 @@ public class EmailTemplate {
                 "</div>";
     }
 
-    public static String sellerStatusEmail(String userName, String status, String note) {
+    public  String sellerStatusEmail(String userName, String status, String note) {
         String statusColor = status.equalsIgnoreCase("approved") ? "#22c55e" : status.equalsIgnoreCase("rejected") ? "#ef4444" : "#f59e42";
         String statusText = status.equalsIgnoreCase("approved") ? "Đã duyệt" : status.equalsIgnoreCase("rejected") ? "Từ chối" : "Đang chờ duyệt";
         return "<div style=\"font-family:'Inter',Arial,sans-serif;background:#f7f7f9;padding:32px;\">" +
@@ -87,64 +107,5 @@ public class EmailTemplate {
                 "<div style=\"background:#f7f7f9;color:#aaa;font-size:13px;text-align:center;padding:16px 8px;border-radius:0 0 16px 16px;\">&copy; 2024 MMOMarket. Mọi quyền được bảo lưu.</div>" +
                 "</div>" +
                 "</div>";
-    }
-
-    public static String withdrawalApprovedEmail(String userName, String amount, String bankInfo, String approveDate, String proofFile) {
-        return "<div style=\"font-family:'Inter',Arial,sans-serif;background:#f7f7f9;padding:32px;\">" +
-                "<div style=\"max-width:480px;margin:auto;background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);overflow:hidden;\">" +
-                "<div style=\"background:linear-gradient(90deg,#22c55e 0,#38bdf8 100%);padding:24px 0;text-align:center;border-radius:16px 16px 0 0;\">" +
-                "<h2 style=\"color:#fff;font-size:24px;font-weight:700;margin:0;letter-spacing:1px;\">Yêu cầu rút tiền đã được duyệt</h2>" +
-                "</div>" +
-                "<div style=\"padding:32px 24px 24px 24px;\">" +
-                "<p style=\"font-size:17px;color:#222;margin-bottom:18px;\">Xin chào <b>" + userName + "</b>,</p>" +
-                "<p style=\"font-size:16px;color:#444;margin-bottom:18px;\">Yêu cầu rút tiền của bạn đã được duyệt với thông tin sau:</p>" +
-                "<ul style=\"font-size:15px;color:#444;margin-bottom:18px;list-style:none;padding:0;\">" +
-                "<li><b>Số tiền:</b> " + amount + "</li>" +
-                "<li><b>Ngân hàng:</b> " + bankInfo + "</li>" +
-                "<li><b>Thời gian duyệt:</b> " + approveDate + "</li>" +
-                (proofFile != null && !proofFile.isEmpty() ? "<li><b>Minh chứng chuyển khoản:</b> <a href='" + proofFile + "'>Xem minh chứng</a></li>" : "") +
-                "</ul>" +
-                "<p style=\"font-size:15px;color:#666;margin-bottom:24px;\">Nếu có thắc mắc, vui lòng liên hệ bộ phận chăm sóc khách hàng.</p>" +
-                "</div>" +
-                "<div style=\"background:#f7f7f9;color:#aaa;font-size:13px;text-align:center;padding:16px 8px;border-radius:0 0 16px 16px;\">&copy; 2024 MMOMarket. Mọi quyền được bảo lưu.</div>" +
-                "</div>" +
-                "</div>";
-    }
-
-    public static String withdrawalRejectedEmail(String userName, String amount, String bankInfo, String rejectDate, String reason) {
-
-        // The HTML template is now perfectly readable.
-        String htmlTemplate = """
-                <div style="font-family:'Inter',Arial,sans-serif;background:#f7f7f9;padding:32px;">
-                  <div style="max-width:480px;margin:auto;background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);overflow:hidden;">
-                
-                    <div style="background:linear-gradient(90deg,#ef4444 0,#f59e42 100%);padding:24px 0;text-align:center;border-radius:16px 16px 0 0;">
-                      <h2 style="color:#fff;font-size:24px;font-weight:700;margin:0;letter-spacing:1px;">Yêu cầu rút tiền bị từ chối</h2>
-                    </div>
-                
-                    <div style="padding:32px 24px 24px 24px;">
-                      <p style="font-size:17px;color:#222;margin-bottom:18px;">Xin chào <b>%s</b>,</p>
-                      <p style="font-size:16px;color:#444;margin-bottom:18px;">Yêu cầu rút tiền của bạn đã bị từ chối với thông tin sau:</p>
-                
-                      <ul style="font-size:15px;color:#444;margin-bottom:18px;list-style:none;padding:0;">
-                        <li><b>Số tiền:</b> %s</li>
-                        <li><b>Ngân hàng:</b> %s</li>
-                        <li><b>Thời gian từ chối:</b> %s</li>
-                        <li><b>Lý do từ chối:</b> %s</li>
-                      </ul>
-                
-                      <p style="font-size:15px;color:#666;margin-bottom:24px;">Nếu có thắc mắc, vui lòng liên hệ bộ phận chăm sóc khách hàng.</p>
-                    </div>
-                
-                    <div style="background:#f7f7f9;color:#aaa;font-size:13px;text-align:center;padding:16px 8px;border-radius:0 0 16px 16px;">
-                      &copy; 2024 MMOMarket. Mọi quyền được bảo lưu.
-                    </div>
-                
-                  </div>
-                </div>
-                """;
-        // Inject variables.
-        // WARNING: This is still vulnerable to XSS. See the security note below.
-        return String.format(htmlTemplate, userName, amount, bankInfo, rejectDate, reason);
     }
 }

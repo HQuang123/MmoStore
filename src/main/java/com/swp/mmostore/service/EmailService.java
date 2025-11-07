@@ -30,11 +30,15 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
-    public void sendEmail(String to, String subject, String content) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(content);
+    @Autowired
+    private EmailTemplate emailTemplate;
+
+    public void sendEmail(String to, String subject, String content) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        helper.setTo(to);
+        helper.setSubject(subject);
+        helper.setText(content, true);
         mailSender.send(message);
     }
 
@@ -106,8 +110,8 @@ public class EmailService {
 
     //send verification code
     public void sendVerificationCodeEmailAsync(String to, String code) {
-        String subject = "MMOMarket - Xác thực tài khoản & Đổi mật khẩu";
-        String content = EmailTemplate.verificationEmail(code);
+        String subject = "MMOStore - Xác thực tài khoản & Đổi mật khẩu";
+        String content = emailTemplate.verificationEmail(code);
         sendEmailAsync(to, subject, content);
     }
 
