@@ -138,18 +138,54 @@
             <!-- PHÂN TRANG -->
             <nav th:if="${totalPages > 1}">
                 <ul class="pagination justify-content-center">
-                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                        <a class="page-link" th:href="@{/seller/orders(page=${currentPage - 1})}">Trước</a>
+                    <!-- Trước -->
+                    <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/seller/orders(
+                    page=${currentPage - 1},
+                    minQuantity=${minQuantity},
+                    minTotal=${minTotal},
+                    maxTotal=${maxTotal},
+                    startDate=${startDate},
+                    endDate=${endDate},
+                    status=${status}
+               )}">
+                            Trước
+                        </a>
                     </li>
+
+                    <!-- Số trang -->
                     <li class="page-item"
-                        th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                        th:each="i : ${#numbers.sequence(1, totalPages)}"
                         th:classappend="${i == currentPage} ? 'active'">
                         <a class="page-link"
-                           th:text="${i + 1}"
-                           th:href="@{/seller/orders(page=${i})}"></a>
+                           th:text="${i}"
+                           th:href="@{/seller/orders(
+                    page=${i},
+                    minQuantity=${minQuantity},
+                    minTotal=${minTotal},
+                    maxTotal=${maxTotal},
+                    startDate=${startDate},
+                    endDate=${endDate},
+                    status=${status}
+               )}">
+                        </a>
                     </li>
-                    <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
-                        <a class="page-link" th:href="@{/seller/orders(page=${currentPage + 1})}">Tiếp</a>
+
+                    <!-- Tiếp -->
+                    <li class="page-item" th:classappend="${currentPage >= totalPages} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/seller/orders(
+                    page=${currentPage + 1},
+                    minQuantity=${minQuantity},
+                    minTotal=${minTotal},
+                    maxTotal=${maxTotal},
+                    startDate=${startDate},
+                    endDate=${endDate},
+                    status=${status}
+               )}">
+                            Tiếp
+                        </a>
                     </li>
                 </ul>
             </nav>

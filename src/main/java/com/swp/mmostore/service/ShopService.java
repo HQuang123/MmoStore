@@ -87,7 +87,7 @@ public class ShopService {
         BigDecimal totalRevenue = orderRepository.sumRevenueByShop(shopId);
         long pendingOrders = orderRepository.countByShopIdAndStatus(shopId, "PENDING");
         long completedOrders = orderRepository.countByShopIdAndStatus(shopId, "COMPLETED");
-        long canceledOrders = orderRepository.countByShopIdAndStatus(shopId, "CANCELED");
+        long canceledOrders = orderRepository.countByShopIdAndStatus(shopId, "FAILED");
 
         return new ShopStatisticDTO(
                 totalOrders,

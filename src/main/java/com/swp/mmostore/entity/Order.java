@@ -29,6 +29,15 @@ public class Order {
     @Column(name = "TotalPrice", precision = 15, scale = 2)
     private BigDecimal totalPrice;
 
+    @Column(name = "UnitPrice", precision = 15, scale = 2)
+    private BigDecimal unitPrice; // giá tại thời điểm đặt hàng
+
+    @Column(name = "ShopID")
+    private Integer shopId; //  lưu id shop gốc
+
+    @Column(name = "ShopName")
+    private String shopName; // lưu tên shop tại thời điểm mua
+
     @Column(name = "isDeleted", insertable = false)
     private Boolean isDeleted;
 

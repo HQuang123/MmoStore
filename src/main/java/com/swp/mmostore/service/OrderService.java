@@ -101,6 +101,7 @@ public class OrderService {
             Integer orderIdVal = ((Number) map.get("orderId")).intValue();
             String productNameVal = (String) map.get("productName");
 
+            // ✅ Xử lý kiểu ngày giờ linh hoạt
             Object createAtObj = map.get("createAt");
             LocalDateTime createAtVal = null;
             if (createAtObj instanceof Timestamp ts) {
@@ -111,10 +112,19 @@ public class OrderService {
 
             int quantityVal = ((Number) map.get("quantity")).intValue();
             String statusVal = (String) map.get("status");
+
+            BigDecimal unitPriceVal = (BigDecimal) map.get("unitPrice");   // ✅ thêm
             BigDecimal totalPriceVal = (BigDecimal) map.get("totalPrice");
 
-            // JSON_ARRAYAGG -> List<String>
-            // JSON_ARRAYAGG -> List<Map<String, String>>
+            Integer shopIdVal = null;                                     // ✅ thêm
+            Object shopIdObj = map.get("shopId");
+            if (shopIdObj instanceof Number num) {
+                shopIdVal = num.intValue();
+            }
+
+            String shopNameVal = (String) map.get("shopName");             // ✅ thêm
+
+            // ✅ Xử lý JSON_ARRAYAGG → List<Map<String, String>>
             List<Map<String, String>> valuesVal;
             try {
                 String json = (String) map.get("itemValues");
@@ -136,20 +146,24 @@ public class OrderService {
                 valuesVal = Collections.emptyList();
             }
 
-
+            // ✅ Tạo DTO với đủ 9 trường
             return new OrderStatisticDTO(
                     orderIdVal,
                     productNameVal,
                     createAtVal,
                     quantityVal,
                     statusVal,
+                    unitPriceVal,
                     totalPriceVal,
+                    shopIdVal,
+                    shopNameVal,
                     valuesVal
             );
         }).toList();
 
         return new PageImpl<>(dtoList, pageable, rawPage.getTotalElements());
     }
+
 
 
 

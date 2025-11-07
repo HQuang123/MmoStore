@@ -78,7 +78,6 @@
                 </div>
             </form>
 
-
             <!-- Bảng đơn hàng -->
             <div class="table-responsive">
                 <table class="table table-striped align-middle">
@@ -86,10 +85,13 @@
                     <tr>
                         <th>Mã đơn hàng</th>
                         <th>Tên sản phẩm</th>
-                        <th>Ngày tạo</th>
-                        <th>Trạng thái</th>
+                        <th>Giá đơn vị</th> <!-- ✅ Thêm -->
                         <th>Số lượng</th>
                         <th>Tổng cộng</th>
+                        <th>Shop ID</th> <!-- ✅ Thêm -->
+                        <th>Tên shop</th> <!-- ✅ Thêm -->
+                        <th>Ngày tạo</th>
+                        <th>Trạng thái</th>
                         <th>Chi tiết</th>
                     </tr>
                     </thead>
@@ -97,32 +99,76 @@
                     <tr th:each="order, iStat : ${orderPage.content}">
                         <td th:text="${order.orderId}"></td>
                         <td th:text="${order.productName}"></td>
-                        <td th:text="${#temporals.format(order.createAt, 'dd-MM-yyyy HH:mm')}"></td>
-                        <td th:text="${order.status}"></td>
+
+                        <!-- ✅ Cột mới: đơn giá -->
+                        <td th:text="${#numbers.formatDecimal(order.unitPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
+
                         <td th:text="${order.quantity}"></td>
                         <td th:text="${#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
+
+                        <!-- ✅ Cột mới: Shop ID + Shop Name -->
+                        <td th:text="${order.shopId}"></td>
+                        <td th:text="${order.shopName}"></td>
+
+                        <td th:text="${#temporals.format(order.createAt, 'dd-MM-yyyy HH:mm')}"></td>
+                        <td th:text="${order.status}"></td>
                         <td>
                             <!-- Hiển thị nút chỉ khi có values và status = COMPLETED -->
                             <div th:if="${order.values != null and !order.values.isEmpty() and order.status == 'COMPLETED'}">
                                 <button class="btn btn-sm btn-info mb-2"
                                         type="button"
-                                        data-bs-toggle="collapse"
-                                        th:attr="data-bs-target='#detail' + ${order.orderId}"
-                                        aria-expanded="false"
-                                        th:attrappend="aria-controls='detail' + ${order.orderId}">
+                                        th:attr="data-bs-toggle='modal', data-bs-target='#detailModal' + ${order.orderId}">
                                     👁 Xem chi tiết
                                 </button>
 
-                                <div class="collapse mt-1" th:id="'detail' + ${order.orderId}">
-                                    <ul class="list-group list-group-flush small"
-                                        style="list-style: none; padding-left: 0; margin-bottom: 0;">
-                                        <li class="list-group-item" th:each="map : ${order.values}">
-                                            <div th:each="entry : ${map.entrySet()}">
-                                                <strong th:text="${entry.key} + ': '"></strong>
-                                                <span th:text="${entry.value}"></span><br/>
+                                <!-- Modal -->
+                                <div class="modal fade" th:id="'detailModal' + ${order.orderId}" tabindex="-1"
+                                     aria-labelledby="detailModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                                        <div class="modal-content">
+
+                                            <div class="modal-header bg-info text-white">
+                                                <h5 class="modal-title" th:id="'detailModalLabel' + ${order.orderId}">
+                                                    Chi tiết đơn hàng
+                                                    <span th:text="${order.orderId}" class="fw-bold"></span>
+                                                </h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
-                                        </li>
-                                    </ul>
+
+                                            <!-- ✅ Thêm bảng có cột STT -->
+                                            <div class="modal-body">
+                                                <div class="table-responsive">
+                                                    <table class="table table-bordered table-sm align-middle">
+                                                        <thead class="table-light text-center">
+                                                        <tr>
+                                                            <th>STT</th>
+                                                            <th>Thuộc tính</th>
+                                                            <th>Giá trị</th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        <tr th:each="map, stat : ${order.values}">
+                                                            <td th:text="${stat.index + 1}" class="text-center"></td>
+                                                            <td colspan="2">
+                                                                <table class="w-100">
+                                                                    <tr th:each="entry : ${map.entrySet()}">
+                                                                        <td class="fw-bold" style="width: 40%;" th:text="${entry.key} + ':'"></td>
+                                                                        <td th:text="${entry.value}"></td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                            </div>
+
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -133,16 +179,50 @@
                     </tbody>
                 </table>
             </div>
+            <!-- PHÂN TRANG -->
+            <div class="pagination d-flex justify-content-center align-items-center gap-3 mt-3">
 
+                <!-- Nút TRƯỚC -->
+                <a th:if="${currentPage > 1}"
+                   th:href="@{/user/orders(
+            page=${currentPage - 1},
+            status=${param.status},
+            minTotal=${param.minTotal},
+            maxTotal=${param.maxTotal},
+            startDate=${param.startDate},
+            endDate=${param.endDate},
+            productName=${param.productName},
+            paymentMethod=${param.paymentMethod}
+       )}"
+                   class="btn btn-outline-primary">
+                    ← Trước
+                </a>
 
-            <!-- Phân trang -->
-            <div class="pagination">
-                <a th:if="${currentPage > 0}"
-                   th:href="@{/user/orders(page=${currentPage - 1})}">Trước</a>
-                <span>Trang <span th:text="${currentPage + 1}"></span> / <span th:text="${totalPages}"></span></span>
-                <a th:if="${currentPage + 1 < totalPages}"
-                   th:href="@{/user/orders(page=${currentPage + 1})}">Sau</a>
+                <!-- Nút số trang -->
+                <span>
+        Trang <span th:text="${currentPage}"></span> /
+        <span th:text="${totalPages}"></span>
+    </span>
+
+                <!-- Nút SAU -->
+                <a th:if="${currentPage < totalPages}"
+                   th:href="@{/user/orders(
+            page=${currentPage + 1},
+            status=${param.status},
+            minTotal=${param.minTotal},
+            maxTotal=${param.maxTotal},
+            startDate=${param.startDate},
+            endDate=${param.endDate},
+            productName=${param.productName},
+            paymentMethod=${param.paymentMethod}
+       )}"
+                   class="btn btn-outline-primary">
+                    Sau →
+                </a>
             </div>
+
+
+
         </div>
     </div>
 </section>

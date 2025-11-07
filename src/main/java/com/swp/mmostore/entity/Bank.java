@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public enum Bank {
+    SYSTEM("MMOStore System", "SYSTEM", "000000"),
     VIETINBANK("VietinBank", "VIETINBANK|CTG", "970415"),
     VIETCOMBANK("Vietcombank", "VIETCOMBANK|VCB", "970436"),
     BIDV("BIDV", "BIDV", "970418"),

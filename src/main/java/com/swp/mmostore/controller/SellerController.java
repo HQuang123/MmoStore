@@ -142,10 +142,9 @@ public class  SellerController {
         }
     }
 
-
     @GetMapping("/seller/orders")
     public String viewShopOrders(
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(value = "minQuantity", required = false) Integer minQuantity,
             @RequestParam(value = "minTotal", required = false) BigDecimal minTotal,
             @RequestParam(value = "maxTotal", required = false) BigDecimal maxTotal,
@@ -171,12 +170,12 @@ public class  SellerController {
         LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
         LocalDateTime endDateTime = endDate != null ? endDate.plusDays(1).atStartOfDay() : null;
 
-        // --- Tạo Pageable với page >= 0 ---
-        if (page < 0) page = 0;
+        // --- Tạo Pageable (Spring index từ 0 nên trừ đi 1) ---
         int pageSize = 2;
-        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("createAt").descending());
+        int currentPageIndex = Math.max(page - 1, 0);
+        Pageable pageable = PageRequest.of(currentPageIndex, pageSize, Sort.by("createAt").descending());
 
-        // --- Gọi service 1 lần để lấy Page ---
+        // --- Gọi service ---
         Page<ShopOrderHistoryDTO> orderPage = orderService.getFilteredOrders(
                 shop.getShopId(),
                 minQuantity,
@@ -191,9 +190,10 @@ public class  SellerController {
         int totalPages = orderPage.getTotalPages();
 
         // --- Nếu page vượt quá totalPages, reset về last page ---
-        if (page >= totalPages && totalPages > 0) {
-            page = totalPages - 1;
-            pageable = PageRequest.of(page, pageSize, Sort.by("createAt").descending());
+        if (currentPageIndex >= totalPages && totalPages > 0) {
+            currentPageIndex = totalPages - 1;
+            page = totalPages;
+            pageable = PageRequest.of(currentPageIndex, pageSize, Sort.by("createAt").descending());
             orderPage = orderService.getFilteredOrders(
                     shop.getShopId(),
                     minQuantity,
@@ -209,7 +209,7 @@ public class  SellerController {
         // --- Add model attributes ---
         model.addAttribute("shop", shop);
         model.addAttribute("orderList", orderPage.getContent());
-        model.addAttribute("currentPage", page);
+        model.addAttribute("currentPage", page); // ⚙️ 1-based
         model.addAttribute("totalPages", totalPages);
 
         model.addAttribute("minQuantity", minQuantity);
