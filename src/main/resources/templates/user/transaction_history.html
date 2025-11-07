@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base::layout(~{::section}, ~{::cssFragment}, ~{::jsFragment})}">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+
+    <th:block th:fragment="cssFragment">
+        <link rel="stylesheet" href="#">
+    </th:block>
+
+    <th:block th:fragment="jsFragment">
+
+    </th:block>
+</head>
+<body>
+<section>
+    <div class="container mt-5">
+        <h2>Lịch sử giao dịch</h2>
+
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Mã Giao Dịch</th>
+                <th>
+                    <a th:href="@{/user/transactions(page=${currentPage}, sort='type,' + (${sortField == 'type' && sortDir == 'ASC'} ? 'DESC' : 'ASC'))}">Loại</a>
+                </th>
+                <th>
+                    <a th:href="@{/user/transactions(page=${currentPage}, sort='amount,' + (${sortField == 'amount' && sortDir == 'ASC'} ? 'DESC' : 'ASC'))}">Số tiền</a>
+                </th>
+                <th>
+                    <a th:href="@{/user/transactions(page=${currentPage}, sort='status,' + (${sortField == 'status' && sortDir == 'ASC'} ? 'DESC' : 'ASC'))}">Trạng thái</a>
+                </th>
+                <th>
+                    <a th:href="@{/user/transactions(page=${currentPage}, sort='detail,' + (${sortField == 'detail' && sortDir == 'ASC'} ? 'DESC' : 'ASC'))}">Chi tiết</a>
+                </th>
+                <th>
+                    <a th:href="@{/user/transactions(page=${currentPage}, sort='createAt,' + (${sortField == 'createAt' && sortDir == 'ASC'} ? 'DESC' : 'ASC'))}">Thời gian</a>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${transactionPage.empty}">
+                <td colspan="6" class="text-center">Không tìm thấy giao dịch nào.</td>
+            </tr>
+            <tr th:each="tx : ${transactionPage.content}">
+                <td th:text="${tx.id}">D_1</td>
+                <td>
+                    <span th:if="${tx.type.name() == 'DEPOSIT'}" class="text-success" th:text="${tx.type.displayName}"></span>
+                    <span th:if="${tx.type.name() == 'WITHDRAWAL'}" class="text-danger" th:text="${tx.type.displayName}"></span>
+                </td>
+                <td th:classappend="${tx.type.name() == 'DEPOSIT'} ? 'text-success' : 'text-danger'">
+                    <span th:text="${tx.type.name() == 'DEPOSIT'} ? '+' : '-'"></span>
+                    <span th:text="${#numbers.formatDecimal(tx.amount, 0, 'COMMA', 0, 'POINT')} + ' VND'"></span>
+                </td>
+                <td th:text="${tx.status}">Completed</td>
+                <td th:text="${tx.detail}">Nạp tiền</td>
+                <td th:text="${#temporals.format(tx.createAt, 'dd/MM/yyyy HH:mm')}"></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="pagination" th:if="${transactionPage.totalPages > 1}">
+        </div>
+    </div>
+</section>
+</body>
+</html>
