@@ -2,15 +2,19 @@ package com.swp.mmostore.controller;
 
 
 import com.swp.mmostore.dto.OrderStatisticDTO;
+import com.swp.mmostore.dto.TransactionDTO;
 import com.swp.mmostore.entity.DepositStatus;
 import com.swp.mmostore.entity.Shop;
 import com.swp.mmostore.entity.User;
 import com.swp.mmostore.repository.UserRepository;
 import com.swp.mmostore.service.*;
+import com.swp.mmostore.util.MockSecurityUtils;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -57,6 +61,8 @@ public class UserController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private TransactionService transactionService;
 
     /** Hiển thị trang user_profile.html */
     @GetMapping("/user/detail")
@@ -177,7 +183,24 @@ public class UserController {
         return "redirect:/user/detail";
     }
 
+    @GetMapping("/user/transactions")
+    public String getUserTransactions(
+            Model model,
+            @PageableDefault(size = 10, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        String email = MockSecurityUtils.getCurrentUserEmail();
+        User user = userRepository.findByEmail(email);
+        // Fetch the paged and sorted data (no filter parameters)
+        Page<TransactionDTO> transactionPage = transactionService.getTransactionHistory(user, pageable);
 
+        // Add data to the model for Thymeleaf
+        model.addAttribute("transactionPage", transactionPage);
+        model.addAttribute("currentPage", pageable.getPageNumber());
+
+        // Add sort info
+        model.addAttribute("sortField", pageable.getSort().isSorted() ? pageable.getSort().iterator().next().getProperty() : "createAt");
+        model.addAttribute("sortDir", pageable.getSort().isSorted() ? pageable.getSort().iterator().next().getDirection().name() : "DESC");
+        return "user/transaction_history"; // Path to your new HTML file
+    }
 
 
 
