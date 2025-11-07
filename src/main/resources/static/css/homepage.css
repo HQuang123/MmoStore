@@ -49,6 +49,60 @@
     background-color: #000;
 }
 
+/* 🔔 Bell icon */
+.nav-link i.fas.fa-bell {
+    color: #ffffff;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.nav-link:hover i.fas.fa-bell {
+    color: #0d6efd;
+    transform: scale(1.1);
+}
+
+/* 📨 Notification dropdown */
+.dropdown-menu {
+    background-color: #ffffff;
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+/* 🟦 Unread item style */
+.notification-item.unread {
+    background-color: #f0f4ff;
+    font-weight: 600;
+}
+
+/* ⚪ Read item style */
+.notification-item.read {
+    background-color: #ffffff;
+    font-weight: 400;
+}
+
+/* 🌊 Hover effect for both */
+.notification-item:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-2px);
+    transition: all 0.2s ease;
+}
+
+/* 🔤 Text styling */
+.notification-title {
+    font-size: 0.95rem;
+    color: #212529;
+}
+
+.notification-content {
+    color: #6c757d;
+}
+
+.notification-date {
+    color: #adb5bd;
+    font-size: 0.75rem;
+}
+
+
 .product-card-img-container {
     /* You can change this height to whatever you like */
     height: 150px;

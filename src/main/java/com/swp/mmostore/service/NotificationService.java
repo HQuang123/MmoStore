@@ -4,8 +4,10 @@ import com.swp.mmostore.entity.Notification;
 import com.swp.mmostore.entity.User;
 import com.swp.mmostore.repository.NotificationRepository;
 import com.swp.mmostore.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -15,7 +17,7 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-public class NotificationService  {
+public class NotificationService {
     @Autowired
     private NotificationRepository notificationRepository;
 
@@ -84,6 +86,58 @@ public class NotificationService  {
         } catch (Exception ignored) {
             // best-effort: swallow exceptions to not break caller flow
         }
+    }
+
+    public List<Notification> findTop5ByUserOrderByCreateAtDesc(User user) {
+        Pageable topFive = PageRequest.of(0, 5);
+        return notificationRepository.findByUserOrderByCreateAtDesc(user, topFive).getContent();
+    }
+
+    public long countUnreadByUser(User user) {
+        return notificationRepository.countByUserAndStatusAndIsDeleted(user, "Unread", false);
+    }
+
+    public Page<Notification> findByUserOrderByCreateAtDesc(User user, Pageable pageable) {
+        return notificationRepository.findByUserOrderByCreateAtDesc(user, pageable);
+    }
+
+    @Transactional
+    public void markAllAsRead(String email) {
+        notificationRepository.updateStatusForUserEmail(email, "Unread", "Read");
+    }
+
+    @Transactional
+    public boolean markAsRead(String email, Long id) {
+        int updated = notificationRepository.updateStatusForIdsAndEmail(
+                email,
+                List.of(id),
+                "Unread",
+                "Read"
+        );
+        return updated > 0;
+    }
+
+    @Transactional
+    public boolean markAsUnread(String email, Long id) {
+        int updated = notificationRepository.updateStatusForIdsAndEmail(
+                email,
+                List.of(id),
+                "Read",
+                "Unread"
+        );
+        return updated > 0;
+    }
+
+    public void markAsReadBulk(String email, List<Long> ids) {
+        List<Notification> notifications = notificationRepository.findByUserEmailAndIdIn(email, ids);
+        notifications.forEach(n -> n.setStatus("Read"));
+        notificationRepository.saveAll(notifications);
+    }
+
+    public void markAsUnreadBulk(String email, List<Long> ids) {
+        List<Notification> notifications = notificationRepository.findByUserEmailAndIdIn(email, ids);
+        notifications.forEach(n -> n.setStatus("Unread"));
+        notificationRepository.saveAll(notifications);
     }
 
 }
