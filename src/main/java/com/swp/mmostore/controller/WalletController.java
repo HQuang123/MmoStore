@@ -25,7 +25,7 @@ public class WalletController {
     private final DepositService depositService;
     private final DepositRepository depositRepository;
 
-    @ModelAttribute //this method will automatically model.addAttribute for every method in this class
+    @ModelAttribute //this method will automatically model.addAttribute for every method in this class, create one instance of deposit per request
     public void addCommonAttributes(Model model) {
         String email = MockSecurityUtils.getCurrentUserEmail();
         log.info("Current user id: {}", email);
@@ -53,6 +53,7 @@ public class WalletController {
 
 
     @PostMapping("/user/momo/top-up")
+    //new object is created due to the @ModelAttribute annotation, takes the data from the form and bind to the object
     public String createQRCode(@Valid @ModelAttribute Deposit deposit, BindingResult bindingResult ) {
         if (bindingResult.hasErrors()) {
             return "user/top-up";

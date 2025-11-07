@@ -1,20 +1,23 @@
 package com.swp.mmostore.controller;
 
 
-import com.swp.mmostore.config.CustomUserDetailsService;
 import com.swp.mmostore.dto.OrderStatisticDTO;
+import com.swp.mmostore.dto.TransactionDTO;
 import com.swp.mmostore.entity.DepositStatus;
 import com.swp.mmostore.entity.Shop;
 import com.swp.mmostore.entity.User;
+import com.swp.mmostore.repository.UserRepository;
 import com.swp.mmostore.service.*;
+import com.swp.mmostore.util.MockSecurityUtils;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,7 +35,6 @@ import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Controller
@@ -40,6 +42,9 @@ public class UserController {
 
     @Autowired
     private LoginRegistrationService userService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private CloudStorageService cloudStorageService;
@@ -51,26 +56,31 @@ public class UserController {
     private OrderService orderService;
 
     @Autowired
-    private WithdrawService withdrawService;
+    private WalletService walletService;
+
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private CustomUserDetailsService customUserDetailsService;
+    private TransactionService transactionService;
 
-
-    /**
-     * Hiển thị trang user_profile.html
-     */
+    /** Hiển thị trang user_profile.html */
     @GetMapping("/user/detail")
     public String viewUserDetail(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
         User user = userService.getUserByEmail(email);
+
+        // Lấy tên blob (chỉ phần cuối)
+//        String blobName = null;
+//        if (user.getProfileImage() != null && user.getProfileImage().contains("/")) {
+//            blobName = user.getProfileImage().substring(user.getProfileImage().lastIndexOf("/") + 1);
+//        }
+
         model.addAttribute("user", user);
         //model.addAttribute("blobName", blobName);
 
-        return "user_profile";
+        return "user_profile"; // -> hiển thị HTML
     }
 
     @GetMapping("/user/image")
@@ -116,9 +126,7 @@ public class UserController {
     }
 
 
-    /**
-     * Trang chỉnh sửa user
-     */
+    /**  Trang chỉnh sửa user */
     @GetMapping("/user/edit")
     public String editProfile(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -128,9 +136,7 @@ public class UserController {
         return "user_editprofile";
     }
 
-    /**
-     * Cập nhật thông tin user
-     */
+    /** Cập nhật thông tin user */
     @PostMapping("/user/update")
     public String updateProfile(@ModelAttribute("user") User updatedUser,
                                 RedirectAttributes redirectAttributes) {
@@ -143,7 +149,7 @@ public class UserController {
             existingUser.setPhoneNumber(updatedUser.getPhoneNumber());
             userService.updateUser(existingUser);
             redirectAttributes.addFlashAttribute("successMsg", "Information update success");
-        } else {
+        }else{
             redirectAttributes.addFlashAttribute("successMsg", "Information update fail");
         }
         return "redirect:/user/detail";
@@ -177,11 +183,32 @@ public class UserController {
         return "redirect:/user/detail";
     }
 
+    @GetMapping("/user/transactions")
+    public String getUserTransactions(
+            Model model,
+            @PageableDefault(size = 10, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        String email = MockSecurityUtils.getCurrentUserEmail();
+        User user = userRepository.findByEmail(email);
+        // Fetch the paged and sorted data (no filter parameters)
+        Page<TransactionDTO> transactionPage = transactionService.getTransactionHistory(user, pageable);
+
+        // Add data to the model for Thymeleaf
+        model.addAttribute("transactionPage", transactionPage);
+        model.addAttribute("currentPage", pageable.getPageNumber());
+
+        // Add sort info
+        model.addAttribute("sortField", pageable.getSort().isSorted() ? pageable.getSort().iterator().next().getProperty() : "createAt");
+        model.addAttribute("sortDir", pageable.getSort().isSorted() ? pageable.getSort().iterator().next().getDirection().name() : "DESC");
+        return "user/transaction_history"; // Path to your new HTML file
+    }
+
+
 
     @GetMapping("/user/seller_register")
     public String showSellerRegisterPage() {
         return "seller_register";
     }
+
 
     @PostMapping("/user/seller_register")
     public String registerSeller(RedirectAttributes redirectAttributes,
@@ -190,6 +217,7 @@ public class UserController {
                                  @RequestParam("shopImage") MultipartFile shopImage,
                                  HttpSession session) {
 
+        // Lấy thông tin user đang đăng nhập
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
 
@@ -200,14 +228,13 @@ public class UserController {
         }
 
         try {
-            withdrawService.chargeRegistrationFee(user, BigDecimal.valueOf(200000), "Phí đăng ký cửa hàng");
+            walletService.deductMoney(user.getUserId(), BigDecimal.valueOf(200000), "MMO");
         } catch (RuntimeException e) {
             session.setAttribute("errorMsg", e.getMessage());
             return "redirect:/user/seller_register";
         }
 
-
-        // Upload ảnh cửa hàng
+        // Xử lý upload ảnh cửa hàng
         String shopImageUrl;
         if (shopImage != null && !shopImage.isEmpty()) {
             try {
@@ -218,31 +245,24 @@ public class UserController {
                 return "redirect:/user/detail";
             }
         } else {
-            shopImageUrl = "https://storage.googleapis.com/mmostore/default-shop.jpg";
+            shopImageUrl = "https://storage.googleapis.com/mmostore/default-shop.jpg"; // default image
         }
 
-        // Tạo shop
-        Shop shop = new Shop(name, description, user, shopImageUrl);
+
+        // Tạo và lưu shop mới
+        Shop shop = new Shop(name,description,user,shopImageUrl);
         shopService.save(shop);
 
-        // Cập nhật role nếu chưa có
+        // Cập nhật role người dùng thành SELLER nếu chưa có
         if (!user.getRole().contains("ROLE_SELLER")) {
             user.setRole("ROLE_USER,ROLE_SELLER");
             userService.updateUser(user);
-
-            // Reload quyền trong SecurityContext
-            UserDetails updatedUserDetails = customUserDetailsService.loadUserByUsername(user.getEmail());
-            Authentication newAuth = new UsernamePasswordAuthenticationToken(
-                    updatedUserDetails,
-                    auth.getCredentials(),
-                    updatedUserDetails.getAuthorities()
-            );
-            SecurityContextHolder.getContext().setAuthentication(newAuth);
         }
 
         redirectAttributes.addFlashAttribute("successMsg", "Đăng ký cửa hàng thành công! Hãy bắt đầu bán hàng ngay.");
         return "redirect:/seller/statistic";
     }
+
 
     @GetMapping("/user/orders")
     public String orderHistory(
@@ -255,13 +275,13 @@ public class UserController {
             @RequestParam(value = "paymentMethod", required = false) String paymentMethod,
             @RequestParam(value = "minTotal", required = false) BigDecimal minTotal,
             @RequestParam(value = "maxTotal", required = false) BigDecimal maxTotal,
-            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "page", defaultValue = "0") int page,
             Model model
     ) {
         User user = userService.getUserByEmail(userDetails.getUsername());
         Integer userId = user.getUserId();
 
-        // Chuẩn hóa input
+        // --- Chuẩn hóa input ---
         orderId = (orderId != null && !orderId.isBlank()) ? orderId : null;
         status = (status != null && !status.isBlank()) ? status : null;
         paymentMethod = (paymentMethod != null && !paymentMethod.isBlank()) ? paymentMethod : null;
@@ -270,30 +290,50 @@ public class UserController {
         LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
         LocalDateTime endDateTime = endDate != null ? endDate.plusDays(1).atStartOfDay() : null;
 
-        if (page < 1) page = 1; // đảm bảo luôn >= 1
+        // --- Validate page ---
+        if (page < 0) page = 0;
         int pageSize = 2;
 
-        Pageable pageable = PageRequest.of(page - 1, pageSize); // vì PageRequest bắt đầu từ 0
+        Pageable pageable = PageRequest.of(page, pageSize);
         Page<OrderStatisticDTO> orderPage = orderService.getOrderHistory(
-                userId, orderId, productName, startDateTime, endDateTime,
-                status, paymentMethod, minTotal, maxTotal, pageable
+                userId,
+                orderId,
+                productName,
+                startDateTime,
+                endDateTime,
+                status,
+                paymentMethod,
+                minTotal,
+                maxTotal,
+                pageable
         );
 
         int totalPages = orderPage.getTotalPages();
 
-        // Nếu page vượt quá tổng trang thì trả về trang cuối
-        if (page > totalPages && totalPages > 0) {
-            page = totalPages;
-            pageable = PageRequest.of(page - 1, pageSize);
+        // --- Nếu page vượt quá tổng số trang, set về last page và gọi lại service ---
+        if (page >= totalPages && totalPages > 0) {
+            page = totalPages - 1;
+            pageable = PageRequest.of(page, pageSize);
             orderPage = orderService.getOrderHistory(
-                    userId, orderId, productName, startDateTime, endDateTime,
-                    status, paymentMethod, minTotal, maxTotal, pageable
+                    userId,
+                    orderId,
+                    productName,
+                    startDateTime,
+                    endDateTime,
+                    status,
+                    paymentMethod,
+                    minTotal,
+                    maxTotal,
+                    pageable
             );
         }
 
+        // --- Add model attributes ---
         model.addAttribute("orderPage", orderPage);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", totalPages);
+
+        // render enum Status trong dropdown
         model.addAttribute("statuses", DepositStatus.values());
         model.addAttribute("selectedStatus", status);
 
@@ -301,9 +341,10 @@ public class UserController {
     }
 
 
-    /**
-     * Xóa tài khoản user
-     */
+
+    @Autowired
+    private  LoginRegistrationService  loginRegistrationService;
+    /** Xóa tài khoản user */
     @GetMapping("/user/delete")
     public String deleteUser(RedirectAttributes redirectAttributes) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -311,13 +352,12 @@ public class UserController {
         User existingUser = userService.getUserByEmail(email);
 
         if (existingUser != null) {
-            userService.updateUserStatus(false, existingUser.getUserId());
-            existingUser.setIsDeleted(true);
-            userService.updateUser(existingUser);
+            loginRegistrationService.updateUserStatus(false,existingUser.getUserId());
+            //userService.deleteUser(existingUser.getUserId());
             redirectAttributes.addFlashAttribute("successMsg", "Your account has been deleted successfully.");
             // Sau khi xóa, đăng xuất người dùng
             SecurityContextHolder.clearContext();
-            return "redirect:/logout";
+            return "redirect:/logout"; // hoặc redirect về trang chủ tùy logic app
         } else {
             redirectAttributes.addFlashAttribute("errorMsg", "User not found!");
             return "redirect:/user/detail";
