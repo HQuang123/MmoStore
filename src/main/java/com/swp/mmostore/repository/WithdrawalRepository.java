@@ -12,9 +12,10 @@ import java.util.Optional;
 
 @Repository
 public interface WithdrawalRepository extends JpaRepository<Withdrawal, Integer>, JpaSpecificationExecutor<Withdrawal> {
-    Page<Withdrawal> findByUser(User user, Pageable pageable);
     List<Withdrawal> findByStatus(String status);
     Optional<Withdrawal> findByUserAndStatus(User user, String status);
     List<Withdrawal> findByUserOrderByCreateAtDesc(User user);
     List<Withdrawal> findByUserAndStatusNot(User user, String status, Sort sort);
+
+    List<Withdrawal> findByUser(User user);
 }

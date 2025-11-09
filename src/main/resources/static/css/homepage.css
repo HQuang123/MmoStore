@@ -48,3 +48,111 @@
 .register-section button:hover {
     background-color: #000;
 }
+
+/* 🔔 Bell icon */
+.nav-link i.fas.fa-bell {
+    color: #ffffff;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.nav-link:hover i.fas.fa-bell {
+    color: #0d6efd;
+    transform: scale(1.1);
+}
+
+/* 📨 Notification dropdown */
+.dropdown-menu {
+    background-color: #ffffff;
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+/* 🟦 Unread item style */
+.notification-item.unread {
+    background-color: #f0f4ff;
+    font-weight: 600;
+}
+
+/* ⚪ Read item style */
+.notification-item.read {
+    background-color: #ffffff;
+    font-weight: 400;
+}
+
+/* 🌊 Hover effect for both */
+.notification-item:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-2px);
+    transition: all 0.2s ease;
+}
+
+/* 🔤 Text styling */
+.notification-title {
+    font-size: 0.95rem;
+    color: #212529;
+}
+
+.notification-content {
+    color: #6c757d;
+}
+
+.notification-date {
+    color: #adb5bd;
+    font-size: 0.75rem;
+}
+
+
+.product-card-img-container {
+    /* You can change this height to whatever you like */
+    height: 150px;
+    margin-bottom: 1rem; /* Space between image and text */
+}
+
+.product-card-img {
+    width: 100%;
+    height: 100%;
+
+    /* 'contain' fits the whole image inside the box (best for logos)
+      'cover' would fill the box and crop the image (best for photos)
+    */
+    object-fit: contain;
+}
+
+/* (You should already have this from last time) */
+.category-icon {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+}
+
+/* 1. This styles the card from your screenshot */
+.category-card {
+    border: 1px solid #e0e0e0; /* Light grey border */
+    border-radius: 8px;         /* Rounded corners */
+    padding: 1rem;              /* Spacing inside the card */
+    background-color: #fff;     /* White background */
+
+    /* Ensures all cards stretch to the same height */
+    height: 100%;
+}
+
+/* 2. THIS IS THE FIX:
+  We set a minimum height on the title's CONTAINER.
+  This reserves space for two lines, even if there's only one.
+*/
+.category-title {
+    /* You may need to adjust this value based on your font size */
+    min-height: 48px;
+
+    /* These lines will vertically center the text
+       if it's only one line, making it look much cleaner. */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* This just removes the default <p> margin */
+.category-title p {
+    margin-bottom: 0;
+}

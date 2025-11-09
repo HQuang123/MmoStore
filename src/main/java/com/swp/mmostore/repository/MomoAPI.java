@@ -1,5 +1,7 @@
 package com.swp.mmostore.repository;
 
+import com.swp.mmostore.entity.MomoQueryRequest;
+import com.swp.mmostore.entity.MomoQueryResponse;
 import com.swp.mmostore.entity.MomoRequest;
 import com.swp.mmostore.entity.MomoResponse;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -11,4 +13,6 @@ public interface MomoAPI {
     @PostMapping("/create")
     MomoResponse createMomoQR(@RequestBody MomoRequest request);
 
+    @PostMapping("/query")
+    MomoQueryResponse queryTransactionStatus(@RequestBody MomoQueryRequest request);
 }

@@ -43,6 +43,7 @@ public class WithdrawalController {
     private final NotificationService notificationService;
     private final WithdrawalOtpRepository withdrawalOtpRepository;
     private final WalletProducer walletProducer;
+    private final EmailTemplate emailTemplate;
 
     private String generateOtp() {
         return String.format("%06d", new java.util.Random().nextInt(1_000_000));
@@ -124,11 +125,12 @@ public class WithdrawalController {
             }
             Withdrawal withdrawal = withdrawalRepository.findById(withdrawalId).orElse(null);
             WithdrawalOtp withdrawalOtp = withdrawalOtpRepository.findByTokenAndWithdrawal(otp, withdrawal);
-            if (withdrawalOtp == null) {
+            if (withdrawalOtp == null && withdrawalOtp.isExpired()) {
                 redirectAttributes.addFlashAttribute("withdrawal", withdrawal);
                 redirectAttributes.addFlashAttribute("errorMessage", "Ma OTP khong hop le hoac het han");
                 return "redirect:/user/wallet/withdraw/confirm";
             }
+            //TODO: Implement MQ for withdrawal @ShiroHoang
 
             // Add request to Kafka queue for processing
             walletProducer.sendWithdrawRequest(user, withdrawal);
@@ -146,7 +148,7 @@ public class WithdrawalController {
     public String resendWithdrawlOtp(@RequestParam("withdrawalID") Integer withdrawalId, RedirectAttributes redirectAttributes, Model model) {
         try {
             User user = (User) model.getAttribute("user");
-            Withdrawal withdrawal = withdrawalRepository.findById(withdrawalId).orElseThrow(() -> new RuntimeException("Yeu cau rut tien khong tim that"));
+            Withdrawal withdrawal = withdrawalRepository.findById(withdrawalId).orElseThrow(() -> new RuntimeException("Yêu cầu rút tiền không tìm thấy"));
             if (withdrawal.getUser().getUserId() != user.getUserId()) {
                 redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: Yêu cầu không hợp lệ.");
                 return "redirect:/user/wallet/withdraw";
@@ -207,10 +209,10 @@ public class WithdrawalController {
     public ResponseEntity<?> getWithdrawDetail(@PathVariable("id") Integer id) {
         Withdrawal wd = withdrawalRepository.findById(id).orElse(null);
         if (wd == null) {
-            return ResponseEntity.badRequest().body("Withdrawal request not found");
+            return ResponseEntity.badRequest().body("Không tìm thấy yêu cầu rút tiền");
         }
         if (!"Pending".equalsIgnoreCase(wd.getStatus())) {
-            return ResponseEntity.status(400).body(Map.of("error", "Request is not in Pending state."));
+            return ResponseEntity.status(400).body(Map.of("error", "Yêu cầu không trong trạng thái đúng"));
         }
 
         String vietQrUrl = null;
@@ -244,10 +246,10 @@ public class WithdrawalController {
     public ResponseEntity<?> confirmWithdrawal(@PathVariable("id") Integer id, Model model) {
         Withdrawal wd = withdrawalRepository.findById(id).orElse(null);
         if (wd == null) {
-            return ResponseEntity.badRequest().body("Withdrawal request not found");
+            return ResponseEntity.badRequest().body("Không tìm thấy yêu cầu rút tiền");
         }
         if (!"Pending".equalsIgnoreCase(wd.getStatus())) {
-            return ResponseEntity.status(400).body(Map.of("error", "Request is not in Pending state."));
+            return ResponseEntity.status(400).body(Map.of("error", "Yêu cầu không trong trạng thái đúng"));
         }
         try {
             User user = (User) model.getAttribute("user");
@@ -266,7 +268,7 @@ public class WithdrawalController {
     }
 
     @PostMapping("/admin/withdraw/reject")
-    public String processWithdrawalReject(@RequestParam("withdrawalID") Integer withdrawalId, RedirectAttributes redirectAttributes, Model model) {
+    public String processWithdrawalReject(@RequestParam("id") Integer withdrawalId, RedirectAttributes redirectAttributes, Model model) {
         try{
             WalletTransactionEvent event = new WalletTransactionEvent();
             event.setTransactionId(withdrawalId);

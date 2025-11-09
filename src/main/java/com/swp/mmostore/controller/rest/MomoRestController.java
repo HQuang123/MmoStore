@@ -77,16 +77,22 @@ public class MomoRestController {
             if(!momoSignature.equals(reComputeSignature)) {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // Or FORBIDDEN
             }
+            String orderId = payload.get("orderId");
+            String requestId = payload.get("requestId");
+            MomoQueryResponse momoQueryResponse = momoService.queryTransactionStatus(orderId, requestId);
+            String trustedResultCode = momoQueryResponse.getResultCode();
+            log.info("Trusted Result Code: {}", trustedResultCode);
             Integer depositId = Integer.parseInt(payload.get("orderId"));
             String resultCode = payload.get("resultCode");
             Deposit deposit = depositRepository.findById(depositId).orElse(null);
+
             log.info("Deposit Id la: {}" ,deposit.getId());
             log.info("User id la: {}" ,deposit.getUser().getUserId());
             log.info("Result code la: {}" ,resultCode);
             log.info("User name la: {}" ,deposit.getUser().getName());
             User user = deposit.getUser();
 
-            if(resultCode.equals("0")) {
+            if(trustedResultCode.equals("0")) {
                 deposit.setStatus(DepositStatus.Completed);
                 //TODO: implement MQ
                 WalletTransactionEvent event = new WalletTransactionEvent();

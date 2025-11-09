@@ -42,4 +42,8 @@ public class WithdrawalOtp {
         return LocalDateTime.now().plusMinutes(EXPIRATION_MINUTES);
     }
 
+    public boolean isExpired() {
+        return LocalDateTime.now().isAfter(expiryDate);
+    }
+
 }

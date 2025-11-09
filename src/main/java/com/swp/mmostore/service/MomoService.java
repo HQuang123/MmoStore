@@ -1,10 +1,7 @@
 package com.swp.mmostore.service;
 
-import com.swp.mmostore.entity.Deposit;
-import com.swp.mmostore.entity.Order;
+import com.swp.mmostore.entity.*;
 import org.springframework.beans.factory.annotation.Value;
-import com.swp.mmostore.entity.MomoRequest;
-import com.swp.mmostore.entity.MomoResponse;
 import com.swp.mmostore.repository.MomoAPI;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -101,5 +98,32 @@ public class MomoService {
             hexString.append(hex);
         }
         return hexString.toString();
+    }
+
+    public MomoQueryResponse queryTransactionStatus(String orderId, String requestId) throws Exception {
+
+        // 1. Create the raw signature string for this query
+        String rawSignature = "accessKey=" + accessKey +
+                "&orderId=" + orderId +
+                "&partnerCode=" + partnerCode +
+                "&requestId=" + requestId;
+
+        // 2. Sign the new request
+        String signature = signHmacSHA256(rawSignature, secretKey);
+
+        // 3. Create the request DTO
+        MomoQueryRequest momoRequest = new MomoQueryRequest();
+        momoRequest.setPartnerCode(partnerCode);
+        momoRequest.setOrderId(orderId);
+        momoRequest.setRequestId(requestId);
+        momoRequest.setSignature(signature);
+
+        // 4. Make the call using Feign
+        try {
+            return momoAPI.queryTransactionStatus(momoRequest);
+        } catch (Exception e) {
+            log.error("Error querying MoMo transaction via Feign: {}", e.getMessage());
+            throw new RuntimeException("Failed to query MoMo status", e);
+        }
     }
 }
