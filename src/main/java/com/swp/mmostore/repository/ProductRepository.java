@@ -31,7 +31,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     public List<ProductSummaryDTO> findAllAndFilterProduct(@Param("categoryId") List<String> categoryId, Pageable pageable);
 
     @Query("""
-            select p.productId, p.title, p.description, p.price, s.name, COALESCE(AVG(r.ratingPoint), 0) from Product p
+            select p.productId, p.title, p.description, p.price,p.productImageUrl, s.name, COALESCE(AVG(r.ratingPoint), 0) from Product p
                 left join p.shop s
                 left join p.category c
                 left join p.ratings r
@@ -61,7 +61,8 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
                         p.productId,
                         p.title,
                         p.description,
-                        p.price,                              
+                        p.price,
+                        p.productImageUrl,
                         s.shopId,
                         COALESCE(AVG(r.ratingPoint), 0),
                         CAST(COUNT(r.id) AS int),
@@ -77,6 +78,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
                 group by p.productId
             """)
     public ProductDetailDTO findProductById(@Param("productId") Integer productId);
+
     @Modifying
     @Query("UPDATE Product p SET p.isDeleted = :status WHERE p.shop.shopId = :shopId")
     void updateProductDeletedStatusByShopId(@Param("shopId") Integer shopId, @Param("status") Boolean status);
@@ -84,8 +86,9 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     @Query("""
             SELECT new com.swp.mmostore.dto.ProductSummaryDTO(
-                p.productId, p.title, p.description, p.price, s.name, COALESCE(AVG(r.ratingPoint), 0)
-            )
+                p.productId, p.title, p.description, p.price, p.productImageUrl, s.name, COALESCE(AVG(r.ratingPoint), 0)
+                            )
+
             FROM Product p
             LEFT JOIN p.shop s
             LEFT JOIN p.category c
@@ -98,7 +101,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
                    OR COALESCE(:categoryIds, NULL) IS NULL 
                    OR c.categoryId IN :categoryIds
               )
-            GROUP BY p.productId, p.title, p.description, p.price, s.name
+            GROUP BY p.productId, p.title, p.description, p.price, p.productImageUrl, s.name
             """)
     List<ProductSummaryDTO> findProductByTitle(
             @Param("keyword") String keyword,
@@ -136,14 +139,14 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     long countByShopId(@Param("shopId") Integer shopId);
     @Query("""
             SELECT new com.swp.mmostore.dto.ProductSummaryDTO(
-                p.productId, p.title, p.description, p.price, s.name, COALESCE(AVG(r.ratingPoint), 0)
+                p.productId, p.title, p.description, p.price, p.productImageUrl, s.name, COALESCE(AVG(r.ratingPoint), 0)
             )
             FROM Product p
             LEFT JOIN p.shop s
             LEFT JOIN p.ratings r
             WHERE p.isDeleted = false
               AND s.shopId = :shopId
-            GROUP BY p.productId, p.title, p.description, p.price, s.name
+            GROUP BY p.productId, p.title, p.description, p.price, p.productImageUrl, s.name
             """)
     List<ProductSummaryDTO> findProductsByShopId(@Param("shopId") Integer shopId, Pageable pageable);
 

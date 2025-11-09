@@ -24,7 +24,7 @@
         <div class="row mb-5">
             <!-- Product image -->
             <div class="col-md-5 text-center">
-                <img src="#" alt="Product image" class="img-fluid border rounded">
+                <img th:src="${product.productImageUrl}" alt="Product image" class="img-fluid border rounded">
             </div>
 
             <!-- Product info -->
@@ -83,7 +83,7 @@
 
         <!-- ========== Shop Info Section ========== -->
         <div class="d-flex align-items-center mb-4">
-            <img src="#" alt="Shop avatar" class="rounded-circle me-3" width="50" height="50">
+            <img th:src="${shop.shopImageUrl}" alt="Shop avatar" class="rounded-circle me-3" width="50" height="50">
             <div class="flex-grow-1">
                 <h6 class="mb-0" th:text="${shop.name()}">Tên shop</h6>
                 <small class="text-muted">Số sản phẩm: <span th:text="${shop.numberOfProduct()}">120</span> |
@@ -155,14 +155,23 @@
         <div class="row row-cols-2 row-cols-md-4 g-4">
             <div class="col" th:each="related : ${relatedProducts}">
                 <div class="card h-100">
-                    <img th:src="${related.title()}" class="card-img-top" alt="related">
-                    <div class="card-body">
-                        <h6 class="card-title" th:text="${related.title}">Product Name</h6>
-                        <p class="card-text text-muted small" th:text="${related.description}">Description, color,
-                            size</p>
+                    <a th:href="@{/product/{id}(id=${related.id})}">
+                        <img th:src="${related.productImageUrl}" style="height:200px" class="card-img-top" alt="related">
+                    </a>
+
+                    <div class="card-body d-flex flex-column">
+
                         <div>
-                        <span class="fw-bold"
-                              th:text="${#numbers.formatDecimal(related.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">$95</span>
+                            <h6 class="card-title">
+                                <a th:href="@{/product/{id}(id=${related.id})}" th:text="${related.title}" class="text-decoration-none text-dark">Product Name</a>
+                            </h6>
+                            <p class="card-text text-muted small" th:text="${related.description}">Description, color,
+                                size</p>
+                        </div>
+
+                        <div class="mt-auto">
+                    <span class="fw-bold"
+                          th:text="${#numbers.formatDecimal(related.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">$95</span>
                             <span class="text-decoration-line-through text-muted ms-2 small"
                                   th:text="${#numbers.formatDecimal(related.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">$119</span>
                         </div>
