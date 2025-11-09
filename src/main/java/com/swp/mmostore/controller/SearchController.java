@@ -26,7 +26,6 @@ public class SearchController {
             @RequestParam(defaultValue = "8") int size,
             Model model
     ) {
-        System.out.println("ducanhdeptraiaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
         FilterDTO filter = new FilterDTO(null, null, null, page, size, query);
         Page<ProductSummaryDTO> productPage = productService.findFilteredProduct(filter);

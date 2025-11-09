@@ -83,7 +83,7 @@
                         <div class="card-body text-center product" th:name="'product-' + ${product.getProductId()}" th:onclick="'window.location.href=\'/product/' + ${product.productId} + '\''" style="cursor: pointer;">
                             <img alt="productImg" th:src="${product.getProductImageUrl()}"  width="110%" height="110%">
                             <p class="text-center"><b th:text="${product.getTitle()}"></b></p>
-                            <div style="text-align: left" th:text="${product.price} + '$'"></div>
+                            <div style="text-align: left" th:text="${product.price} + ' VND'"></div>
                         </div>
                     </div>
                 </div>

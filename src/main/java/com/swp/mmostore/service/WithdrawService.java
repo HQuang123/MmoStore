@@ -34,8 +34,7 @@ public class WithdrawService {
     }
     //approve a withdrawl request
     @Transactional
-    public Withdrawal approveWithdrawal(Integer id) {
-        Withdrawal wd = withdrawalRepository.findById(id).orElseThrow();
+    public Withdrawal approveWithdrawal(Withdrawal wd) {
         wd.setStatus("APPROVED");
         Withdrawal result = withdrawalRepository.save(wd);
         // Gửi email bất đồng bộ cho seller
@@ -51,14 +50,13 @@ public class WithdrawService {
             log.info("Send email to {} with subject {}", email, subject);
             emailService.sendEmail(email, subject, html );
         }else{
-            log.warn("Seller for withdrawal id={} has no email configured, skipping notification", id);
+            log.warn("Seller for withdrawal id={} has no email configured, skipping notification", wd.getId());
         }
         return result;
     }
 
     //reject a withdrawl request
-    public Withdrawal rejectWithdrawal(Integer id) {
-        Withdrawal wd = withdrawalRepository.findById(id).orElseThrow();
+    public Withdrawal rejectWithdrawal(Withdrawal wd) {
         wd.setStatus("REJECTED");
         Withdrawal result = withdrawalRepository.save(wd);
         //send user email about their rejection
@@ -75,7 +73,7 @@ public class WithdrawService {
             emailService.sendEmail(email, subject, html );
         }
         else{
-            log.warn("Seller for withdrawal id={} has no email configured, skipping notification", id);
+            log.warn("Seller for withdrawal id={} has no email configured, skipping notification", wd.getId());
         }
         return result;
     }

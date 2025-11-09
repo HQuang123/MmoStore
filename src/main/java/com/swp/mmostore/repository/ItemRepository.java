@@ -16,7 +16,7 @@ public interface ItemRepository extends JpaRepository<Item, Integer> {
         SELECT i FROM Item i
         WHERE i.product.productId = :productId
              AND i.order IS NULL
-             And i.isDeleted = false
+             And i.isDeleted = false or i.isDeleted IS NULL
              and i.isSold = false
         """)
     List<Item> findUnsoldItem(@Param("productId") Integer productId, Pageable pageable);

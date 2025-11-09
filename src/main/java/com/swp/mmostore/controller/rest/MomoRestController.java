@@ -1,11 +1,13 @@
 package com.swp.mmostore.controller.rest;
 
+import com.swp.mmostore.dto.WalletTransactionEvent;
 import com.swp.mmostore.entity.*;
 import com.swp.mmostore.repository.DepositRepository;
 import com.swp.mmostore.repository.OrderRepository;
 import com.swp.mmostore.repository.UserRepository;
 import com.swp.mmostore.service.DepositService;
 import com.swp.mmostore.service.MomoService;
+import com.swp.mmostore.service.WalletProducer;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +32,7 @@ public class MomoRestController {
     private final UserRepository userRepository;
 
     private final MomoService momoService;
+    private final WalletProducer walletProducer;
 
     @Value("${momo.access-key}")
     private String accessKey;
@@ -86,8 +89,11 @@ public class MomoRestController {
             if(resultCode.equals("0")) {
                 deposit.setStatus(DepositStatus.Completed);
                 //TODO: implement MQ
-                user.setBalance(user.getBalance().add(deposit.getAmount())); //likely to cause error due to
-                depositRepository.save(deposit);
+                WalletTransactionEvent event = new WalletTransactionEvent();
+                event.setTransactionId(deposit.getId());
+                event.setType(ActionType.Top_up);
+                walletProducer.sendTransactionEvent(event);
+
             }
             else{
                 deposit.setStatus(DepositStatus.Failed);

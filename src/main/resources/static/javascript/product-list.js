@@ -63,9 +63,10 @@ document.addEventListener("DOMContentLoaded", function () {
             const card = document.createElement("div");
             card.className = "card card-product p-3 mb-3";
             card.innerHTML = `
-                <div class="row g-3 align-items-center">
+                <div class="row g-3 align-items-center" style="cursor: pointer;"
+                         onclick="window.location.href=\'/product/${product.id}'">
                       <div class="col-md-2">
-                            <img src="#" alt="product-img">
+                            <img src="${product.productImageUrl}" alt="product-img">
                       </div>
                       <div class="col-md-10">
                             <h5>${product.title}</h5>

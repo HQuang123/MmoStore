@@ -1,14 +1,13 @@
 package com.swp.mmostore.service;
 
 import com.swp.mmostore.dto.OrderEvent;
+import com.swp.mmostore.entity.Order;
 import com.swp.mmostore.repository.OrderRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -23,9 +22,8 @@ public class OrderProducer {
 
     private final String STATUS_PENDING = "PENDING";
 
-    @Scheduled(fixedRate = 5000)
-    public void sendPendingOrders() {
-
+    @PostConstruct
+    public void fetchPendingOrder() {
         List<OrderEvent> newPendingOrders = orderRepository.findByStatusAfter(STATUS_PENDING, lastSentOrderId);
         for (OrderEvent order : newPendingOrders) {
             kafkaTemplate.send("order-events", order);
@@ -34,5 +32,9 @@ public class OrderProducer {
         if (!newPendingOrders.isEmpty()) {
             lastSentOrderId = newPendingOrders.getLast().getOrderId();
         }
+    }
+
+    public void sendNewOrder(OrderEvent order) {
+        kafkaTemplate.send("order-events", order);
     }
 }

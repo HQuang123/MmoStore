@@ -23,7 +23,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     public List<Product> findByCategoryId(@Param("categoryId") List<String> categoryId);
 
     @Query("""
-            select p.productId, p.title, p.description, p.price, s.name, COALESCE(AVG(r.ratingPoint), 0) from Product p
+            select p.productId, p.title, p.description, p.price, s.name, COALESCE(AVG(r.ratingPoint), 0), p.productImageUrl from Product p
                 left join p.shop s
                 left join p.category c
                 left join p.ratings r
@@ -34,7 +34,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     public List<ProductSummaryDTO> findAllAndFilterProduct(@Param("categoryId") List<String> categoryId, Pageable pageable);
 
     @Query("""
-            select p.productId, p.title, p.description, p.price, s.name, COALESCE(AVG(r.ratingPoint), 0) from Product p
+            select p.productId, p.title, p.description, p.price, s.name, COALESCE(AVG(r.ratingPoint), 0), p.productImageUrl from Product p
                 left join p.shop s
                 left join p.category c
                 left join p.ratings r
@@ -87,7 +87,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     @Query("""
             SELECT new com.swp.mmostore.dto.ProductSummaryDTO(
-                p.productId, p.title, p.description, p.price, s.name, COALESCE(AVG(r.ratingPoint), 0)
+                p.productId, p.title, p.description, p.price, s.name, COALESCE(AVG(r.ratingPoint), 0), p.productImageUrl
             )
             FROM Product p
             LEFT JOIN p.shop s
@@ -145,7 +145,8 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
         p.description,
         p.price,
         p.productImageUrl,
-        COALESCE(AVG(r.ratingPoint), 0)
+        COALESCE(AVG(r.ratingPoint), 0),
+        p.productImageUrl
     FROM Product p
     LEFT JOIN p.ratings r
     WHERE p.shop.shopId = :shopId
@@ -153,7 +154,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
       AND (:category IS NULL OR p.category.name = :category)
       AND (:minPrice IS NULL OR p.price >= :minPrice)
       AND (:maxPrice IS NULL OR p.price <= :maxPrice)
-      GROUP BY p.id, p.title, p.description, p.price, p.shop.name
+      GROUP BY p.productId, p.title, p.description, p.price, p.shop.name
 """)
     Page<ProductSummaryDTO> findFilteredProductsByShop(
             @Param("shopId") Integer shopId,
@@ -168,16 +169,17 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     @Query("""
             SELECT new com.swp.mmostore.dto.ProductSummaryDTO(
-                p.productId, p.title, p.description, p.price, s.name, COALESCE(AVG(r.ratingPoint), 0)
+                p.productId, p.title, p.description, p.price, s.name, COALESCE(AVG(r.ratingPoint), 0.0), p.productImageUrl
             )
             FROM Product p
             LEFT JOIN p.shop s
             LEFT JOIN p.ratings r
             WHERE p.isDeleted = false
               AND s.shopId = :shopId
-            GROUP BY p.productId, p.title, p.description, p.price, s.name
+            GROUP BY p.productId, p.title, p.description, p.price, s.name, p.productImageUrl
             """)
     List<ProductSummaryDTO> findProductsByShopId(@Param("shopId") Integer shopId, Pageable pageable);
+
 
     @Query("""
             SELECT COUNT(DISTINCT p.productId)
