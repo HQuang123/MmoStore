@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org"
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
       th:replace="~{base :: layout(~{::section}, ~{::#css}, ~{::#js})}">
 <head>
     <meta charset="UTF-8">
-    <title>Edit Profile</title>
+    <title>Chỉnh sửa hồ sơ</title>
     <th:block id="css"></th:block>
 </head>
 <body>
@@ -13,26 +13,25 @@
             <div class="col-md-8">
                 <div class="card shadow p-4 mb-5 bg-body rounded">
                     <div class="card-header text-center bg-primary text-white">
-                        <h4>Edit Profile</h4>
+                        <h4>Chỉnh sửa hồ sơ</h4>
                     </div>
 
                     <div class="card-body">
                         <form th:action="@{/user/update}" th:object="${user}" method="post">
 
-
                             <div class="mb-3">
-                                <label class="form-label"><strong>Name:</strong></label>
-                                <input type="text" th:field="*{name}" class="form-control" placeholder="Enter your name" required>
+                                <label class="form-label"><strong>Họ và tên:</strong></label>
+                                <input type="text" th:field="*{name}" class="form-control" placeholder="Nhập họ và tên của bạn" required>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label"><strong>Phone Number:</strong></label>
-                                <input type="text" th:field="*{phoneNumber}" class="form-control" placeholder="Enter phone number" required>
+                                <label class="form-label"><strong>Số điện thoại:</strong></label>
+                                <input type="text" th:field="*{phoneNumber}" class="form-control" placeholder="Nhập số điện thoại" required>
                             </div>
 
                             <div class="text-center mt-4">
-                                <button type="submit" class="btn btn-success">Save Changes</button>
-                                <a href="/user/detail" class="btn btn-secondary ms-2">Cancel</a>
+                                <button type="submit" class="btn btn-success">Lưu thay đổi</button>
+                                <a href="/user/detail" class="btn btn-secondary ms-2">Hủy</a>
                             </div>
                         </form>
                     </div>

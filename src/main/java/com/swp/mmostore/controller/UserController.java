@@ -263,7 +263,6 @@ public class UserController {
         return "redirect:/seller/statistic";
     }
 
-
     @GetMapping("/user/orders")
     public String orderHistory(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -275,7 +274,7 @@ public class UserController {
             @RequestParam(value = "paymentMethod", required = false) String paymentMethod,
             @RequestParam(value = "minTotal", required = false) BigDecimal minTotal,
             @RequestParam(value = "maxTotal", required = false) BigDecimal maxTotal,
-            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "page", defaultValue = "1") int page, // hiển thị 1-based trong URL
             Model model
     ) {
         User user = userService.getUserByEmail(userDetails.getUsername());
@@ -290,11 +289,11 @@ public class UserController {
         LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
         LocalDateTime endDateTime = endDate != null ? endDate.plusDays(1).atStartOfDay() : null;
 
-        // --- Validate page ---
-        if (page < 0) page = 0;
+        //  page trong Spring Data là 0-based
         int pageSize = 2;
+        int currentPageIndex = Math.max(page - 1, 0);
 
-        Pageable pageable = PageRequest.of(page, pageSize);
+        Pageable pageable = PageRequest.of(currentPageIndex, pageSize);
         Page<OrderStatisticDTO> orderPage = orderService.getOrderHistory(
                 userId,
                 orderId,
@@ -310,10 +309,13 @@ public class UserController {
 
         int totalPages = orderPage.getTotalPages();
 
-        // --- Nếu page vượt quá tổng số trang, set về last page và gọi lại service ---
-        if (page >= totalPages && totalPages > 0) {
-            page = totalPages - 1;
-            pageable = PageRequest.of(page, pageSize);
+        // Kiểm tra và điều chỉnh khi vượt giới hạn
+        if (totalPages == 0) {
+            totalPages = 1;
+        } else if (page > totalPages) {
+            // Nếu người dùng nhập page > tổng số trang → chuyển về last page
+            currentPageIndex = totalPages - 1;
+            pageable = PageRequest.of(currentPageIndex, pageSize);
             orderPage = orderService.getOrderHistory(
                     userId,
                     orderId,
@@ -326,12 +328,13 @@ public class UserController {
                     maxTotal,
                     pageable
             );
+            page = totalPages; //  hiển thị đúng trên URL
         }
 
-        // --- Add model attributes ---
+        // --- Gửi dữ liệu ra view ---
         model.addAttribute("orderPage", orderPage);
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("currentPage", page);       // 1-based
+        model.addAttribute("totalPages", totalPages);  // 1-based hiển thị
 
         // render enum Status trong dropdown
         model.addAttribute("statuses", DepositStatus.values());
@@ -339,6 +342,7 @@ public class UserController {
 
         return "order-history";
     }
+
 
 
 

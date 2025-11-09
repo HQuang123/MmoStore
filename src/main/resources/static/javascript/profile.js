@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", function () {
             e.preventDefault(); // chặn hành động mặc định (chuyển trang ngay)
 
             const confirmDelete = confirm(
-                "⚠️ Bạn có chắc chắn muốn xóa tài khoản không?\n\nTrong trường hợp muốn khôi phục, vui lòng liên hệ admin qua email : mmostore.system@gmail.com để được hỗ trợ."
+                "⚠️ Bạn có chắc chắn muốn xóa tài khoản không?\n\nTài khoản của bạn sẽ bị xóa vĩnh viễn!"
             );
 
             if (confirmDelete) {
