@@ -8,7 +8,6 @@ import com.swp.mmostore.entity.Shop;
 import com.swp.mmostore.entity.User;
 import com.swp.mmostore.service.*;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -55,8 +54,7 @@ public class  SellerController {
 
     @GetMapping("/seller/statistic")
     public String viewDashboard(Model model,
-                                @RequestParam(defaultValue = "0") int page,
-                                HttpSession session) {
+                                @RequestParam(defaultValue = "0") int page) {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
@@ -72,7 +70,7 @@ public class  SellerController {
         if (page < 0) page = 0;
 
         // --- Tạo Pageable tạm để lấy tổng số trang ---
-        Pageable tempPageable = PageRequest.of(0, pageSize);
+        //Pageable tempPageable = PageRequest.of(0, pageSize);
         Page<ProductSalesDTO> tempPage = shopService.getSoldProductsByShop(shopId, 0, pageSize);
         int totalPages = tempPage.getTotalPages();
 
@@ -81,7 +79,7 @@ public class  SellerController {
             page = totalPages - 1;
         }
 
-        Pageable pageable = PageRequest.of(page, pageSize);
+        //Pageable pageable = PageRequest.of(page, pageSize);
         Page<ProductSalesDTO> reportPage = shopService.getSoldProductsByShop(shopId, page, pageSize);
 
         // --- Add model attributes ---
@@ -144,10 +142,9 @@ public class  SellerController {
         }
     }
 
-
     @GetMapping("/seller/orders")
     public String viewShopOrders(
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(value = "minQuantity", required = false) Integer minQuantity,
             @RequestParam(value = "minTotal", required = false) BigDecimal minTotal,
             @RequestParam(value = "maxTotal", required = false) BigDecimal maxTotal,
@@ -173,12 +170,12 @@ public class  SellerController {
         LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
         LocalDateTime endDateTime = endDate != null ? endDate.plusDays(1).atStartOfDay() : null;
 
-        // --- Tạo Pageable với page >= 0 ---
-        if (page < 0) page = 0;
+        // --- Tạo Pageable (Spring index từ 0 nên trừ đi 1) ---
         int pageSize = 2;
-        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("createAt").descending());
+        int currentPageIndex = Math.max(page - 1, 0);
+        Pageable pageable = PageRequest.of(currentPageIndex, pageSize, Sort.by("createAt").descending());
 
-        // --- Gọi service 1 lần để lấy Page ---
+        // --- Gọi service ---
         Page<ShopOrderHistoryDTO> orderPage = orderService.getFilteredOrders(
                 shop.getShopId(),
                 minQuantity,
@@ -193,9 +190,10 @@ public class  SellerController {
         int totalPages = orderPage.getTotalPages();
 
         // --- Nếu page vượt quá totalPages, reset về last page ---
-        if (page >= totalPages && totalPages > 0) {
-            page = totalPages - 1;
-            pageable = PageRequest.of(page, pageSize, Sort.by("createAt").descending());
+        if (currentPageIndex >= totalPages && totalPages > 0) {
+            currentPageIndex = totalPages - 1;
+            page = totalPages;
+            pageable = PageRequest.of(currentPageIndex, pageSize, Sort.by("createAt").descending());
             orderPage = orderService.getFilteredOrders(
                     shop.getShopId(),
                     minQuantity,
@@ -211,7 +209,7 @@ public class  SellerController {
         // --- Add model attributes ---
         model.addAttribute("shop", shop);
         model.addAttribute("orderList", orderPage.getContent());
-        model.addAttribute("currentPage", page);
+        model.addAttribute("currentPage", page); // ⚙️ 1-based
         model.addAttribute("totalPages", totalPages);
 
         model.addAttribute("minQuantity", minQuantity);

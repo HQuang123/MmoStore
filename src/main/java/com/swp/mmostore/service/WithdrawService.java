@@ -1,5 +1,6 @@
 package com.swp.mmostore.service;
 
+import com.swp.mmostore.entity.Bank;
 import com.swp.mmostore.entity.User;
 import com.swp.mmostore.entity.Withdrawal;
 import com.swp.mmostore.repository.UserRepository;
@@ -130,5 +131,35 @@ public class WithdrawService {
         // Execute the query with the dynamic specification and pagination
         return withdrawalRepository.findAll(spec, pageable);
     }
+
+    @Transactional
+    public Withdrawal chargeRegistrationFee(User user, BigDecimal amount, String note) {
+        // Kiểm tra số dư người dùng
+        if (user.getBalance().compareTo(amount) < 0) {
+            throw new RuntimeException("Số dư không đủ để đăng ký cửa hàng. Vui lòng nạp thêm tiền vào ví.");
+        }
+
+        // Trừ tiền
+        user.setBalance(user.getBalance().subtract(amount));
+        userRepository.save(user);
+
+        // Tạo bản ghi Withdrawal cho phí đăng ký
+        Withdrawal withdrawal = new Withdrawal();
+        withdrawal.setUser(user);
+        withdrawal.setAmount(amount);
+        withdrawal.setBank(Bank.SYSTEM); // thêm enum SYSTEM vào enum Bank (phí nội bộ)
+        withdrawal.setBankAccount("REGISTER_FEE");
+        withdrawal.setAccountHolder("MMOStore System");
+        withdrawal.setStatus("APPROVED");
+        withdrawal.setCreateAt(LocalDateTime.now());
+        withdrawal.setUpdateAt(LocalDateTime.now());
+
+        // Lưu bản ghi
+        withdrawalRepository.save(withdrawal);
+
+        log.info("Đã trừ {}đ từ tài khoản {} cho phí đăng ký shop", amount, user.getEmail());
+        return withdrawal;
+    }
+
 
 }

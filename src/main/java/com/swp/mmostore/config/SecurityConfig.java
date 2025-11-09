@@ -49,10 +49,10 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.disable())
             .authorizeHttpRequests(req -> req
+                    .requestMatchers("/user/api/**").hasRole("USER")
                 .requestMatchers("/user/**").hasRole("USER") //localhost:8080/user/product?productId=1
-
+                    .requestMatchers("/seller/**").hasRole("SELLER")
                 .requestMatchers("/admin/**").hasRole("ADMIN") //localhost:8080/product --> ko authen -> bam nut Mua hang
-
                   //GetMapping   localhot:8080/user//
                     //localhost:8080/ --> localhost:8080/products --> /products?productId=1 -> /products?
                 .requestMatchers("/**").permitAll()

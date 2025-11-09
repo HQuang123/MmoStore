@@ -2,26 +2,26 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="~{base :: layout(~{::content}, ~{::cssFragment}, ~{::jsFragment})}">
 
-<!-- Custom CSS -->
+<!-- CSS tùy chỉnh -->
 <th:block th:fragment="cssFragment">
     <link rel="stylesheet" th:href="@{/css/seller.css}">
 </th:block>
 
-<!-- Custom JS -->
+<!-- JS tùy chỉnh -->
 <th:block th:fragment="jsFragment">
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="/javascript/seller/seller-order_history.js"></script>
 </th:block>
 
-<!-- CONTENT -->
+<!-- NỘI DUNG -->
 <th:block th:fragment="content">
     <!-- Thêm class seller-layout để tách biệt CSS -->
     <div class="seller-layout container-fluid">
-        <!-- SIDEBAR -->
+        <!-- THANH BÊN -->
         <div id="sidebar" class="col-md-3 col-lg-2">
             <div class="text-center mb-3">
                 <img th:src="${shop.shopImageUrl}"
-                     alt="Shop Image"
+                     alt="Hình cửa hàng"
                      class="rounded-circle"
                      style="width:120px; height:120px; object-fit:cover;">
             </div>
@@ -32,62 +32,62 @@
             <ul class="nav flex-column">
                 <li class="nav-item mb-2">
                     <a class="nav-link text-white" th:href="@{/seller/statistic}">
-                        <i class="fa-solid fa-chart-line"></i> Statistics
+                        <i class="fa-solid fa-chart-line"></i> Thống kê
                     </a>
                 </li>
                 <li class="nav-item mb-2">
                     <a class="nav-link text-white" th:href="@{/seller/products}">
-                        <i class="fa-solid fa-box"></i> Products
+                        <i class="fa-solid fa-box"></i> Sản phẩm
                     </a>
                 </li>
                 <li class="nav-item mb-2">
                     <a class="nav-link active bg-secondary text-white rounded" th:href="@{/seller/orders}">
-                        <i class="fa-solid fa-file-invoice"></i> Orders
+                        <i class="fa-solid fa-file-invoice"></i> Đơn hàng
                     </a>
                 </li>
             </ul>
             <li class="nav-item mb-2">
                 <a class="nav-link text-white" th:href="@{/seller/shop/edit}">
-                    <i class="fa-solid fa-file-invoice"></i> Edit Shop Information
+                    <i class="fa-solid fa-file-invoice"></i> Chỉnh sửa thông tin cửa hàng
                 </a>
             </li>
         </div>
 
-        <!-- MAIN CONTENT -->
+        <!-- NỘI DUNG CHÍNH -->
         <div id="page-content" class="col-md-9 col-lg-10 p-4">
             <h3 class="mb-3">
-                <i class="fa-solid fa-clock-rotate-left"></i> Order History
+                <i class="fa-solid fa-clock-rotate-left"></i> Lịch sử đơn hàng
             </h3>
 
-            <!-- FILTER FORM -->
+            <!-- FORM LỌC -->
             <form method="get" th:action="@{/seller/orders}" class="filter-form">
                 <div class="row g-2 mb-3 align-items-end">
                     <div class="col-md-2">
-                        <label>Quantity ≥</label>
+                        <label>Số lượng ≥</label>
                         <input type="number" name="minQuantity" class="form-control" th:value="${minQuantity}">
                     </div>
                     <div class="col-md-2">
-                        <label>Min Total</label>
+                        <label>Tổng tối thiểu</label>
                         <input type="text" id="minTotal" name="minTotal" class="form-control"
                                th:value="${minTotal}" placeholder="VD: 1.000.000">
                     </div>
                     <div class="col-md-2">
-                        <label>Max Total</label>
+                        <label>Tổng tối đa</label>
                         <input type="text" id="maxTotal" name="maxTotal" class="form-control"
                                th:value="${maxTotal}" placeholder="VD: 10.000.000">
                     </div>
                     <div class="col-md-2">
-                        <label>From Date</label>
+                        <label>Từ ngày</label>
                         <input type="date" name="startDate" class="form-control" th:value="${startDate}">
                     </div>
                     <div class="col-md-2">
-                        <label>To Date</label>
+                        <label>Đến ngày</label>
                         <input type="date" name="endDate" class="form-control" th:value="${endDate}">
                     </div>
                     <div class="col-md-2">
-                        <label>Status</label>
+                        <label>Trạng thái</label>
                         <select name="status" class="form-select">
-                            <option value="">All</option>
+                            <option value="">Tất cả</option>
                             <option th:each="st : ${statuses}"
                                     th:value="${st}" th:text="${st}"
                                     th:selected="${selectedStatus == st}"></option>
@@ -95,28 +95,30 @@
                     </div>
                 </div>
                 <div class="d-flex justify-content-end gap-2 mb-4">
-                    <button type="submit" class="btn btn-primary">Filter</button>
-                    <a th:href="@{/seller/orders}" class="btn btn-secondary">Clear</a>
+                    <button type="submit" class="btn btn-primary">Lọc</button>
+                    <a th:href="@{/seller/orders}" class="btn btn-secondary">Xóa bộ lọc</a>
                 </div>
             </form>
-            <!-- EXPORT BUTTON  -->
+
+            <!-- NÚT XUẤT FILE -->
             <div class="d-flex justify-content-end mb-2">
-                <button id="btnExportXLSX" class="btn btn-success me-2" title="Export to Excel"><i
-                        class="fa-solid fa-file-excel me-1"></i> Export XLSX
+                <button id="btnExportXLSX" class="btn btn-success me-2" title="Xuất ra Excel">
+                    <i class="fa-solid fa-file-excel me-1"></i> Xuất file XLSX
                 </button>
             </div>
-            <!-- ORDER TABLE -->
+
+            <!-- BẢNG ĐƠN HÀNG -->
             <table class="table table-bordered table-hover">
                 <thead class="table-dark">
                 <tr>
-                    <th>Order ID</th>
-                    <th>Product ID</th>
-                    <th>Product Name</th>
-                    <th>Quantity</th>
-                    <th>Unit Price</th>
-                    <th>Total</th>
-                    <th>Order Date</th>
-                    <th>Status</th>
+                    <th>Mã đơn hàng</th>
+                    <th>Mã sản phẩm</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Số lượng</th>
+                    <th>Đơn giá</th>
+                    <th>Thành tiền</th>
+                    <th>Ngày đặt</th>
+                    <th>Trạng thái</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -133,21 +135,57 @@
                 </tbody>
             </table>
 
-            <!-- PAGINATION -->
+            <!-- PHÂN TRANG -->
             <nav th:if="${totalPages > 1}">
                 <ul class="pagination justify-content-center">
-                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                        <a class="page-link" th:href="@{/seller/orders(page=${currentPage - 1})}">Previous</a>
+                    <!-- Trước -->
+                    <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/seller/orders(
+                    page=${currentPage - 1},
+                    minQuantity=${minQuantity},
+                    minTotal=${minTotal},
+                    maxTotal=${maxTotal},
+                    startDate=${startDate},
+                    endDate=${endDate},
+                    status=${status}
+               )}">
+                            Trước
+                        </a>
                     </li>
+
+                    <!-- Số trang -->
                     <li class="page-item"
-                        th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                        th:each="i : ${#numbers.sequence(1, totalPages)}"
                         th:classappend="${i == currentPage} ? 'active'">
                         <a class="page-link"
-                           th:text="${i + 1}"
-                           th:href="@{/seller/orders(page=${i})}"></a>
+                           th:text="${i}"
+                           th:href="@{/seller/orders(
+                    page=${i},
+                    minQuantity=${minQuantity},
+                    minTotal=${minTotal},
+                    maxTotal=${maxTotal},
+                    startDate=${startDate},
+                    endDate=${endDate},
+                    status=${status}
+               )}">
+                        </a>
                     </li>
-                    <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
-                        <a class="page-link" th:href="@{/seller/orders(page=${currentPage + 1})}">Next</a>
+
+                    <!-- Tiếp -->
+                    <li class="page-item" th:classappend="${currentPage >= totalPages} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/seller/orders(
+                    page=${currentPage + 1},
+                    minQuantity=${minQuantity},
+                    minTotal=${minTotal},
+                    maxTotal=${maxTotal},
+                    startDate=${startDate},
+                    endDate=${endDate},
+                    status=${status}
+               )}">
+                            Tiếp
+                        </a>
                     </li>
                 </ul>
             </nav>
