@@ -1,9 +1,10 @@
 // ✅ Initialize global filter object
 const params = new URLSearchParams(window.location.search);
 const keywordFromUrl = params.get("query"); // get ?query= keyword from URL
+const categoryFromUrl = params.get("category"); // get ?category= from URL
 
 var filter = {
-    categories: [],
+    categories: categoryFromUrl ? [categoryFromUrl] : [],
     sortBy: null,
     sortOrder: null,
     page: 0,
@@ -18,8 +19,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // ✅ 1. Load initial products (only if not from /search)
 
-        loadProducts();
-
+    loadProducts();
+    document.querySelectorAll('input[name="category"]').forEach(checkbox => {
+        if (categoryFromUrl.includes(checkbox.value)) {
+            checkbox.checked = true;
+        }
+    });
 
     // ✅ 2. Category filter button click
     if (searchBtn) {
@@ -71,9 +76,9 @@ document.addEventListener("DOMContentLoaded", function () {
                       <div class="col-md-10">
                             <h5>${product.title}</h5>
                             <p class="text-muted mb-1">Người bán: ${product.shopName}</p>
-                            <p class="mb-1">${product.description}</p>
-                            <span class="text-warning">${product.avgRating}/10</span>
-                            <p class="fw-bold text-primary mt-2">${product.price}</p>
+                            <p class="mb-1">Mô tả: ${product.description}</p>
+                            <span class="">Đánh giá: ${product.avgRating}/10</span>
+                            <p class="fw-bold text-primary mt-2">Giá sản phẩm: ${formatPrice(product.price)}</p>
                       </div>
                 </div>
             `;
@@ -148,4 +153,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // ✅ 7. Expose loadProducts globally (for reuse)
     window.loadProducts = loadProducts;
+
+    function formatPrice(price) {
+        const hasDecimals = price % 1 !== 0;
+        return price.toLocaleString('vi-VN', {
+            minimumFractionDigits: hasDecimals ? 2 : 0,
+            maximumFractionDigits: hasDecimals ? 2 : 0
+        }) + 'đ';
+    }
 });

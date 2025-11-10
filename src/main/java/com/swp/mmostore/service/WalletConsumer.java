@@ -12,6 +12,7 @@ import com.swp.mmostore.repository.OrderRepository;
 import com.swp.mmostore.repository.UserRepository;
 import com.swp.mmostore.repository.WithdrawalRepository;
 import com.swp.mmostore.util.EmailTemplate;
+import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -30,10 +31,11 @@ public class WalletConsumer {
     private final OrderRepository orderRepository;
     private final OrderConsumer orderConsumer;
     private final OrderProducer orderProducer;
+    private final EmailTemplate emailTemplate;
 
     @KafkaListener(topics = "wallet-transaction", groupId = "wallet-service")
     @Transactional
-    public void processWalletTransaction(WalletTransactionEvent event) {
+    public void processWalletTransaction(WalletTransactionEvent event) throws MessagingException {
         System.out.println("Wallet transaction event received: " + event.getTransactionId() + " of type: " + event.getType());
         switch (event.getType()) {
             case Withdraw:
@@ -53,12 +55,12 @@ public class WalletConsumer {
         }
     }
 
-    private void processWithdraw(WalletTransactionEvent event) {
+    private void processWithdraw(WalletTransactionEvent event) throws MessagingException {
         //process withdraw
         Withdrawal wd = withdrawalRepository.findById(event.getTransactionId()).orElseThrow();
         User user = wd.getUser();
         //release on-hold balance
-        user.setOnHoldBalance(user.getOnHoldBalance().subtract(event.getAmount()));
+//        user.setOnHoldBalance(user.getOnHoldBalance().subtract(event.getAmount()));
 
         if ("Approved".equalsIgnoreCase(event.getStatus())) {
             withdrawService.approveWithdrawal(wd);
@@ -119,13 +121,13 @@ public class WalletConsumer {
 
         if (user.getBalance().compareTo(withdrawal.getAmount() ) >= 0) {
             user.setBalance(user.getBalance().subtract(withdrawal.getAmount()));
-            user.setOnHoldBalance(user.getOnHoldBalance().add(withdrawal.getAmount()));
+//            user.setOnHoldBalance(user.getOnHoldBalance().add(withdrawal.getAmount()));
             userRepository.save(user);
             withdrawal.setStatus("Pending");
             withdrawalRepository.save(withdrawal);
 
             String subject = "[MMOStore] Đã nộp đơn rút tiền";
-            String content = EmailTemplate.withdrawalRequestEmail(user.getName(), withdrawal.getAmount().toString(), withdrawal.getBank().getDisplayName() + "-" + withdrawal.getBankAccount(), new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
+            String content = emailTemplate.withdrawalRequestEmail(user.getName(), withdrawal.getAmount().toString(), withdrawal.getBank().getDisplayName() + "-" + withdrawal.getBankAccount(), new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
             emailService.sendEmailAsync(user.getEmail(), subject, content);
             //
             notificationService.createNotificationForUser(user.getUserId(), "Yêu cầu rút tiền", "Yêu cầu rút " + withdrawal.getAmount() + " VND đã được gửi và đang chờ duyệt !");

@@ -86,7 +86,7 @@ public class WithdrawService {
             emailService.sendEmail(email, subject, html );
         }
         else{
-            log.warn("Seller for withdrawal id={} has no email configured, skipping notification", id);
+            log.warn("Seller for withdrawal id={} has no email configured, skipping notification", wd.getId());
         }
         return result;
     }

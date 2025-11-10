@@ -69,7 +69,8 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
                         COALESCE(AVG(r.ratingPoint), 0),
                         CAST(COUNT(r.id) AS int),
                         CAST(COALESCE(SUM(o.quantity), 0) AS int),
-                        c.name
+                        c.name,
+                        p.productImageUrl
                 from Product p
                     left join p.shop s
                     left join p.category c
