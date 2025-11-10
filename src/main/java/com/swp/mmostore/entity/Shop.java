@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -24,9 +25,11 @@ public class Shop {
     private Integer shopId;
 
     @Column(name = "Name")
+    @Length(max = 255, message = "Tên cửa hàng không được vượt quá 255 ký tự")
     private String name;
 
     @Column(name = "Description", columnDefinition = "TEXT")
+    @Length(max = 255, message = "Mô tả không được vượt quá 255 ký tự")
     private String description;
 
     @Column(name = "ShopImageUrl")
