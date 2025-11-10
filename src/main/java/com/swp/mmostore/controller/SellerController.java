@@ -13,7 +13,6 @@ import com.swp.mmostore.repository.ProductRepository;
 import com.swp.mmostore.service.*;
 import com.swp.mmostore.service.*;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -72,8 +71,8 @@ public class  SellerController {
     private CloudStorageService cloudStorageService;
 
     @GetMapping("/seller/statistic")
-    public String viewDashboard(Model model, @RequestParam(defaultValue = "0") int page,
-                                HttpSession session) {
+    public String viewDashboard(Model model,
+                                @RequestParam(defaultValue = "0") int page) {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
@@ -89,7 +88,7 @@ public class  SellerController {
         if (page < 0) page = 0;
 
         // --- Tạo Pageable tạm để lấy tổng số trang ---
-        Pageable tempPageable = PageRequest.of(0, pageSize);
+        //Pageable tempPageable = PageRequest.of(0, pageSize);
         Page<ProductSalesDTO> tempPage = shopService.getSoldProductsByShop(shopId, 0, pageSize);
         int totalPages = tempPage.getTotalPages();
 
@@ -98,7 +97,7 @@ public class  SellerController {
             page = totalPages - 1;
         }
 
-        Pageable pageable = PageRequest.of(page, pageSize);
+        //Pageable pageable = PageRequest.of(page, pageSize);
         Page<ProductSalesDTO> reportPage = shopService.getSoldProductsByShop(shopId, page, pageSize);
 
         // --- Add model attributes ---
@@ -161,10 +160,9 @@ public class  SellerController {
         }
     }
 
-
     @GetMapping("/seller/orders")
     public String viewShopOrders(
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(value = "minQuantity", required = false) Integer minQuantity,
             @RequestParam(value = "minTotal", required = false) BigDecimal minTotal,
             @RequestParam(value = "maxTotal", required = false) BigDecimal maxTotal,
@@ -190,12 +188,12 @@ public class  SellerController {
         LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
         LocalDateTime endDateTime = endDate != null ? endDate.plusDays(1).atStartOfDay() : null;
 
-        // --- Tạo Pageable với page >= 0 ---
-        if (page < 0) page = 0;
+        // --- Tạo Pageable (Spring index từ 0 nên trừ đi 1) ---
         int pageSize = 2;
-        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("createAt").descending());
+        int currentPageIndex = Math.max(page - 1, 0);
+        Pageable pageable = PageRequest.of(currentPageIndex, pageSize, Sort.by("createAt").descending());
 
-        // --- Gọi service 1 lần để lấy Page ---
+        // --- Gọi service ---
         Page<ShopOrderHistoryDTO> orderPage = orderService.getFilteredOrders(
                 shop.getShopId(),
                 minQuantity,
@@ -210,9 +208,10 @@ public class  SellerController {
         int totalPages = orderPage.getTotalPages();
 
         // --- Nếu page vượt quá totalPages, reset về last page ---
-        if (page >= totalPages && totalPages > 0) {
-            page = totalPages - 1;
-            pageable = PageRequest.of(page, pageSize, Sort.by("createAt").descending());
+        if (currentPageIndex >= totalPages && totalPages > 0) {
+            currentPageIndex = totalPages - 1;
+            page = totalPages;
+            pageable = PageRequest.of(currentPageIndex, pageSize, Sort.by("createAt").descending());
             orderPage = orderService.getFilteredOrders(
                     shop.getShopId(),
                     minQuantity,
@@ -228,7 +227,7 @@ public class  SellerController {
         // --- Add model attributes ---
         model.addAttribute("shop", shop);
         model.addAttribute("orderList", orderPage.getContent());
-        model.addAttribute("currentPage", page);
+        model.addAttribute("currentPage", page); // ⚙️ 1-based
         model.addAttribute("totalPages", totalPages);
 
         model.addAttribute("minQuantity", minQuantity);
@@ -242,148 +241,6 @@ public class  SellerController {
         model.addAttribute("selectedStatus", status);
 
         return "seller/orders";
-    }
-
-    @GetMapping("/seller/products")
-    public String viewShopProducts(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) String category,
-            @RequestParam(required = false) BigDecimal minPrice,
-            @RequestParam(required = false) BigDecimal maxPrice,
-            Model model
-    ) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
-        User user = userService.getUserByEmail(email);
-        Shop shop = shopService.findByUserId(user.getUserId());
-
-        Pageable pageable = PageRequest.of(page, 10, Sort.by("createAt").descending());
-
-        // Gọi service để lấy danh sách sản phẩm với điều kiện lọc
-        Page<ProductSummaryDTO> productPage = productService.getFilteredProductsByShop(
-                shop.getShopId(),
-                keyword,
-                category,
-                minPrice,
-                maxPrice,
-                pageable
-        );
-
-        // Thêm dữ liệu cho view
-        model.addAttribute("shop", shop);
-        model.addAttribute("productList", productPage.getContent());
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", productPage.getTotalPages());
-
-        // Giữ lại giá trị filter
-        model.addAttribute("keyword", keyword);
-        model.addAttribute("category", category);
-        model.addAttribute("minPrice", minPrice);
-        model.addAttribute("maxPrice", maxPrice);
-
-        return "seller/products";
-
-    }
-
-    @GetMapping("/seller/products/add")
-    public String showAddProductForm(Model model) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
-        User user = userService.getUserByEmail(email);
-        Shop shop = shopService.findByUserId(user.getUserId());
-        model.addAttribute("shop", shop);
-
-        model.addAttribute("productForm", new ProductFormDTO());
-        model.addAttribute("categories", categoryRepository.findAll());
-        return "seller/create-product-form";
-    }
-
-    @GetMapping("/seller/products/edit/{id}")
-    public String showEditForm(@PathVariable("id") Integer id, Model model) {
-
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
-        User user = userService.getUserByEmail(email);
-        Shop shop = shopService.findByUserId(user.getUserId());
-
-
-        Product product = productRepository.findById(id).orElse(null);
-        if (product == null || !product.getShop().getShopId().equals(shop.getShopId())) {
-            return "redirect:/seller/products"; // Prevent editing others' products
-        }
-
-        ProductFormDTO form = new ProductFormDTO();
-        form.setId(product.getProductId());
-        form.setTitle(product.getTitle());
-        form.setDescription(product.getDescription());
-        form.setPrice(product.getPrice());
-        form.setExistingImageUrl(product.getProductImageUrl());
-        form.setCategoryId(product.getCategory().getCategoryId());
-//        form.setFields(productService.getConvertFields(product.getFields()));
-        form.setFields(product.getFields());
-
-        model.addAttribute("shop", shop);
-        model.addAttribute("categories", categoryRepository.findAll());
-        model.addAttribute("productForm", form);
-
-        return "seller/create-product-form";
-    }
-
-    @PostMapping("/seller/products/save")
-    public String saveProduct( @ModelAttribute("productForm") ProductFormDTO form,
-                              BindingResult result,
-                              RedirectAttributes redirectAttributes,
-                              HttpSession session) {
-        if (result.hasErrors()) {
-            redirectAttributes.addFlashAttribute("error", "Dữ liệu không hợp lệ!");
-            return "seller/create-product-form";
-        }
-
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = userService.getUserByEmail(auth.getName());
-        Shop shop = shopService.findByUserId(user.getUserId());
-
-        productService.saveProduct(form, shop);
-
-        redirectAttributes.addFlashAttribute("success", "Lưu sản phẩm thành công!");
-        return "redirect:/seller/products";
-    }
-
-    @GetMapping("/seller/items/create")
-    public String showCreateItemForm(Model model, Principal principal) {
-
-        User user = userService.getUserByEmail(principal.getName());
-        Shop shop = shopService.findByUserId(user.getUserId());
-        List<Product> products = productService.getProductsBySeller(shop);
-        model.addAttribute("products", products);
-        return "seller/create-item-form";
-    }
-
-    @PostMapping("/seller/items/save")
-    public String saveItem(@RequestParam("productId") Integer productId,
-                           @RequestParam Map<String, String> params,
-                           RedirectAttributes redirectAttributes) {
-        Product product = productService.findById(productId);
-
-        // Extract only dynamic fields
-        Map<String, Object> valueMap = new HashMap<>();
-        for (String key : product.getFields().keySet()) {
-            if (params.containsKey(key)) {
-                valueMap.put(key, params.get(key));
-            }
-        }
-
-//        itemService.createItem(product, valueMap);
-        redirectAttributes.addFlashAttribute("success", "Item created successfully!");
-        return "redirect:/seller/items/create";
-    }
-
-    @GetMapping("/seller/products/delete/{id}")
-    public String deleteProduct(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
-        productRepository.deleteById(id);
-        redirectAttributes.addFlashAttribute("message", "Product deleted successfully!");
-        return "redirect:/seller/products";
     }
 
     @GetMapping("/seller/orders/export")

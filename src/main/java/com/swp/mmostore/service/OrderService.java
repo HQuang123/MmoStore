@@ -10,16 +10,22 @@ import com.swp.mmostore.entity.User;
 import com.swp.mmostore.repository.OrderRepository;
 import com.swp.mmostore.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.time.LocalDate;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
@@ -76,7 +82,7 @@ public class OrderService {
         orderRepository.save(order);
     }
 
-
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public Page<OrderStatisticDTO> getOrderHistory(
             Integer userId,
@@ -90,7 +96,7 @@ public class OrderService {
             BigDecimal maxTotal,
             Pageable pageable
     ) {
-        return orderRepository.findOrderHistoryByUserId(
+        Page<Map<String, Object>> rawPage = orderRepository.findOrderHistoryByUserIdNative(
                 Long.valueOf(userId),
                 orderId,
                 productName,
@@ -102,7 +108,77 @@ public class OrderService {
                 maxTotal,
                 pageable
         );
+
+        List<OrderStatisticDTO> dtoList = rawPage.stream().map(map -> {
+            Integer orderIdVal = ((Number) map.get("orderId")).intValue();
+            String productNameVal = (String) map.get("productName");
+
+            // ✅ Xử lý kiểu ngày giờ linh hoạt
+            Object createAtObj = map.get("createAt");
+            LocalDateTime createAtVal = null;
+            if (createAtObj instanceof Timestamp ts) {
+                createAtVal = ts.toLocalDateTime();
+            } else if (createAtObj instanceof LocalDateTime ldt) {
+                createAtVal = ldt;
+            }
+
+            int quantityVal = ((Number) map.get("quantity")).intValue();
+            String statusVal = (String) map.get("status");
+
+            BigDecimal unitPriceVal = (BigDecimal) map.get("unitPrice");   // ✅ thêm
+            BigDecimal totalPriceVal = (BigDecimal) map.get("totalPrice");
+
+            Integer shopIdVal = null;                                     // ✅ thêm
+            Object shopIdObj = map.get("shopId");
+            if (shopIdObj instanceof Number num) {
+                shopIdVal = num.intValue();
+            }
+
+            String shopNameVal = (String) map.get("shopName");             // ✅ thêm
+
+            // ✅ Xử lý JSON_ARRAYAGG → List<Map<String, String>>
+            List<Map<String, String>> valuesVal;
+            try {
+                String json = (String) map.get("itemValues");
+                if (json == null || json.isBlank()) {
+                    valuesVal = Collections.emptyList();
+                } else {
+                    // B1: parse chuỗi JSON_ARRAYAGG thành List<String>
+                    List<String> rawList = objectMapper.readValue(json, new TypeReference<List<String>>() {});
+                    // B2: parse từng chuỗi con thành Map
+                    valuesVal = rawList.stream().map(str -> {
+                        try {
+                            return objectMapper.readValue(str, new TypeReference<Map<String, String>>() {});
+                        } catch (Exception e) {
+                            return Collections.<String, String>emptyMap();
+                        }
+                    }).toList();
+                }
+            } catch (Exception e) {
+                valuesVal = Collections.emptyList();
+            }
+
+            // ✅ Tạo DTO với đủ 9 trường
+            return new OrderStatisticDTO(
+                    orderIdVal,
+                    productNameVal,
+                    createAtVal,
+                    quantityVal,
+                    statusVal,
+                    unitPriceVal,
+                    totalPriceVal,
+                    shopIdVal,
+                    shopNameVal,
+                    valuesVal
+            );
+        }).toList();
+
+        return new PageImpl<>(dtoList, pageable, rawPage.getTotalElements());
     }
+
+
+
+
 
     public Page<ShopOrderHistoryDTO> getOrderHistoryByShop(Integer shopId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);

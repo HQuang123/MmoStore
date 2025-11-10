@@ -1,7 +1,6 @@
 package com.swp.mmostore.repository;
 
 import com.swp.mmostore.dto.OrderEvent;
-import com.swp.mmostore.dto.OrderStatisticDTO;
 import com.swp.mmostore.dto.ProductSalesDTO;
 import com.swp.mmostore.dto.ShopOrderHistoryDTO;
 import com.swp.mmostore.entity.Order;
@@ -14,36 +13,40 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 
 public interface OrderRepository extends JpaRepository<Order, Integer> {
 
-
-
-    @Query("""
-    SELECT new com.swp.mmostore.dto.OrderStatisticDTO(
-        o.orderId,
-        o.productName,
-        o.createAt,
-        o.status,
-        o.totalPrice,
-        'N/A'
-    )
-    FROM Order o
-    LEFT JOIN o.product p
-    WHERE o.user.userId = :userId
-      AND (:productName IS NULL OR p.title LIKE CONCAT('%', :productName, '%'))
-      AND (:startDate IS NULL OR o.createAt >= :startDate)
-      AND (:endDate IS NULL OR o.createAt < :endDate)
-      AND (:status IS NULL OR o.status = :status)
-      AND (:minTotal IS NULL OR o.totalPrice >= :minTotal)
-      AND (:maxTotal IS NULL OR o.totalPrice <= :maxTotal)
-      AND (:orderId IS NULL OR CAST(o.orderId AS string) LIKE CONCAT('%', :orderId, '%'))
-""")
-    Page<OrderStatisticDTO> findOrderHistoryByUserId(
+    @Query(value = """
+                SELECT 
+                    o.ID AS orderId,
+                    p.Title AS productName,
+                    o.CreateAt AS createAt,
+                    o.Quantity AS quantity,
+                    o.Status AS status,
+                    o.UnitPrice AS unitPrice,       --  mới
+                    o.TotalPrice AS totalPrice,
+                    o.ShopID AS shopId,             --  mới
+                    o.ShopName AS shopName,         --  mới
+                    JSON_ARRAYAGG(i.`Value`) AS itemValues
+                FROM Orders o
+                JOIN Product p ON o.ProductID = p.ID
+                LEFT JOIN Items i ON i.OrderID = o.ID
+                WHERE o.UserID = :userId
+                  AND (:productName IS NULL OR p.Title LIKE CONCAT('%', :productName, '%'))
+                  AND (:startDate IS NULL OR o.CreateAt >= :startDate)
+                  AND (:endDate IS NULL OR o.CreateAt < :endDate)
+                  AND (:status IS NULL OR o.Status = :status)
+                  AND (:minTotal IS NULL OR o.TotalPrice >= :minTotal)
+                  AND (:maxTotal IS NULL OR o.TotalPrice <= :maxTotal)
+                  AND (:orderId IS NULL OR CAST(o.ID AS CHAR) LIKE CONCAT('%', :orderId, '%'))
+                GROUP BY o.ID, p.Title, o.CreateAt, o.Quantity, o.Status, o.TotalPrice
+            """,
+            nativeQuery = true)
+    Page<Map<String, Object>> findOrderHistoryByUserIdNative(
             @Param("userId") Long userId,
             @Param("orderId") String orderId,
             @Param("productName") String productName,
@@ -55,6 +58,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
             @Param("maxTotal") BigDecimal maxTotal,
             Pageable pageable
     );
+
 
 
 
@@ -72,23 +76,28 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     long countByShopIdAndStatus(@Param("shopId") Integer shopId, @Param("status") String status);
 
 
-
-    @Query("""
-    SELECT new com.swp.mmostore.dto.ProductSalesDTO(
-        p.productId,
-        p.title,
-        p.price,
-        SUM(o.quantity),
-        SUM(o.totalPrice)
-    )
-    FROM Order o
-    JOIN o.product p
-    JOIN p.shop s
-    WHERE s.shopId = :shopId
-      AND o.status = 'COMPLETED'
-    GROUP BY p.productId, p.title, p.price
-    ORDER BY SUM(o.totalPrice) DESC
-""")
+    @Query(value = """
+    SELECT 
+        o.ProductID AS productId,
+        o.productName AS title,
+        o.UnitPrice AS price,
+        CAST(SUM(o.Quantity) AS SIGNED) AS totalQuantity,
+        SUM(o.TotalPrice) AS totalRevenue
+    FROM Orders o
+    WHERE o.ShopID = :shopId
+      AND o.Status = 'COMPLETED'
+      AND (o.isDeleted = 0 OR o.isDeleted IS NULL)
+    GROUP BY o.ProductID, o.productName, o.UnitPrice
+    ORDER BY SUM(o.TotalPrice) DESC
+""",
+            countQuery = """
+    SELECT COUNT(DISTINCT o.ProductID)
+    FROM Orders o
+    WHERE o.ShopID = :shopId
+      AND o.Status = 'COMPLETED'
+      AND (o.isDeleted = 0 OR o.isDeleted IS NULL)
+""",
+            nativeQuery = true)
     Page<ProductSalesDTO> findSoldProductsByShop(
             @Param("shopId") Integer shopId,
             Pageable pageable
@@ -137,32 +146,28 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
             Pageable pageable
     );
 
-
-
-
     @Query("""
-        SELECT new com.swp.mmostore.dto.ShopOrderHistoryDTO(
-            o.orderId,
-            p.productId,
-            o.productName,
-            o.quantity,
-            p.price,
-            o.totalPrice,
-            o.createAt,
-            o.status
-        )
-        FROM Order o
-        JOIN o.product p
-        JOIN p.shop s
-        WHERE s.shopId = :shopId
-          AND (:minQuantity IS NULL OR o.quantity >= :minQuantity)
-          AND (:minTotal IS NULL OR o.totalPrice >= :minTotal)
-          AND (:maxTotal IS NULL OR o.totalPrice <= :maxTotal)
-          AND (:startDate IS NULL OR o.createAt >= :startDate)
-          AND (:endDate IS NULL OR o.createAt <= :endDate)
-          AND (:status IS NULL OR o.status = :status)
-        ORDER BY o.createAt DESC
-    """)
+    SELECT new com.swp.mmostore.dto.ShopOrderHistoryDTO(
+        o.orderId,
+        o.product.productId,
+        o.productName,
+        o.quantity,
+        o.unitPrice,
+        o.totalPrice,
+        o.createAt,
+        o.status
+    )
+    FROM Order o
+    WHERE o.shopId = :shopId
+      AND (:minQuantity IS NULL OR o.quantity >= :minQuantity)
+      AND (:minTotal IS NULL OR o.totalPrice >= :minTotal)
+      AND (:maxTotal IS NULL OR o.totalPrice <= :maxTotal)
+      AND (:startDate IS NULL OR o.createAt >= :startDate)
+      AND (:endDate IS NULL OR o.createAt <= :endDate)
+      AND (:status IS NULL OR o.status = :status)
+      AND (o.isDeleted = false OR o.isDeleted IS NULL)
+    ORDER BY o.createAt DESC
+""")
     Page<ShopOrderHistoryDTO> findFilteredOrdersByShop(
             @Param("shopId") Integer shopId,
             @Param("minQuantity") Integer minQuantity,
@@ -173,6 +178,8 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
             @Param("status") String status,
             Pageable pageable
     );
+
+
 
     @Query("""
         SELECT new com.swp.mmostore.dto.OrderEvent(

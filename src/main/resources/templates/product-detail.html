@@ -24,7 +24,7 @@
         <div class="row mb-5">
             <!-- Product image -->
             <div class="col-md-5 text-center">
-                <img th:src="${product.productImageUrl()}" alt="Product image" class="img-fluid border rounded">
+                <img th:src="${product.productImageUrl}" alt="Product image" class="img-fluid border rounded">
             </div>
             <input type="hidden" id="productId" th:value="${product.id()}">
             <!-- Product info -->
@@ -83,7 +83,7 @@
 
         <!-- ========== Shop Info Section ========== -->
         <div class="d-flex align-items-center mb-4">
-            <img th:src="${shop.shopImageUrl()}" alt="Shop avatar" class="rounded-circle me-3" width="50" height="50">
+            <img th:src="${shop.shopImageUrl}" alt="Shop avatar" class="rounded-circle me-3" width="50" height="50">
             <div class="flex-grow-1">
                 <h6 class="mb-0" th:text="${shop.name()}">Tên shop</h6>
                 <small class="text-muted">Số sản phẩm: <span th:text="${shop.numberOfProduct()}">120</span> |
@@ -154,7 +154,7 @@
 
         <div class="row row-cols-2 row-cols-md-4 g-4">
             <div class="col" th:each="related : ${relatedProducts}">
-                <a th:href="${'/product/' + ${related.id()}}" style="text-decoration: none; color: inherit;">
+                <a th:href="@{/product/{id}(id=${related.id})}" style="text-decoration: none; color: inherit;">
                     <div class="card h-100">
                         <img th:src="${related.productImageUrl()}" class="card-img-top" alt="related">
                         <div class="card-body">

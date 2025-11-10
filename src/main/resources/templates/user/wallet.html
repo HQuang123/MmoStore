@@ -22,7 +22,7 @@
 
         <div class="card p-4 shadow-sm">
             <h4>Số dư hiện tại:</h4>
-            <h2 class="text-success" th:text="${#numbers.formatDecimal(balance, 0, 'COMMA', 2, 'POINT')} + ' VND'"></h2>
+            <h2 class="text-success" th:text="${#numbers.formatDecimal(balance, 0, 'COMMA', 0, 'POINT')} + ' VND'"></h2>
 
             <div class="mt-4">
                 <a th:href="@{/user/wallet/top-up}" class="btn btn-primary me-2">Nạp tiền vào vi</a>

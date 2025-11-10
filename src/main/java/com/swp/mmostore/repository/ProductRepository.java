@@ -81,6 +81,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
                 group by p.productId
             """)
     public ProductDetailDTO findProductById(@Param("productId") Integer productId);
+
     @Modifying
     @Query("UPDATE Product p SET p.isDeleted = :status WHERE p.shop.shopId = :shopId")
     void updateProductDeletedStatusByShopId(@Param("shopId") Integer shopId, @Param("status") Boolean status);
@@ -102,7 +103,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
                    OR COALESCE(:categoryIds, NULL) IS NULL 
                    OR c.categoryId IN :categoryIds
               )
-            GROUP BY p.productId, p.title, p.description, p.price, s.name
+            GROUP BY p.productId, p.title, p.description, p.price, p.productImageUrl, s.name
             """)
     List<ProductSummaryDTO> findProductByTitle(
             @Param("keyword") String keyword,

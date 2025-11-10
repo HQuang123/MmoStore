@@ -93,6 +93,7 @@ public class WithdrawalController {
                 redirectAttributes.addFlashAttribute("errorMessage", "Số dư không đủ");
                 return "redirect:/user/wallet/withdraw"; //return to @GET MAPPing
             }
+
             withdrawal.setStatus("Unconfirmed");
             withdrawal.setUser(user);
             withdrawalRepository.save(withdrawal);
