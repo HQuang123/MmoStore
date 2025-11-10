@@ -17,8 +17,6 @@ public class WalletService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private DepositRepository depositRepository;
 
     @Transactional
     public boolean deductMoney(Integer userId, BigDecimal amount, String reason) {
@@ -34,14 +32,10 @@ public class WalletService {
         user.setBalance(user.getBalance().subtract(amount));
         userRepository.save(user);
 
-        // Ghi lại lịch sử giao dịch (Deposit record)
-        Deposit deposit = new Deposit();
-        deposit.setUser(user);
-        deposit.setAmount(amount);
-        deposit.setPaymentMethod(reason);
-        deposit.setStatus(DepositStatus.Completed);
-        deposit.setActionType(ActionType.Withdraw);
-        depositRepository.save(deposit);
+        User admin = userRepository.findById(33)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản admin"));
+        admin.setBalance(admin.getBalance().add(amount));
+        userRepository.save(admin);
 
         return true;
     }

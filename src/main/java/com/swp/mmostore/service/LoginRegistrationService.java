@@ -60,6 +60,7 @@ public class LoginRegistrationService {
         if(userById.isPresent()){
             User user = userById.get();
             user.setStatus(status);
+            user.setIsDeleted(true);
             userRepository.save(user);
             return true;
         }

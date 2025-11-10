@@ -76,23 +76,28 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     long countByShopIdAndStatus(@Param("shopId") Integer shopId, @Param("status") String status);
 
 
-
-    @Query("""
-    SELECT new com.swp.mmostore.dto.ProductSalesDTO(
-        p.productId,
-        p.title,
-        p.price,
-        SUM(o.quantity),
-        SUM(o.totalPrice)
-    )
-    FROM Order o
-    JOIN o.product p
-    JOIN p.shop s
-    WHERE s.shopId = :shopId
-      AND o.status = 'COMPLETED'
-    GROUP BY p.productId, p.title, p.price
-    ORDER BY SUM(o.totalPrice) DESC
-""")
+    @Query(value = """
+    SELECT 
+        o.ProductID AS productId,
+        o.productName AS title,
+        o.UnitPrice AS price,
+        CAST(SUM(o.Quantity) AS SIGNED) AS totalQuantity,
+        SUM(o.TotalPrice) AS totalRevenue
+    FROM Orders o
+    WHERE o.ShopID = :shopId
+      AND o.Status = 'COMPLETED'
+      AND (o.isDeleted = 0 OR o.isDeleted IS NULL)
+    GROUP BY o.ProductID, o.productName, o.UnitPrice
+    ORDER BY SUM(o.TotalPrice) DESC
+""",
+            countQuery = """
+    SELECT COUNT(DISTINCT o.ProductID)
+    FROM Orders o
+    WHERE o.ShopID = :shopId
+      AND o.Status = 'COMPLETED'
+      AND (o.isDeleted = 0 OR o.isDeleted IS NULL)
+""",
+            nativeQuery = true)
     Page<ProductSalesDTO> findSoldProductsByShop(
             @Param("shopId") Integer shopId,
             Pageable pageable
@@ -141,32 +146,28 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
             Pageable pageable
     );
 
-
-
-
     @Query("""
-        SELECT new com.swp.mmostore.dto.ShopOrderHistoryDTO(
-            o.orderId,
-            p.productId,
-            o.productName,
-            o.quantity,
-            p.price,
-            o.totalPrice,
-            o.createAt,
-            o.status
-        )
-        FROM Order o
-        JOIN o.product p
-        JOIN p.shop s
-        WHERE s.shopId = :shopId
-          AND (:minQuantity IS NULL OR o.quantity >= :minQuantity)
-          AND (:minTotal IS NULL OR o.totalPrice >= :minTotal)
-          AND (:maxTotal IS NULL OR o.totalPrice <= :maxTotal)
-          AND (:startDate IS NULL OR o.createAt >= :startDate)
-          AND (:endDate IS NULL OR o.createAt <= :endDate)
-          AND (:status IS NULL OR o.status = :status)
-        ORDER BY o.createAt DESC
-    """)
+    SELECT new com.swp.mmostore.dto.ShopOrderHistoryDTO(
+        o.orderId,
+        o.product.productId,
+        o.productName,
+        o.quantity,
+        o.unitPrice,
+        o.totalPrice,
+        o.createAt,
+        o.status
+    )
+    FROM Order o
+    WHERE o.shopId = :shopId
+      AND (:minQuantity IS NULL OR o.quantity >= :minQuantity)
+      AND (:minTotal IS NULL OR o.totalPrice >= :minTotal)
+      AND (:maxTotal IS NULL OR o.totalPrice <= :maxTotal)
+      AND (:startDate IS NULL OR o.createAt >= :startDate)
+      AND (:endDate IS NULL OR o.createAt <= :endDate)
+      AND (:status IS NULL OR o.status = :status)
+      AND (o.isDeleted = false OR o.isDeleted IS NULL)
+    ORDER BY o.createAt DESC
+""")
     Page<ShopOrderHistoryDTO> findFilteredOrdersByShop(
             @Param("shopId") Integer shopId,
             @Param("minQuantity") Integer minQuantity,
@@ -177,6 +178,8 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
             @Param("status") String status,
             Pageable pageable
     );
+
+
 
     @Query("""
         SELECT new com.swp.mmostore.dto.OrderEvent(
