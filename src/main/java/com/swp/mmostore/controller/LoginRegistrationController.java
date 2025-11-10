@@ -124,7 +124,7 @@ public class LoginRegistrationController {
 
     @GetMapping("/verify-email")
     public String verifyEmail(@RequestParam("token") String token, @RequestParam("userEmail") String email, RedirectAttributes redirectAttributes) {
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findActiveByEmail(email);
 
         if(user == null){
             //avoid to let the hacker know if the mail non exists
