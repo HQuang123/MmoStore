@@ -20,20 +20,19 @@
     <div class="container mt-5 text-center">
         <div th:if="${isSuccess}">
             <div class="alert alert-success p-4 rounded shadow">
-                <h2>✅ Payment Successful!</h2>
+                <h2>✅ Giao dịch thành công !</h2>
                 <p>ID giao dịch: <strong th:text="${depositId}"></strong></p>
                 <p>Số tiền </p>: <strong th:text="${amount}"></strong> VND
-                <p th:text="${message}">Payment completed successfully.</p>
-                <a th:href="@{/}" class="btn btn-primary mt-3">Back to Home</a>
+                <p th:text="${message}">Bạn đã nạp tiền thành công vào tài khoản.</p>
+                <a th:href="@{/}" class="btn btn-primary mt-3">Quay trở lại trang chính</a>
             </div>
         </div>
 
         <div th:if="${!isSuccess}">
             <div class="alert alert-danger p-4 rounded shadow">
-                <h2>❌ Payment Failed!</h2>
+                <h2>❌ Giao dịch thất bại !</h2>
                 <p>ID giao dịch: <strong th:text="${depositId}"></strong></p>
-                <p th:text="${message}">An error occurred during payment.</p>
-                <a th:href="@{/}"  class="btn btn-secondary mt-3">Try Again</a>
+                <p th:text="${message}">Có lỗi xảy ra khi giao dịch, vui lòng thử lại sau.</p>
             </div>
         </div>
     </div>

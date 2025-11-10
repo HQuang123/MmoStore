@@ -89,10 +89,10 @@ public class WithdrawalController {
                 return "user/withdraw";
             }
             //compare amount to withdraw with available balance (real balance - onHold balance)
-//            if (withdrawal.getAmount().compareTo(user.getAvailableBalance()) > 0) {
-//                redirectAttributes.addFlashAttribute("errorMessage", "Số dư không đủ");
-//                return "redirect:/user/wallet/withdraw"; //return to @GET MAPPing
-//            }
+            if (withdrawal.getAmount().compareTo(user.getBalance()) > 0) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Số dư không đủ");
+                return "redirect:/user/wallet/withdraw"; //return to @GET MAPPing
+            }
 
             withdrawal.setStatus("Unconfirmed");
             withdrawal.setUser(user);
