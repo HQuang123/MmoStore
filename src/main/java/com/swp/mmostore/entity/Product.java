@@ -1,5 +1,6 @@
 package com.swp.mmostore.entity;
 
+import com.swp.mmostore.converter.FieldsConverter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
@@ -10,6 +11,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Setter
 @Getter
@@ -26,6 +28,10 @@ public class Product {
     @Column(name = "Title", length = 255)
 //    @Pattern(regexp = "^[\\p{L}\\p{M}\\d\\s,]+$\n", message="Tên tiếng việt chứa ký tự lạ")
     private String title;
+
+    @Column(name = "Fields", columnDefinition = "JSON")
+    @Convert(converter = FieldsConverter.class)
+    private Map<String, Object> fields;
 
 //    @Pattern(regexp = "^[\\p{L}\\p{M}\\d\\s,]+$\n", message="Mô tả chứa ký tự lạ")
     @Column(name = "Description", columnDefinition = "TEXT")

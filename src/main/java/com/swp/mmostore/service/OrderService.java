@@ -2,7 +2,10 @@ package com.swp.mmostore.service;
 
 import com.swp.mmostore.dto.OrderStatisticDTO;
 import com.swp.mmostore.dto.ShopOrderHistoryDTO;
+import com.swp.mmostore.dto.WalletTransactionEvent;
+import com.swp.mmostore.entity.ActionType;
 import com.swp.mmostore.entity.Order;
+import com.swp.mmostore.entity.Product;
 import com.swp.mmostore.entity.User;
 import com.swp.mmostore.repository.OrderRepository;
 import com.swp.mmostore.repository.UserRepository;
@@ -30,12 +33,16 @@ public class OrderService {
     private final OrderRepository orderRepository;
 
     private final UserRepository userRepository;
+    private final WalletProducer walletProducer;
 
-    public Order createNewOrder(int quantity, double totalPrice, String userEmail) {
+    public Order createNewOrder(int quantity, double totalPrice, String userEmail, Integer productId) {
         Order order = new Order();
         order.setQuantity(quantity);
         order.setTotalPrice(BigDecimal.valueOf(totalPrice));
-
+        Product product = new Product();
+        product.setProductId(productId);
+        order.setProduct(product);
+        order.setStatus("PENDING");
         //get user
         Integer userId = userRepository.findByEmail(userEmail).getUserId();
 
@@ -51,8 +58,13 @@ public class OrderService {
 
 
     public Order createPendingOrder(Order order){
-        order.setStatus("PENDING");
-        orderRepository.save(order);
+        Order order1 = orderRepository.save(order);
+        //add to queue to process
+        WalletTransactionEvent event = new WalletTransactionEvent();
+        event.setTransactionId(order.getOrderId());
+        event.setType(ActionType.Order_payment);
+        walletProducer.sendTransactionEvent(event);
+
         return order;
     }
 

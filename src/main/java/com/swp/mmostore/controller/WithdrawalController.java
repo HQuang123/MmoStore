@@ -1,14 +1,13 @@
 package com.swp.mmostore.controller;
 
-import com.swp.mmostore.entity.Bank;
-import com.swp.mmostore.entity.User;
-import com.swp.mmostore.entity.Withdrawal;
-import com.swp.mmostore.entity.WithdrawalOtp;
+import com.swp.mmostore.dto.WalletTransactionEvent;
+import com.swp.mmostore.entity.*;
 import com.swp.mmostore.repository.UserRepository;
 import com.swp.mmostore.repository.WithdrawalOtpRepository;
 import com.swp.mmostore.repository.WithdrawalRepository;
 import com.swp.mmostore.service.EmailService;
 import com.swp.mmostore.service.NotificationService;
+import com.swp.mmostore.service.WalletProducer;
 import com.swp.mmostore.service.WithdrawService;
 import com.swp.mmostore.util.EmailTemplate;
 import com.swp.mmostore.util.MockSecurityUtils;
@@ -43,6 +42,7 @@ public class WithdrawalController {
     private final EmailService emailService;
     private final NotificationService notificationService;
     private final WithdrawalOtpRepository withdrawalOtpRepository;
+    private final WalletProducer walletProducer;
     private final EmailTemplate emailTemplate;
 
     private String generateOtp() {
@@ -133,20 +133,9 @@ public class WithdrawalController {
             }
             //TODO: Implement MQ for withdrawal @ShiroHoang
 
-            //after user verify the token --> set onhold  balance
-//            user.setOnHoldBalance(user.getOnHoldBalance().add(withdrawal.getAmount()));
-            userRepository.save(user);
-            withdrawal.setStatus("Pending");
-            withdrawalRepository.save(withdrawal);
-            String subject = "[MMOStore] Đã nộp đơn rút tiền";
-            String content = emailTemplate.withdrawalRequestEmail(user.getName(), withdrawal.getAmount().toString(), withdrawal.getBank().getDisplayName() + "-" + withdrawal.getBankAccount(), new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
-            emailService.sendEmailAsync(user.getEmail(), subject, content);
-            notificationService.createNotificationForUser(user.getUserId(), "Yêu cầu rút tiền", "Yêu cầu rút " + withdrawal.getAmount() + " VND đã được gửi và đang chờ duyệt !");
-            try {
-                notificationService.createNotificationForRole("ROLE_ADMIN", "Yêu cầu rút tiền của người dùng đang chờ", "New withdrawal request of " + withdrawal.getAmount().toString() + " by " + user.getEmail() + "  pending approval.");
-            } catch (Exception ignored) {
+            // Add request to Kafka queue for processing
+            walletProducer.sendWithdrawRequest(user, withdrawal);
 
-            }
             redirectAttributes.addFlashAttribute("successMessage", "Yêu cầu rút tiền nộp thành công.");
         } catch (Exception ex) {
             redirectAttributes.addFlashAttribute("errorMessage", "Lỗi server: " + ex.getMessage());
@@ -265,10 +254,15 @@ public class WithdrawalController {
         }
         try {
             User user = (User) model.getAttribute("user");
+
             //ToDo: add quueu here
-            //send email to user
-            withdrawService.approveWithdrawal(id);
-            return ResponseEntity.ok(Map.of("message", "Yêu cầu rút tiền xác nhận thành công.", "newStatus", "Approved"));
+            WalletTransactionEvent event = new WalletTransactionEvent();
+            event.setTransactionId(wd.getId());
+            event.setStatus("Approved");
+            event.setType(com.swp.mmostore.entity.ActionType.Withdraw);
+            walletProducer.sendTransactionEvent(event);
+
+            return ResponseEntity.ok(Map.of("message", "Withdrawal approved successfully.", "newStatus", "Approved"));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("error", "Server error: " + e.getMessage()));
         }
@@ -277,8 +271,12 @@ public class WithdrawalController {
     @PostMapping("/admin/withdraw/reject")
     public String processWithdrawalReject(@RequestParam("id") Integer withdrawalId, RedirectAttributes redirectAttributes, Model model) {
         try{
-            withdrawService.rejectWithdrawal(withdrawalId);
-            redirectAttributes.addFlashAttribute("successMessage","Yêu cầu rút tiền #" + withdrawalId + " đã bị từ chối");
+            WalletTransactionEvent event = new WalletTransactionEvent();
+            event.setTransactionId(withdrawalId);
+            event.setStatus("Rejected");
+            event.setType(ActionType.Withdraw);
+            walletProducer.sendTransactionEvent(event);
+            redirectAttributes.addFlashAttribute("successMessage","Withdrawal #" + withdrawalId + " has been rejected");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage","Server error: " + e.getMessage());
         }

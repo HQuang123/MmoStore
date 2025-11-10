@@ -2,11 +2,12 @@ function openConfirm() {
     const quantity = parseInt(document.getElementById("quantity").value);
     const singlePrice = parseFloat(document.getElementById("price").value);
     const totalPrice = quantity * singlePrice;
+    const productId = document.getElementById("productId").value;
     document.getElementById("totalValue").textContent = totalPrice.toLocaleString('vi-VN') + 'đ';
     // // Event when click 'yes'
     const confirmBtn = document.getElementById("confirmOrderBtn");
     confirmBtn.onclick = function() {
-        createOrder(quantity, totalPrice);
+        createOrder(quantity, totalPrice, productId);
     };
 
     const modalConfirm = new bootstrap.Modal(document.getElementById("confirmModal"));
@@ -14,7 +15,7 @@ function openConfirm() {
 }
 
 //create order
-function createOrder(quantity, totalPrice) {
+function createOrder(quantity, totalPrice, productId) {
     fetch("/user/api/order/create", {
         method: "POST",
         headers: {
@@ -22,7 +23,8 @@ function createOrder(quantity, totalPrice) {
         },
         body: JSON.stringify({
             quantity: quantity,
-            totalPrice: totalPrice
+            totalPrice: totalPrice,
+            productId: productId
         })
     })
         .then(response => response.json())

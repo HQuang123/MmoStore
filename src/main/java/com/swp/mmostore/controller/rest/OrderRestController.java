@@ -27,7 +27,7 @@ public class OrderRestController {
         String userEmail = principal.getName(); //user email
         int quantity = Integer.parseInt(data.get("quantity").toString());
         double totalPrice = Double.parseDouble(data.get("totalPrice").toString());
-        return orderService.createNewOrder(quantity, totalPrice, userEmail);
-//        return orderService.createPendingOrder(new Order());
+        Integer productId = Integer.parseInt(data.get("productId").toString());
+        return orderService.createNewOrder(quantity, totalPrice, userEmail, productId);
     }
 }

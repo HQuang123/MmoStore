@@ -59,10 +59,11 @@
             <!-- Product Cards -->
             <div id="productContainer">
                 <div th:each="product : ${productList}">
-                    <div class="card card-product p-3">
+                    <div class="card card-product p-3" style="cursor: pointer;"
+                         th:onclick="'window.location.href=\'/product/' + ${product.id} + '\';'">
                         <div class="row g-3 align-items-center">
                             <div class="col-md-2">
-                                <img th:src="${product.productImageUrl}" alt="product-img">
+                                <img th:src="${product.productImageUrl()}" alt="product-img">
                             </div>
                             <div class="col-md-10">
                                 <h5 th:text="${product.title}">Product Title</h5>

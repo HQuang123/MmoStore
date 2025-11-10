@@ -1,11 +1,16 @@
 package com.swp.mmostore.controller;
 
+import com.swp.mmostore.dto.*;
+import com.swp.mmostore.entity.Product;
 import com.swp.mmostore.dto.ProductSalesDTO;
 import com.swp.mmostore.dto.ShopOrderHistoryDTO;
 import com.swp.mmostore.dto.ShopStatisticDTO;
 import com.swp.mmostore.entity.DepositStatus;
 import com.swp.mmostore.entity.Shop;
 import com.swp.mmostore.entity.User;
+import com.swp.mmostore.repository.CategoryRepository;
+import com.swp.mmostore.repository.ProductRepository;
+import com.swp.mmostore.service.*;
 import com.swp.mmostore.service.*;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.poi.ss.usermodel.Cell;
@@ -13,6 +18,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +29,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,7 +44,9 @@ import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class  SellerController {
@@ -48,6 +59,13 @@ public class  SellerController {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private ProductService productService;
+    @Autowired
+    private CategoryRepository categoryRepository;
+    @Autowired
+    private ProductRepository productRepository;
 
     @Autowired
     private CloudStorageService cloudStorageService;

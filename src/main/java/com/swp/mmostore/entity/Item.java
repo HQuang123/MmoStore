@@ -1,5 +1,6 @@
 package com.swp.mmostore.entity;
 
+import com.swp.mmostore.converter.FieldsConverter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,6 +9,8 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @Entity
 @Table(name = "Items")
@@ -21,8 +24,9 @@ public class Item {
     @Column(name = "ID")
     private Integer itemId;
 
-    @Column(name = "Value")
-    private String value;
+    @Convert(converter = FieldsConverter.class)
+    @Column(name = "Value", columnDefinition = "json")
+    private Map<String, Object> value = new HashMap<>();
 
     @Column(name = "IsSold")
     private Boolean isSold;

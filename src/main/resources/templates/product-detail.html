@@ -26,7 +26,7 @@
             <div class="col-md-5 text-center">
                 <img th:src="${product.productImageUrl}" alt="Product image" class="img-fluid border rounded">
             </div>
-
+            <input type="hidden" id="productId" th:value="${product.id()}">
             <!-- Product info -->
             <div class="col-md-7">
                 <h2 class="fw-bold mb-2" th:text="${product.title}">Tên sản phẩm</h2>
@@ -154,29 +154,22 @@
 
         <div class="row row-cols-2 row-cols-md-4 g-4">
             <div class="col" th:each="related : ${relatedProducts}">
-                <div class="card h-100">
-                    <a th:href="@{/product/{id}(id=${related.id})}">
-                        <img th:src="${related.productImageUrl}" style="height:200px" class="card-img-top" alt="related">
-                    </a>
-
-                    <div class="card-body d-flex flex-column">
-
-                        <div>
-                            <h6 class="card-title">
-                                <a th:href="@{/product/{id}(id=${related.id})}" th:text="${related.title}" class="text-decoration-none text-dark">Product Name</a>
-                            </h6>
+                <a th:href="@{/product/{id}(id=${related.id})}" style="text-decoration: none; color: inherit;">
+                    <div class="card h-100">
+                        <img th:src="${related.productImageUrl()}" class="card-img-top" alt="related">
+                        <div class="card-body">
+                            <h6 class="card-title" th:text="${related.title}">Product Name</h6>
                             <p class="card-text text-muted small" th:text="${related.description}">Description, color,
                                 size</p>
-                        </div>
-
-                        <div class="mt-auto">
-                    <span class="fw-bold"
-                          th:text="${#numbers.formatDecimal(related.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">$95</span>
-                            <span class="text-decoration-line-through text-muted ms-2 small"
-                                  th:text="${#numbers.formatDecimal(related.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">$119</span>
+                            <div>
+                        <span class="fw-bold"
+                              th:text="${#numbers.formatDecimal(related.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">$95</span>
+                                <span class="text-decoration-line-through text-muted ms-2 small"
+                                      th:text="${#numbers.formatDecimal(related.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">$119</span>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
         </div>
 

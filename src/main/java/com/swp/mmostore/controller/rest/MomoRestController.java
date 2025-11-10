@@ -1,11 +1,13 @@
 package com.swp.mmostore.controller.rest;
 
+import com.swp.mmostore.dto.WalletTransactionEvent;
 import com.swp.mmostore.entity.*;
 import com.swp.mmostore.repository.DepositRepository;
 import com.swp.mmostore.repository.OrderRepository;
 import com.swp.mmostore.repository.UserRepository;
 import com.swp.mmostore.service.DepositService;
 import com.swp.mmostore.service.MomoService;
+import com.swp.mmostore.service.WalletProducer;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +32,7 @@ public class MomoRestController {
     private final UserRepository userRepository;
 
     private final MomoService momoService;
+    private final WalletProducer walletProducer;
 
     @Value("${momo.access-key}")
     private String accessKey;
@@ -80,24 +83,29 @@ public class MomoRestController {
             String trustedResultCode = momoQueryResponse.getResultCode();
             log.info("Trusted Result Code: {}", trustedResultCode);
             Integer depositId = Integer.parseInt(payload.get("orderId"));
+            String resultCode = payload.get("resultCode");
             Deposit deposit = depositRepository.findById(depositId).orElse(null);
 
             log.info("Deposit Id la: {}" ,deposit.getId());
             log.info("User id la: {}" ,deposit.getUser().getUserId());
+            log.info("Result code la: {}" ,resultCode);
             log.info("User name la: {}" ,deposit.getUser().getName());
             User user = deposit.getUser();
 
             if(trustedResultCode.equals("0")) {
                 deposit.setStatus(DepositStatus.Completed);
                 //TODO: implement MQ
-                user.setBalance(user.getBalance().add(deposit.getAmount())); //likely to cause error due to
-                depositRepository.save(deposit);
-                userRepository.save(user);
+                WalletTransactionEvent event = new WalletTransactionEvent();
+                event.setTransactionId(deposit.getId());
+                event.setType(ActionType.Top_up);
+                walletProducer.sendTransactionEvent(event);
+
             }
             else{
                 deposit.setStatus(DepositStatus.Failed);
                 depositRepository.save(deposit);
             }
+            userRepository.save(user);
             return ResponseEntity.noContent().build();
         }
         catch (Exception e){
@@ -105,4 +113,5 @@ public class MomoRestController {
             return ResponseEntity.noContent().build(); //momo needs to response back with 204 code to avoid spamming to BE api
         }
     }
+
 }

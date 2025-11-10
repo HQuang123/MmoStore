@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base :: layout(~{::content}, ~{::cssFragment}, ~{::jsFragment})}">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${productForm.id == null ? 'Add Product' : 'Edit Product'}"></title>
+</head>
+
+<!-- CSS riêng -->
+<th:block th:fragment="cssFragment">
+    <link rel="stylesheet" th:href="@{/css/seller.css}">
+</th:block>
+
+<!-- JS riêng -->
+<th:block th:fragment="jsFragment">
+    <script th:inline="javascript">
+        function previewImage(event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById('previewImage');
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = e => preview.src = e.target.result;
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function addFieldRow() {
+            const container = document.getElementById('fieldsContainer');
+            const index = container.children.length;
+
+            const row = document.createElement('div');
+            row.className = 'row g-2 mb-2 field-row align-items-center';
+            row.innerHTML = `
+            <div class="col-md-5">
+            <input type="text" class="form-control field-key" placeholder="Field name (e.g., Color)">
+        </div>
+        <div class="col-md-5">
+            <input type="text" class="form-control field-value" placeholder="Field value (e.g., Red)">
+        </div>
+        <div class="col-md-2 text-end">
+            <button type="button" class="btn btn-outline-danger" onclick="removeFieldRow(this)">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        </div>`;
+            container.appendChild(row);
+        }
+
+        function removeFieldRow(button) {
+            const row = button.closest('.field-row');
+            row.remove();
+        }
+    </script>
+
+
+</th:block>
+
+<!-- CONTENT -->
+<th:block th:fragment="content">
+    <div class="container-fluid">
+        <div class="row">
+
+            <!-- SIDEBAR -->
+            <div class="col-md-3 col-lg-2 bg-dark text-white vh-100 p-3" id="sidebar">
+                <div class="text-center mb-3">
+                    <img th:src="${shop.shopImageUrl}" alt="Shop Image"
+                         class="rounded-circle"
+                         style="width:120px; height:120px; object-fit:cover;">
+                </div>
+                <h4 class="text-center mb-2" th:text="${shop.name}"></h4>
+                <p class="text-center small text-muted" th:text="${shop.description}"></p>
+                <hr class="border-secondary"/>
+                <ul class="nav flex-column">
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white" th:href="@{/seller/statistic}">
+                            <i class="fa-solid fa-chart-line"></i> Statistic
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a class="nav-link active bg-secondary text-white rounded" th:href="@{/seller/products}">
+                            <i class="fa-solid fa-box"></i> Products
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white" th:href="@{/seller/orders}">
+                            <i class="fa-solid fa-file-invoice"></i> Orders
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- MAIN CONTENT -->
+            <div class="col-md-9 col-lg-10 p-4" id="page-content">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 th:text="${productForm.id == null ? 'Add Product' : 'Edit Product'}"></h2>
+                    <a class="btn btn-secondary" th:href="@{/seller/products}">
+                        <i class="fa-solid fa-arrow-left"></i> Back
+                    </a>
+                </div>
+
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <form th:action="@{/seller/products/save}" id="productCreate" th:object="${productForm}" method="post"
+                              enctype="multipart/form-data">
+
+                            <input type="hidden" th:field="*{id}">
+                            <input type="hidden" th:field="*{existingImageUrl}">
+
+                            <div class="row g-3">
+                                <!-- Title -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Product Title</label>
+                                    <input type="text" th:field="*{title}" class="form-control"
+                                           placeholder="Enter product title">
+                                    <div class="text-danger small" th:if="${#fields.hasErrors('title')}"
+                                         th:errors="*{title}"></div>
+                                </div>
+
+                                <!-- Price -->
+                                <div class="col-md-3">
+                                    <label class="form-label">Price (VNĐ)</label>
+                                    <input type="number" th:field="*{price}" class="form-control" placeholder="1000">
+                                    <div class="text-danger small" th:if="${#fields.hasErrors('price')}"
+                                         th:errors="*{price}"></div>
+                                </div>
+
+                                <!-- Quantity -->
+                                <!--                                <div class="col-md-3">-->
+                                <!--                                    <label class="form-label">Quantity</label>-->
+                                <!--                                    <input type="number" th:field="*{quantity}" class="form-control" placeholder="0">-->
+                                <!--                                    <div class="text-danger small" th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}"></div>-->
+                                <!--                                </div>-->
+
+                                <!-- Category -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Category</label>
+                                    <select th:field="*{categoryId}" class="form-select">
+                                        <option value="">-- Select Category --</option>
+                                        <option th:each="c : ${categories}"
+                                                th:value="${c.categoryId}"
+                                                th:text="${c.name}"></option>
+                                    </select>
+                                    <div class="text-danger small" th:if="${#fields.hasErrors('categoryId')}"
+                                         th:errors="*{categoryId}"></div>
+                                </div>
+
+                                <!-- Image Upload -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Product Image</label>
+                                    <input type="file" th:field="*{imageFile}" class="form-control" accept="image/*"
+                                           onchange="previewImage(event)">
+                                    <div class="mt-2">
+                                        <img id="previewImage"
+                                             th:src="${productForm.existingImageUrl != null ? productForm.existingImageUrl : '/images/default-product.png'}"
+                                             alt="Preview"
+                                             style="width:150px; height:150px; object-fit:cover; border-radius:8px;">
+                                    </div>
+                                </div>
+
+                                <!-- Description -->
+                                <div class="col-12">
+                                    <label class="form-label">Description</label>
+                                    <textarea th:field="*{description}" class="form-control" rows="4"
+                                              placeholder="Enter product description"></textarea>
+                                    <div class="text-danger small" th:if="${#fields.hasErrors('description')}"
+                                         th:errors="*{description}"></div>
+                                </div>
+
+                                <!-- ✅ Custom Fields Section -->
+                                <div class="col-12 mt-4">
+                                    <label class="form-label d-flex justify-content-between align-items-center">
+                                        <span>Custom Fields</span>
+                                        <button type="button" class="btn btn-sm btn-outline-primary"
+                                                onclick="addFieldRow()">
+                                            <i class="fa-solid fa-plus"></i> Add Field
+                                        </button>
+                                    </label>
+
+                                    <div id="fieldsContainer">
+                                        <div th:each="entry : ${productForm.fields}">
+                                            <div class="row g-2 mb-2 field-row align-items-center">
+                                                <div class="col-md-5">
+                                                    <input type="text" class="form-control field-key"
+                                                           th:value="${entry.key}"
+                                                           placeholder="Field name (e.g., Color)">
+                                                </div>
+                                                <div class="col-md-5">
+                                                    <input type="text" class="form-control field-value"
+                                                           th:value="${entry.value}"
+                                                           placeholder="Field value (e.g., Red)">
+                                                </div>
+                                                <div class="col-md-2 text-end">
+                                                    <button type="button" class="btn btn-outline-danger"
+                                                            onclick="removeFieldRow(this)">
+                                                        <i class="fa-solid fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Buttons -->
+                                <div class="col-12 text-end mt-4">
+                                    <button type="submit" class="btn btn-success px-4">
+                                        <i class="fa-solid fa-save"></i>
+                                        <span th:text="${productForm.id == null ? 'Add Product' : 'Save Changes'}"></span>
+                                    </button>
+                                    <a class="btn btn-outline-secondary px-4" th:href="@{/seller/products}">
+                                        Cancel
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <script>
+        document.querySelector('[id="productCreate"]').addEventListener('submit', function () {
+            const container = document.getElementById('fieldsContainer');
+            const rows = container.querySelectorAll('.field-row');
+
+            rows.forEach(row => {
+                const keyInput = row.querySelector('.field-key');
+                const valueInput = row.querySelector('.field-value');
+                const key = keyInput.value.trim();
+
+                // clear old name attributes
+                keyInput.removeAttribute('name');
+                valueInput.removeAttribute('name');
+
+                if (key) {
+                    // Spring can map this to Map<String, String>
+                    valueInput.name = `fields[${key}]`;
+                }
+            });
+        });
+    </script>
+</th:block>
+</html>
