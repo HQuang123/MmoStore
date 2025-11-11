@@ -261,7 +261,7 @@ public class WithdrawalController {
             event.setStatus("Approved");
             event.setType(com.swp.mmostore.entity.ActionType.Withdraw);
             walletProducer.sendTransactionEvent(event);
-
+            //Todo: Duc Anh add notification
             return ResponseEntity.ok(Map.of("message", "Withdrawal approved successfully.", "newStatus", "Approved"));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("error", "Server error: " + e.getMessage()));
