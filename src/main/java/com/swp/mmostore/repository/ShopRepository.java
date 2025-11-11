@@ -21,7 +21,6 @@ public interface ShopRepository extends JpaRepository<Shop, Integer> {
                 select
                         s.shopId,
                         s.name,
-                        s.shopImageUrl,
                         CAST(COUNT(p.productId) AS int),
                         COALESCE(AVG(r.ratingPoint), 0),
                         s.shopImageUrl
