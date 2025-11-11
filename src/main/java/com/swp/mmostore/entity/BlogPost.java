@@ -37,6 +37,8 @@ public class BlogPost {
 
     private Boolean isActive = true;
 
+    @Column(name = "Status")
+    private Integer status;
 
     @OneToMany(mappedBy = "blogPost", cascade = CascadeType.ALL)
     private List<BlogComment> comments;

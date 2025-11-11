@@ -14,7 +14,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
+
 
 @Service
 public class BlogPostService {
@@ -123,5 +127,44 @@ public class BlogPostService {
 
         blogPostRepository.save(existingPost);
     }
+
+
+
+    // Lấy danh sách bài viết cho admin với filter và phân trang
+    public Page<BlogPost> getPostsForAdmin(String title, String category, Integer status, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return blogPostRepository.searchForAdmin(
+                (title == null || title.isBlank()) ? null : title,
+                (category == null || category.isBlank()) ? null : category,
+                status,
+                pageable
+        );
+    }
+
+    public void rejectPost(Integer id) {
+        BlogPost post = getPostById(id);
+        if (post != null) {
+            post.setStatus(-1); // từ chối
+            blogPostRepository.save(post);
+        }
+    }
+    // Duyệt bài viết
+    public void approvePost(int id) {
+        blogPostRepository.findById(id).ifPresent(post -> {
+            post.setStatus(1); // 1 = approved
+            blogPostRepository.save(post);
+        });
+    }
+
+    // Xóa bài viết
+    public void deletePost(int id) {
+        BlogPost post = blogPostRepository.findById(id).orElse(null);
+        if (post != null) {
+            post.setIsActive(true);  // đánh dấu xóa mềm
+            blogPostRepository.save(post);
+        }
+    }
+
+
 
 }

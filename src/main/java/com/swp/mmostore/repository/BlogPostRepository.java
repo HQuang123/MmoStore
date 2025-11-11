@@ -5,6 +5,7 @@ import com.swp.mmostore.entity.BlogPost;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -21,7 +22,7 @@ public interface BlogPostRepository extends JpaRepository<BlogPost, Integer> {
 
     @Query("""
     SELECT p FROM BlogPost p
-    WHERE p.isActive = true
+    WHERE p.isActive = true AND p.status= 1
       AND (:title IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :title, '%')))
       AND (:category IS NULL OR LOWER(p.category.name) = LOWER(:category))
     ORDER BY p.createAt DESC
@@ -66,4 +67,18 @@ public interface BlogPostRepository extends JpaRepository<BlogPost, Integer> {
     long countActivePostsByUser(@Param("user") User user, @Param("title") String title,
                                 @Param("category") String category);
     Optional<BlogPost> findByIdAndIsActiveTrue(Integer id);
+
+    @Query("""
+    SELECT b FROM BlogPost b
+    WHERE (:title IS NULL OR LOWER(b.title) LIKE LOWER(CONCAT('%', :title, '%')))
+      AND (:category IS NULL OR b.category.name = :category)
+      AND (:status IS NULL OR b.status = :status)
+    ORDER BY b.createAt DESC
+""")
+    Page<BlogPost> searchForAdmin(
+            @Param("title") String title,
+            @Param("category") String category,
+            @Param("status") Integer status,
+            Pageable pageable
+    );
 }

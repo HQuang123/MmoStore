@@ -57,9 +57,9 @@
 
                         <div>
                             <a th:if="${post.category.name == 'Advertisement' and post.user.shop != null}"
-                               th:href="@{'/shop/' + ${post.user.shop.shopId}}"
-                               class="text-decoration-none me-2" title="Xem shop">
-                                <i class="fa-solid fa-store fa-sm"></i>
+                               th:href="@{/shops/{id}(id=${post.user.shop.shopId})}"
+                               class="btn btn-primary btn-sm">
+                                <i class="fa-solid fa-store"></i> Xem shop
                             </a>
                         </div>
                     </h4>
@@ -92,9 +92,9 @@
                                 <span th:text="${comment.content}"></span>
 
                                 <a th:if="${comment.user != null and comment.user.role.contains('ROLE_SELLER') and comment.user.shop != null}"
-                                   th:href="@{'/shop/' + ${comment.user.shop.shopId}}"
-                                   class="ms-2 text-decoration-none" title="Xem shop">
-                                    <i class="fa-solid fa-store fa-sm"></i>
+                                   th:href="@{/shops/{id}(id=${comment.user.shop.shopId})}"
+                                   class="btn btn-outline-primary btn-sm ms-2">
+                                    <i class="fa-solid fa-store"></i> Xem shop
                                 </a>
                             </p>
                             <small class="text-muted"
@@ -109,9 +109,9 @@
                                            th:text="${#temporals.format(reply.createAt, 'dd/MM/yyyy HH:mm')}"></small>
 
                                     <a th:if="${reply.user != null and reply.user.role.contains('ROLE_SELLER') and reply.user.shop != null}"
-                                       th:href="@{'/shop/' + ${reply.user.shop.shopId}}"
-                                       class="ms-2 text-decoration-none" title="Xem shop">
-                                        <i class="fa-solid fa-store fa-sm"></i>
+                                       th:href="@{/shops/{id}(id=${reply.user.shop.shopId})}"
+                                       class="btn btn-outline-primary btn-sm ms-2">
+                                        <i class="fa-solid fa-store"></i> Xem shop
                                     </a>
                                 </div>
                             </div>
@@ -149,7 +149,6 @@
                 Không có bài viết nào.
             </div>
 
-
             <!-- PHÂN TRANG -->
             <nav th:if="${blogPostsPage.totalPages > 1}">
                 <ul class="pagination justify-content-center">
@@ -178,7 +177,6 @@
                     </li>
                 </ul>
             </nav>
-
         </div>
     </th:block>
 

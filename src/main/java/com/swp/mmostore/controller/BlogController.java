@@ -113,6 +113,7 @@ public class BlogController {
         if (auth != null && !"anonymousUser".equals(auth.getName())) {
             User user = userService.getUserByEmail(auth.getName());
             blogPost.setUser(user);
+            blogPost.setStatus(0);
 
             // Upload ảnh bài viết
             if (imageFile != null && !imageFile.isEmpty()) {
@@ -126,11 +127,7 @@ public class BlogController {
 
             // Category mặc định
             if (blogPost.getCategory() == null) {
-                if (user.getRole().contains("ROLE_SELLER")) {
-                    blogPost.setCategory(blogCategoryService.getCategoryByName("Advertisement"));
-                } else {
-                    blogPost.setCategory(blogCategoryService.getCategoryByName("Question"));
-                }
+                blogPost.setCategory(blogCategoryService.getCategoryByName("Question"));
             }
 
             blogPostService.saveBlogPost(blogPost);
