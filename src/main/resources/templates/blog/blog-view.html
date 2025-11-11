@@ -1,0 +1,197 @@
+<th:block th:replace="~{base :: layout(~{::content}, ~{::cssFragment}, ~{::jsFragment})}">
+
+    <!-- CSS Fragment -->
+    <th:block th:fragment="cssFragment">
+        <link rel="stylesheet" href="/css/blog.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    </th:block>
+
+    <!-- CONTENT -->
+    <th:block th:fragment="content">
+        <div class="container mt-4">
+            <h2 class="mb-4 text-center">MMO Store Blog</h2>
+
+            <!-- Form tìm kiếm + lọc category -->
+            <form th:action="@{/blog/blog-view}" method="get" class="row g-2 mb-3 align-items-center">
+                <div class="col-md-5">
+                    <input type="text" name="title" th:value="${title}" class="form-control"
+                           placeholder="Tìm kiếm theo tiêu đề...">
+                </div>
+                <div class="col-md-4">
+                    <select name="category" class="form-select">
+                        <option value="">-- Chọn loại bài viết --</option>
+                        <option th:each="cat : ${categories}"
+                                th:value="${cat.name}"
+                                th:text="${cat.name}"
+                                th:selected="${cat.name == category}">
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex">
+                    <button type="submit" class="btn btn-primary me-2 w-50">Tìm kiếm</button>
+                    <a th:href="@{/blog/blog-view}" class="btn btn-secondary w-50">Clear</a>
+                </div>
+            </form>
+
+            <!-- Nút tạo bài viết mới -->
+            <div th:if="${currentLoggedInUserDetails != null
+                         and (currentLoggedInUserDetails.role.contains('ROLE_USER')
+                              or currentLoggedInUserDetails.role.contains('ROLE_SELLER'))}" class="mb-3">
+                <a href="/blog/create" class="btn btn-success">
+                    <i class="fa-solid fa-plus"></i> Tạo bài viết mới
+                </a>
+            </div>
+
+            <!-- Nút quản lý bài viết cá nhân -->
+            <div th:if="${currentLoggedInUserDetails != null}" class="mb-3">
+                <a th:href="@{/blog/my-posts}" class="btn btn-info">
+                    <i class="fa-solid fa-list"></i> Quản lý bài viết của tôi
+                </a>
+            </div>
+
+            <!-- DANH SÁCH BÀI VIẾT -->
+            <div th:if="${blogPosts.size() > 0}" th:each="post : ${blogPosts}" class="card mb-4 shadow-sm">
+                <div class="card-body position-relative">
+                    <h4 class="card-title d-flex align-items-center justify-content-between">
+                        <span th:text="${post.title}">Tiêu đề bài viết</span>
+
+                        <div>
+                            <a th:if="${post.category.name == 'Advertisement' and post.user.shop != null}"
+                               th:href="@{'/shop/' + ${post.user.shop.shopId}}"
+                               class="text-decoration-none me-2" title="Xem shop">
+                                <i class="fa-solid fa-store fa-sm"></i>
+                            </a>
+                        </div>
+                    </h4>
+
+                    <p class="card-text" th:text="${post.content}">Nội dung bài viết</p>
+
+                    <img th:if="${post.imageUrl != null}" th:src="${post.imageUrl}"
+                         style="max-width: 35%; height: auto;" class="img-fluid rounded mb-2"/>
+
+                    <p class="text-muted">
+                        Đăng bởi
+                        <span th:text="${post.user != null ? post.user.name : 'Ẩn danh'}"></span>
+                        vào
+                        <span th:text="${#temporals.format(post.createAt, 'dd/MM/yyyy HH:mm')}"></span>
+                    </p>
+
+                    <hr/>
+
+                    <!-- Nút xem bình luận -->
+                    <button class="btn btn-outline-primary btn-sm mb-2" type="button"
+                            th:onclick="'toggleComments(' + ${post.id} + ')'">
+                        Xem bình luận
+                    </button>
+
+                    <!-- BÌNH LUẬN (ẩn mặc định) -->
+                    <div th:id="'comments-' + ${post.id}" class="d-none">
+                        <div th:each="comment : ${postCommentsMap[post.id]}" class="mb-3 border rounded p-2 bg-light">
+                            <p>
+                                <strong th:text="${comment.user != null ? comment.user.name : 'Ẩn danh'}"></strong>:
+                                <span th:text="${comment.content}"></span>
+
+                                <a th:if="${comment.user != null and comment.user.role.contains('ROLE_SELLER') and comment.user.shop != null}"
+                                   th:href="@{'/shop/' + ${comment.user.shop.shopId}}"
+                                   class="ms-2 text-decoration-none" title="Xem shop">
+                                    <i class="fa-solid fa-store fa-sm"></i>
+                                </a>
+                            </p>
+                            <small class="text-muted"
+                                   th:text="${#temporals.format(comment.createAt, 'dd/MM/yyyy HH:mm')}"></small>
+
+                            <!-- Replies -->
+                            <div th:each="reply : ${comment.replies}" class="ms-4 mt-2">
+                                <div class="border-start ps-2 mb-1">
+                                    <strong th:text="${reply.user != null ? reply.user.name : 'Ẩn danh'}"></strong>:
+                                    <span th:text="${reply.content}" class="ms-1"></span>
+                                    <small class="text-muted ms-2"
+                                           th:text="${#temporals.format(reply.createAt, 'dd/MM/yyyy HH:mm')}"></small>
+
+                                    <a th:if="${reply.user != null and reply.user.role.contains('ROLE_SELLER') and reply.user.shop != null}"
+                                       th:href="@{'/shop/' + ${reply.user.shop.shopId}}"
+                                       class="ms-2 text-decoration-none" title="Xem shop">
+                                        <i class="fa-solid fa-store fa-sm"></i>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Form trả lời comment -->
+                            <div th:if="${currentLoggedInUserDetails != null}" class="ms-4 mt-2">
+                                <form th:action="@{'/blog/comment/' + ${post.id}}" method="post">
+                                    <input type="hidden" name="parentId" th:value="${comment.id}">
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" name="content" class="form-control" placeholder="Trả lời bình luận...">
+                                        <button class="btn btn-outline-primary" type="submit">Gửi</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Form thêm comment mới -->
+                        <div th:if="${currentLoggedInUserDetails != null
+                                     and (currentLoggedInUserDetails.role.contains('ROLE_USER')
+                                          or currentLoggedInUserDetails.role.contains('ROLE_SELLER'))}">
+                            <form th:action="@{'/blog/comment/' + ${post.id}}" method="post" class="mt-3">
+                                <div class="input-group">
+                                    <input type="text" name="content" class="form-control" placeholder="Viết bình luận mới...">
+                                    <button type="submit" class="btn btn-success">Bình luận</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Nếu không có bài viết -->
+            <div th:if="${blogPosts.size() == 0}" class="alert alert-info text-center">
+                Không có bài viết nào.
+            </div>
+
+
+            <!-- PHÂN TRANG -->
+            <nav th:if="${blogPostsPage.totalPages > 1}">
+                <ul class="pagination justify-content-center">
+                    <!-- Previous -->
+                    <li class="page-item" th:classappend="${currentPage == 1}? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/blog/blog-view(page=${currentPage-1 > 0 ? currentPage-1 : 1}, title=${title}, category=${category})}">
+                            Trước
+                        </a>
+                    </li>
+
+                    <!-- Số trang -->
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, blogPostsPage.totalPages-1)}"
+                        th:classappend="${i+1 == currentPage}? 'active'">
+                        <a class="page-link"
+                           th:href="@{/blog/blog-view(page=${i+1}, title=${title}, category=${category})}"
+                           th:text="${i+1}">1</a>
+                    </li>
+
+                    <!-- Next -->
+                    <li class="page-item" th:classappend="${currentPage == blogPostsPage.totalPages}? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/blog/blog-view(page=${currentPage+1 <= blogPostsPage.totalPages ? currentPage+1 : blogPostsPage.totalPages}, title=${title}, category=${category})}">
+                            Sau
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+        </div>
+    </th:block>
+
+    <!-- JS Fragment -->
+    <th:block th:fragment="jsFragment">
+        <script>
+            function toggleComments(postId) {
+                const commentsDiv = document.getElementById('comments-' + postId);
+                if (commentsDiv) {
+                    commentsDiv.classList.toggle('d-none');
+                }
+            }
+        </script>
+    </th:block>
+
+</th:block>
