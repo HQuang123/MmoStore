@@ -215,4 +215,8 @@ public class ProductService {
 
         return new PageImpl<>(products, pageable, totalProducts);
     }
+
+    public int getNumberOfAvailable(Integer id) {
+        return itemRepository.countItemsByProductId(id);
+    }
 }
