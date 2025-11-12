@@ -237,6 +237,13 @@ public class UserController {
             session.setAttribute("errorMsg", "Bạn cần đăng nhập để đăng ký bán hàng.");
             return "redirect:/login";
         }
+        // Cập nhật role SELLER
+
+        if (user.getRole().contains("ROLE_SELLER")) {
+            session.setAttribute("errorMsg", "Bạn đã có shop không thể đăng ký");
+            return "seller_register";
+        }
+
 
         // Xử lý ảnh cửa hàng
         String shopImageUrl = "https://storage.googleapis.com/mmostore/default-shop.jpg";
@@ -261,7 +268,7 @@ public class UserController {
             return "redirect:/user/seller_register";
         }
 
-        // Cập nhật role SELLER
+
         if (!user.getRole().contains("ROLE_SELLER")) {
             user.setRole("ROLE_USER,ROLE_SELLER");
             userService.updateUser(user);
