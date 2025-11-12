@@ -67,14 +67,14 @@ public class AuthFailureHandlerImpl extends SimpleUrlAuthenticationFailureHandle
                 // This is the final failed attempt that will lock the account
                 else {
                     loginRegistrationService.userAccountLock(user);
-                    customException = new LockedException("Your account has been locked after " + AppConstant.ATTEMPT_COUNT + " failed attempts.");
+                    customException = new LockedException("Tài khoản của bạn đã bị khóa sau " + AppConstant.ATTEMPT_COUNT + " failed attempts.");
                 }
             }
         }
         // Case 5: User not found
         else {
             // Override the default "Bad credentials" for a non-existent user
-            customException = new UsernameNotFoundException("Account does not exist! Please register first.");
+            customException = new UsernameNotFoundException("Tài khoản chưa tồn tại");
         }
 
         // Set the failure URL and pass the new, custom exception to the super method

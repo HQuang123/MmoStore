@@ -21,7 +21,7 @@ public class MockSecurityUtils {
         Object principal = authentication.getPrincipal();
 
         if (principal instanceof UserDetails userDetails) {
-            return userDetails.getUsername();
+            return userDetails.getUsername(); //email
         }
 
         if (principal instanceof OAuth2User oAuth2User) {
