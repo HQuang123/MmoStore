@@ -43,7 +43,9 @@ public class UserService {
         userRepository.findById(userId).ifPresent(user -> {
             // Toggle user active/inactive
             boolean newStatus = !Boolean.TRUE.equals(user.getStatus());
+            boolean deleteStatus = !Boolean.TRUE.equals(user.getIsDeleted());
             user.setStatus(newStatus);
+            user.setIsDeleted(deleteStatus);
             userRepository.save(user);
 
             // If user has a shop, also toggle its status

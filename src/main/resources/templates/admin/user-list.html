@@ -19,17 +19,17 @@
     <div class="container mt-4">
         <div class="mb-3">
             <a th:href="@{/admin}" class="btn btn-outline-primary btn-sm">
-                ← Back to Dashboard
+                ← Quay lại
             </a>
         </div>
 
-        <h2 class="mb-4">User Management</h2>
+        <h2 class="mb-4">Quản lý người dùng</h2>
 
         <form th:action="@{/admin/users}" method="get" class="d-flex gap-2 mb-3">
 
             <!-- Role Filter -->
             <select name="role" class="form-select form-select-sm w-auto">
-                <option value="" th:selected="${(role == null) or (role == '')}">All Roles</option>
+                <option value="" th:selected="${(role == null) or (role == '')}">Tất cả</option>
                 <option th:value="'ROLE_ADMIN'" th:selected="${role == 'ROLE_ADMIN'}">Admin</option>
                 <option th:value="'ROLE_SELLER'" th:selected="${role == 'ROLE_SELLER'}">Seller</option>
                 <option th:value="'ROLE_USER'" th:selected="${role == 'ROLE_USER'}">User</option>
@@ -37,42 +37,42 @@
 
             <!-- Status Filter -->
             <select name="status" class="form-select form-select-sm w-auto">
-                <option value="" th:selected="${(status == null) or (status == '')}">All status</option>
+                <option value="" th:selected="${(status == null) or (status == '')}">Tất cả</option>
                 <option th:value="'true'" th:selected="${status == 'true'}">Active</option>
                 <option th:value="'false'" th:selected="${status == 'false'}">Inactive</option>
             </select>
 
             <!-- Search Input -->
             <input type="text" name="keyword" class="form-control form-control-sm w-auto"
-                   placeholder="Search"
+                   placeholder="Tìm"
                    th:value="${keyword}">
 
             <!-- Buttons -->
-            <button type="submit" class="btn btn-primary btn-sm">Search</button>
+            <button type="submit" class="btn btn-primary btn-sm">Tìm</button>
 
             <!-- Clear Filters -->
-            <a th:href="@{/admin/users}" class="btn btn-outline-secondary btn-sm">Clear</a>
+            <a th:href="@{/admin/users}" class="btn btn-outline-secondary btn-sm">Xóa</a>
         </form>
 
         <table class="table table-bordered table-hover">
             <thead>
             <tr>
                 <th>ID</th>
-                <th>Username</th>
+                <th>Tên</th>
                 <th>Email</th>
-                <th>Balance</th>
-                <th>Create At</th>
-                <th>Role</th>
-                <th>Shop</th>
-                <th>Status</th>
-                <th>Action</th>
+                <th>Số Dư</th>
+                <th>Tạo Lúc</th>
+                <th>Vai Trò</th>
+                <th>Của Hàng</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
             </tr>
             </thead>
             <tbody>
             <!-- If no users -->
             <tr th:if="${#lists.isEmpty(users)}">
                 <td colspan="8" class="text-center text-muted">
-                    No users found matching your filters.
+                    Không tìm thấy người dùng.
                 </td>
             </tr>
 
@@ -113,8 +113,7 @@
             <!-- Previous button -->
             <a th:if="${hasPrevious}"
                th:href="@{/admin/users(page=${currentPage - 1}, role=${role}, status=${status}, keyword=${keyword})}"
-               class="btn btn-outline-primary btn-sm">Previous</a>
-
+               class="btn btn-outline-primary btn-sm">Trước</a>
             <!-- Page numbers -->
             <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
         <a th:if="${i != currentPage}"
@@ -129,7 +128,7 @@
             <!-- Next button -->
             <a th:if="${hasNext}"
                th:href="@{/admin/users(page=${currentPage + 1}, role=${role}, status=${status}, keyword=${keyword})}"
-               class="btn btn-outline-primary btn-sm">Next</a>
+               class="btn btn-outline-primary btn-sm">Tiếp</a>
         </div>
     </div>
 </section>
