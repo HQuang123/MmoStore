@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Service
 public class CategoryService {
@@ -26,7 +27,24 @@ public class CategoryService {
         return categoryRepository.findFiltered(keyword, isDeleted, pageable);
     }
 
-    public void saveCategory(Category category, MultipartFile imageFile) throws IOException {
+    public void saveCategory(Category category, MultipartFile imageFile) throws IOException, IllegalArgumentException {
+        Optional<Category> existingByName = categoryRepository.findByName(category.getName());
+
+        if (existingByName.isPresent()) {
+            // A category with this name exists. Now check if it's the *same* category
+            // we are trying to update or a *different* one.
+
+            // This is an "update" operation and the found category is NOT the same one.
+            if (category.getCategoryId() != null && !existingByName.get().getCategoryId().equals(category.getCategoryId())) {
+                throw new IllegalArgumentException("Another category with the name '" + category.getName() + "' already exists.");
+            }
+
+            // This is an "add new" operation (ID is null) but the name is already taken.
+            if (category.getCategoryId() == null) {
+                throw new IllegalArgumentException("A category with the name '" + category.getName() + "' already exists.");
+            }
+        }
+
         if (imageFile != null && !imageFile.isEmpty()) {
             String imageUrl = cloudStorageService.uploadFile(imageFile);
             category.setCategoryImageUrl(imageUrl);
