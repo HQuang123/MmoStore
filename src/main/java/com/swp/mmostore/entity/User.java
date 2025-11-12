@@ -99,9 +99,6 @@ public class User {
     @Column(name = "AccountLockTime", insertable = false)
     private Date accountLockTime;
 
-    @Column(name = "ResetTokens")
-    private String resetToken;
-
     @Column(name = "ProfileImage")
     private String profileImage;
 

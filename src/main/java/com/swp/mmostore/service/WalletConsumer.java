@@ -58,7 +58,7 @@ public class WalletConsumer {
     private void processWithdraw(WalletTransactionEvent event) throws MessagingException {
         //process withdraw
         Withdrawal wd = withdrawalRepository.findById(event.getTransactionId()).orElseThrow();
-        User user = wd.getUser();
+//        User user = wd.getUser();
         //release on-hold balance
 //        user.setOnHoldBalance(user.getOnHoldBalance().subtract(event.getAmount()));
 
@@ -66,10 +66,11 @@ public class WalletConsumer {
             withdrawService.approveWithdrawal(wd);
         } else if ("Rejected".equalsIgnoreCase(event.getStatus())) {
             //refund to user's wallet
-            user.setBalance(user.getBalance().add(event.getAmount()));
+//            user.setBalance(user.getBalance().add(event.getAmount()));
+//            Todo: dang tru 2 lan
             withdrawService.rejectWithdrawal(wd);
         }
-        userRepository.save(user);
+//        userRepository.save(user);
 
     }
 

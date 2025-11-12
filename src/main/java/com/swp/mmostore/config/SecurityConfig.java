@@ -8,6 +8,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -17,6 +18,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 public class SecurityConfig {
 
     @Autowired
+    @Lazy
     AuthenticationSuccessHandler authenticationSuccessHandler;
 
     @Autowired
@@ -28,16 +30,12 @@ public class SecurityConfig {
     @Lazy
     CustomOAuth2UserService customOAuth2UserService;
 
-    @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 
     @Bean
-    //this is where the comparison between the user input and the stored password happens between customUserDetailsService and DAOAuthenticationProvider
-    public DaoAuthenticationProvider authProvider(CustomUserDetailsService customUserDetailsService, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    //DAOAuthenticationProvider use the information of user from CustomUserDetailsService to compare  between user input and the stored password in database
+    public DaoAuthenticationProvider authProvider(CustomUserDetailsService customUserDetailsService, PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(customUserDetailsService);
-        authProvider.setPasswordEncoder(bCryptPasswordEncoder);
+        authProvider.setPasswordEncoder(passwordEncoder);
         return authProvider;
     }
     //CustomUserDetailService takes UserDetails object from method loadUserByUsername
@@ -68,7 +66,7 @@ public class SecurityConfig {
                 .loginPage("/login")
                 .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService)) //take the access key-> send to userinfo endpoint to get the user details
             )
-            .logout(logout -> logout.permitAll());
+            .logout(logout -> logout.logoutUrl("/logout").logoutSuccessUrl("/login?logoutMessage=successful").permitAll());
         return http.build();
     }
 }
