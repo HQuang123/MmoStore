@@ -113,7 +113,7 @@ public class OrderService {
             Integer orderIdVal = ((Number) map.get("orderId")).intValue();
             String productNameVal = (String) map.get("productName");
 
-            // ✅ Xử lý kiểu ngày giờ linh hoạt
+            //  Xử lý kiểu ngày giờ linh hoạt
             Object createAtObj = map.get("createAt");
             LocalDateTime createAtVal = null;
             if (createAtObj instanceof Timestamp ts) {
@@ -125,10 +125,10 @@ public class OrderService {
             int quantityVal = ((Number) map.get("quantity")).intValue();
             String statusVal = (String) map.get("status");
 
-            BigDecimal unitPriceVal = (BigDecimal) map.get("unitPrice");   // ✅ thêm
+            BigDecimal unitPriceVal = (BigDecimal) map.get("unitPrice");   //  thêm
             BigDecimal totalPriceVal = (BigDecimal) map.get("totalPrice");
 
-            Integer shopIdVal = null;                                     // ✅ thêm
+            Integer shopIdVal = null;                                     // thêm
             Object shopIdObj = map.get("shopId");
             if (shopIdObj instanceof Number num) {
                 shopIdVal = num.intValue();
