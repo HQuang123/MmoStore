@@ -2,7 +2,7 @@
 
     <!-- CSS Fragment -->
     <th:block th:fragment="cssFragment">
-        <link rel="stylesheet" href="/css/blog.css">
+        <link rel="stylesheet" href="/css/blog-view.css"/>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
     </th:block>
 
@@ -10,6 +10,10 @@
     <th:block th:fragment="content">
         <div class="container mt-4">
             <h2 class="mb-4 text-center">MMO Store Blog</h2>
+            <div class="container mt-4">
+                <div th:if="${successMessage}" class="alert alert-success text-center" th:text="${successMessage}"></div>
+                <div th:if="${errorMessage}" class="alert alert-danger text-center" th:text="${errorMessage}"></div>
+            </div>
 
             <!-- Form tìm kiếm + lọc category -->
             <form th:action="@{/blog/blog-view}" method="get" class="row g-2 mb-3 align-items-center">

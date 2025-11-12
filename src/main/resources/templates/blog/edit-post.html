@@ -49,7 +49,12 @@
                             </select>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                        <a th:href="@{/blog/my-posts}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Hủy
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Lưu thay đổi
+                        </button>
                     </form>
                 </div>
         </div>

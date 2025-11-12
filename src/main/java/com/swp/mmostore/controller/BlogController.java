@@ -108,29 +108,40 @@ public class BlogController {
 
     @PostMapping("/blog/create")
     public String createBlog(@ModelAttribute BlogPost blogPost,
-                             @RequestParam("imageFile") MultipartFile imageFile) {
+                             @RequestParam("imageFile") MultipartFile imageFile,
+                             RedirectAttributes redirectAttributes) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && !"anonymousUser".equals(auth.getName())) {
             User user = userService.getUserByEmail(auth.getName());
             blogPost.setUser(user);
-            blogPost.setStatus(0);
+            blogPost.setStatus(0); // 0 = chờ duyệt
 
-            // Upload ảnh bài viết
+            // Upload ảnh bài viết (nếu có)
             if (imageFile != null && !imageFile.isEmpty()) {
                 try {
                     String imageUrl = cloudStorageService.uploadFile(imageFile);
                     blogPost.setImageUrl(imageUrl);
                 } catch (IOException e) {
                     e.printStackTrace();
+                    redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi tải ảnh lên!");
+                    return "redirect:/blog/blog-view";
                 }
             }
 
-            // Category mặc định
+            // Gán danh mục mặc định nếu chưa có
             if (blogPost.getCategory() == null) {
                 blogPost.setCategory(blogCategoryService.getCategoryByName("Question"));
             }
 
             blogPostService.saveBlogPost(blogPost);
+
+            // Gửi thông báo sau khi gửi bài
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "Bài viết của bạn đã được gửi. Quản trị viên sẽ duyệt trong vòng 12 giờ tới."
+            );
+        } else {
+            redirectAttributes.addFlashAttribute("errorMessage", "Bạn cần đăng nhập để đăng bài.");
         }
 
         return "redirect:/blog/blog-view";
