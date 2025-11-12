@@ -17,28 +17,28 @@
 <body>
 <section>
     <div class="container">
-        <div th:if="${successMessage}" class="alert alert-success">
-            <span th:text="${successMessage}"></span>
+        <div th:if="${successMsg}" class="alert alert-success">
+            <span th:text="${successMsg}"></span>
         </div>
 
-        <div th:if="${errorMessage}" class="alert alert-danger">
-            <span th:text="${errorMessage}"></span>
+        <div th:if="${errorMsg}" class="alert alert-danger">
+            <span th:text="${errorMsg}"></span>
         </div>
         <header class="header">
-            <h1>Withdrawal Management</h1>
+            <h1>Quản lý rút tiền</h1>
         </header>
 
         <form th:action="@{/admin/withdraw}" method="GET" class="filter-form">
             <input type="text" name="keyword" placeholder="Search by username..." th:value="${keyword}">
 
             <select name="status">
-                <option value="">All Statuses</option>
+                <option value="">Trạng thái</option>
                 <option value="Pending" th:selected="${'Pending'.equalsIgnoreCase(status)}">Pending</option>
                 <option value="Approved" th:selected="${'Approved'.equalsIgnoreCase(status)}">Approved</option>
                 <option value="Rejected" th:selected="${'Rejected'.equalsIgnoreCase(status)}">Rejected</option>
             </select>
 
-            <button type="submit">Filter</button>
+            <button type="submit">Lọc</button>
         </form>
 
         <div class="table-wrapper">
