@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     loadProducts();
     document.querySelectorAll('input[name="category"]').forEach(checkbox => {
-        if (categoryFromUrl.includes(checkbox.value)) {
+        if (categoryFromUrl && categoryFromUrl.includes(checkbox.value)) {
             checkbox.checked = true;
         }
     });
@@ -33,6 +33,27 @@ document.addEventListener("DOMContentLoaded", function () {
                 .map(cb => cb.value);
             filter.page = 0;
             loadProducts();
+        });
+    }
+
+    const searchInput = document.getElementById("searchInput");
+    const searchButton = document.getElementById("searchBtn");
+
+    if (searchButton && searchInput) {
+        searchButton.addEventListener("click", function() {
+            filter.keyword = searchInput.value.trim();
+            filter.page = 0;
+            loadProducts();
+        });
+
+        // Optional: Search on Enter key
+        searchInput.addEventListener("keypress", function(e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                filter.keyword = searchInput.value.trim();
+                filter.page = 0;
+                loadProducts();
+            }
         });
     }
 
@@ -86,8 +107,10 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ✅ 5. Render pagination
+// ✅ 5. Render pagination
     function renderPagination(totalPages, currentPage) {
+        console.log("📄 Rendering pagination - Total Pages:", totalPages, "Current:", currentPage);
+
         pagination.innerHTML = "";
 
         const prevDisabled = currentPage === 0 ? "disabled" : "";

@@ -80,6 +80,24 @@
 
             </ul>
 
+            <div class="search-container">
+                <form action="/search" method="get" class="search-form">
+                    <i class="fas fa-search search-icon"></i>
+                    <input
+                            class="form-control search-input"
+                            type="search"
+                            name="query"
+                            placeholder="Tìm kiếm sản phẩm..."
+                            aria-label="Search"
+                            th:value="${searchKeyword}"
+                            th:classappend="${searchKeyword != null and !searchKeyword.isEmpty()} ? 'active-search' : ''"
+                    >
+                    <button class="btn search-btn" type="submit">
+                        <i class="fas fa-arrow-right"></i>
+                        Tìm
+                    </button>
+                </form>
+            </div>
 
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
 
