@@ -67,21 +67,14 @@ public class LoginRegistrationService {
         return false;
     }
 
+    public void resetFailedAttempts(User user){
+        user.setAccountFailedAttempt(0);
+        userRepository.save(user);
+    }
+
     public void userFailedAttemptIncrease(User user){
             user.setAccountFailedAttempt(user.getAccountFailedAttempt()+1);
             userRepository.save(user);
-    }
-    public boolean validateUser(String email, String password) {
-        User user = userRepository.findByEmail(email);
-        if (user == null) return false;
-
-        // check password match
-        boolean passwordMatch = passwordEncoder.matches(password, user.getPassword());
-        if (!passwordMatch) return false;
-
-        // check locked status
-        return user.getAccountStatusNonLocked() == null
-                || Boolean.TRUE.equals(user.getAccountStatusNonLocked());
     }
 
     public void userAccountLock(User user) {
@@ -103,21 +96,6 @@ public class LoginRegistrationService {
            return true;
        }
        return false;
-    }
-
-    public void updateUserResetTokenForSendingEmail(String email, String resetToken){
-        User user = userRepository.findByEmail(email);
-        user.setResetToken(resetToken);
-        userRepository.save(user);
-    }
-
-    public User getUserByResetToken(String resetToken){
-        return userRepository.findByResetToken(resetToken);
-    }
-
-    //need to check this
-    public User updateUserWhileResettingPassword(User user){
-        return userRepository.save(user);
     }
 
     public User findByProviderId(String providerId){

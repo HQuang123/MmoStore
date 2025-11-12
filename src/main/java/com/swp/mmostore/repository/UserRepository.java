@@ -20,10 +20,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Query("SELECT u FROM User u WHERE u.email = :email AND u.isDeleted = false")
     User findActiveByEmail(@Param("email") String email);
 
-
     public List<User> findByRole(String role);
-
-    public User findByResetToken(String resetToken);
 
     public User findByProviderId(String providerId);
 
