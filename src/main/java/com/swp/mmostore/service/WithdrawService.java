@@ -38,7 +38,7 @@ public class WithdrawService {
     //approve a withdrawl request
     @Transactional
     public Withdrawal approveWithdrawal(Withdrawal wd)  throws MessagingException {
-        wd.setStatus("APPROVED");
+        wd.setStatus("Approved");
         Withdrawal result = withdrawalRepository.save(wd);
         // Gửi email bất đồng bộ cho seller
         String userName = wd.getUser() != null ? wd.getUser().getName()  : "";
@@ -61,7 +61,7 @@ public class WithdrawService {
     //reject a withdrawl request
     @Transactional
     public Withdrawal rejectWithdrawal(Withdrawal wd) throws MessagingException {
-        wd.setStatus("REJECTED");
+        wd.setStatus("Rejected");
         Withdrawal result = withdrawalRepository.save(wd);
         //deduct 1000d from user
         if( wd.getUser() != null){
