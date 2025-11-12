@@ -56,7 +56,7 @@ public class UserService {
     }
 
     public User getUserByEmail(String email){
-        return userRepository.findByEmail(email);
+        return userRepository.findActiveByEmail(email);
     }
 
 

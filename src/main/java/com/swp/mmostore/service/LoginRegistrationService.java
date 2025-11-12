@@ -48,7 +48,7 @@ public class LoginRegistrationService {
     }
 
     public User getUserByEmail(String email){
-        return userRepository.findByEmail(email);
+        return userRepository.findActiveByEmail(email);
     }
 
     public List<User> getAllUsersByRole(String role){
@@ -157,7 +157,7 @@ public class LoginRegistrationService {
 
     @Transactional
     public void generateResetTokenAndSendEmail(String email, String siteUrl) {
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findActiveByEmail(email);
         if (user == null) return ;
         //check to see if there is old token -> then delete
         PasswordResetToken oldToken = passwordResetTokenRepository.findByUser(user);
@@ -203,19 +203,6 @@ public class LoginRegistrationService {
 
     public void updateUser(User user) {
         userRepository.save(user);
-    }
-
-
-    public void registerAsSeller(String email) {
-        User user = userRepository.findByEmail(email);
-        if (user != null) {
-            user.addRole("ROLE_SELLER");
-            userRepository.save(user);
-        }
-    }
-
-    public void deleteUser(Integer id) {
-        userRepository.deleteById(id);
     }
 
 
