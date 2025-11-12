@@ -59,13 +59,14 @@ public class WithdrawService {
     }
 
     //reject a withdrawl request
+    @Transactional
     public Withdrawal rejectWithdrawal(Withdrawal wd) throws MessagingException {
         wd.setStatus("REJECTED");
         Withdrawal result = withdrawalRepository.save(wd);
         //deduct 1000d from user
         if( wd.getUser() != null){
             BigDecimal amount = wd.getAmount();
-            //check if user has enought balance to deduct before
+            //check if user has enough balance to deduct before
             BigDecimal refundAmount = amount.subtract(new BigDecimal(1000));
             if(refundAmount.compareTo(new BigDecimal(0)) > 0){
                 User user = wd.getUser();
@@ -79,7 +80,7 @@ public class WithdrawService {
         String amount = wd.getAmount() != null ? wd.getAmount().toString() : "";
         String bankInfo = wd.getBank() + " - " + wd.getBankAccount();
         String rejectDate = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date());
-        String reason = "";
+        String reason = "Admin từ chối";
         if(email != null && !email.isBlank()){
             String subject = "[MMOStore] Yêu cầu rút tiền đã bị từ chối";
             String html = emailTemplate.withdrawalRejectedEmail(userName, amount, bankInfo, rejectDate, reason);
