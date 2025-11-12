@@ -57,8 +57,12 @@ public class LoginRegistrationController {
     @ModelAttribute //this method will automatically model.addAttribute for every method in this class, create one instance of deposit per request
     public void addCommonAttributes(Model model) {
         String email = MockSecurityUtils.getCurrentUserEmail();
-        User user = userRepository.findActiveByEmail(email);
-        model.addAttribute("user", user);
+        if(email != null){
+            User user = userRepository.findActiveByEmail(email);
+            if(user != null){
+                model.addAttribute("user", user);
+            }
+        }
     }
 
     @GetMapping("/login")

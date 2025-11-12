@@ -19,7 +19,9 @@
 <section>
     <div class="container mt-5">
         <h2 class="mb-4">My Wallet</h2>
-
+        <div th:if="${successMsg}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong th:text="${successMsg}"></strong> <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
         <div class="card p-4 shadow-sm">
             <h4>Số dư hiện tại:</h4>
             <h2 class="text-success" th:text="${#numbers.formatDecimal(balance, 0, 'COMMA', 0, 'POINT')} + ' VND'"></h2>
