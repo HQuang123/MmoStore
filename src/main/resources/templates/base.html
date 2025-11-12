@@ -71,9 +71,9 @@
                 <li class="nav-item dropdown"><a
                         class="nav-link active dropdown-toggle" href="#" role="button"
                         data-bs-toggle="dropdown" aria-expanded="false"> Danh mục </a>
-                    <ul class="dropdown-menu">
-                        <li th:each="cat: ${allActiveCategory}"><a class="dropdown-item"
-                                                                   th:href="@{'products?category='+${cat.categoryName}}">[[${cat.categoryName}]]</a>
+                    <ul class="dropdown-menu" style="max-height: 250px; overflow-y: auto;">
+                        <li th:each="category: ${allActiveCategory}"><a class="dropdown-item"
+                                                                   th:href="@{'/productList'(category=${category.categoryId})}">[[${category.name}]]</a>
                         </li>
 
                     </ul>

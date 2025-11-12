@@ -1,6 +1,7 @@
 package com.swp.mmostore.config;
 
 import com.swp.mmostore.entity.User;
+import com.swp.mmostore.repository.CategoryRepository;
 import com.swp.mmostore.service.LoginRegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -15,6 +16,8 @@ public class GlobalModelAttributes {
 
     @Autowired
     private LoginRegistrationService userService;
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     @ModelAttribute
     public void addUserDetails(Model model) {
@@ -23,5 +26,7 @@ public class GlobalModelAttributes {
             User user = userService.getUserByEmail(auth.getName()); //neu oauth2user attribute key la email --> getName = getAttributeKey = id --> moi retrieve duoc username, neu userid -> invalid
             model.addAttribute("currentLoggedInUserDetails", user);
         }
+
+        model.addAttribute("allActiveCategory", categoryRepository.findAll());
     }
 }

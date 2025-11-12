@@ -20,4 +20,13 @@ public interface ItemRepository extends JpaRepository<Item, Integer> {
              and i.isSold = false
         """)
     List<Item> findUnsoldItem(@Param("productId") Integer productId, Pageable pageable);
+
+    @Query("""
+        SELECT count(i) FROM Item i
+        WHERE i.product.productId = :productId
+             AND i.order IS NULL
+             And i.isDeleted = false or i.isDeleted IS NULL
+             and i.isSold = false
+        """)
+    int countItemsByProductId(Integer productId);
 }
