@@ -1,6 +1,5 @@
 package com.swp.mmostore.controller;
 
-import com.swp.mmostore.entity.PasswordResetToken;
 import com.swp.mmostore.entity.User;
 import com.swp.mmostore.repository.PasswordResetTokenRepository;
 import com.swp.mmostore.repository.UserRepository;
@@ -8,9 +7,7 @@ import com.swp.mmostore.service.CloudStorageService;
 import com.swp.mmostore.service.LoginRegistrationService;
 import com.swp.mmostore.service.RecaptchaService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import org.bouncycastle.math.raw.Mod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import javax.xml.validation.Validator;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Map;
 
 @Controller
 public class LoginRegistrationController {
