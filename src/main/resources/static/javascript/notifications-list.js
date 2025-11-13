@@ -28,6 +28,24 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // ====== CLICK ANYWHERE TO TOGGLE CHECKBOX ======
+    const cards = document.querySelectorAll(".notification-card");
+
+    cards.forEach(card => {
+        card.addEventListener("click", function (e) {
+            // Prevent double toggle if user actually clicked on a button or checkbox
+            if (e.target.tagName === "BUTTON" || e.target.tagName === "FORM" || e.target.type === "checkbox") {
+                return;
+            }
+
+            const checkbox = card.querySelector('input[name="selectedIds"]');
+            if (checkbox) {
+                checkbox.checked = !checkbox.checked;
+                toggleHighlight(checkbox);
+            }
+        });
+    });
+
     // ====== BULK ACTION SUBMISSION FIX ======
     const bulkForm = document.querySelector('form[action$="/notifications/bulk-action"]');
     if (bulkForm) {

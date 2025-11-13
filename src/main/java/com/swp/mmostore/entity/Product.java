@@ -61,7 +61,7 @@ public class Product {
     @Column(name = "UpdateBy", insertable = false)
     private Integer updateBy;
 
-    @Column(name = "ProductImageUrl", insertable = false)
+    @Column(name = "ProductImageUrl")
     private String productImageUrl;
 
     @ManyToOne

@@ -156,3 +156,97 @@
 .category-title p {
     margin-bottom: 0;
 }
+
+/* ========== IMPROVED SEARCH BAR ========== */
+.search-container {
+    position: relative;
+    max-width: 500px;
+    margin: 0 1rem;
+    flex-grow: 1;
+}
+
+.search-form {
+    position: relative;
+}
+
+.search-input {
+    padding: 0.6rem 3rem 0.6rem 2.5rem !important;
+    border-radius: 25px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.15);
+    color: white;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.search-input:focus {
+    background-color: white !important;
+    color: #212529 !important;
+    border-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    outline: none;
+}
+
+.search-input::placeholder {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.search-input:focus::placeholder {
+    color: #999;
+}
+
+.search-input.active-search {
+    background-color: white !important;
+    color: #212529 !important;
+    border-color: #198754;
+}
+
+.search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.8);
+    pointer-events: none;
+    transition: color 0.3s ease;
+    z-index: 10;
+}
+
+.search-input:focus ~ .search-icon,
+.search-input.active-search ~ .search-icon {
+    color: #198754;
+}
+
+.search-btn {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 20px;
+    padding: 0.4rem 1rem;
+    border: none;
+    background: linear-gradient(135deg, #198754 0%, #157347 100%);
+    color: white;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.search-btn:hover {
+    background: linear-gradient(135deg, #157347 0%, #0f5132 100%);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(-50%) scale(1.05);
+}
+
+.search-btn i {
+    margin-right: 0.3rem;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+    .search-container {
+        margin: 1rem 0;
+        max-width: 100%;
+    }
+}

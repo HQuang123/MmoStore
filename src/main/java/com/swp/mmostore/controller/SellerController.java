@@ -525,7 +525,12 @@ public class  SellerController {
         return "redirect:/seller/statistic";
     }
 
-
+    @GetMapping("/seller/products/{id}/items")
+    @ResponseBody
+    public List<Map<String, Object>> getProductItems(@PathVariable Integer id) {
+        // Giả sử product.getItemsJson() trả về JSON dạng List<Map<String, Object>>
+        return productService.getItemsAvaiableForSeller(id);
+    }
 
 
 

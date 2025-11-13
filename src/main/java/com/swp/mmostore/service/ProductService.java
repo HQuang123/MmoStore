@@ -11,6 +11,7 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -218,5 +219,17 @@ public class ProductService {
 
     public int getNumberOfAvailable(Integer id) {
         return itemRepository.countItemsByProductId(id);
+    }
+
+    public List<Map<String, Object>> getItemsAvaiableForSeller(Integer productId) {
+        Pageable pageable = Pageable.unpaged();
+        List<Item> items = itemRepository.findUnsoldItem(productId, pageable);
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Item item : items) {
+            Map<String, Object> flat = new LinkedHashMap<>(item.getValue());
+            flat.put("Item ID", item.getItemId());
+            result.add(flat);
+        }
+        return result;
     }
 }
