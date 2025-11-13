@@ -61,25 +61,6 @@
             </form>
         </div>
     </div>
-    <script>
-        const shopImageInput = document.getElementById('shopImage');
-        const previewImage = document.getElementById('previewImage');
-
-        shopImageInput.addEventListener('change', function() {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    previewImage.src = e.target.result;
-                    previewImage.style.display = 'block';
-                }
-                reader.readAsDataURL(file);
-            } else {
-                previewImage.src = '#';
-                previewImage.style.display = 'none';
-            }
-        });
-    </script>
 </section>
 
 <!-- Fragment trống để tránh lỗi -->
