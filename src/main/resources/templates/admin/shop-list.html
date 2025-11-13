@@ -59,7 +59,7 @@
             <tr th:each="shop : ${shops}">
                 <td th:text="${shop.shopId}"></td>
                 <td th:text="${shop.name}"></td>
-                <td th:text="${shop.user?.name}">No owner</td>
+                <td th:text="${shop.user.name}">No owner</td>
                 <td th:text="${shop.createAt}"></td>
                 <td>
                     <span th:text="${shop.isDeleted} ? 'Inactive' : 'Active'"></span>
