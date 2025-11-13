@@ -14,7 +14,7 @@
 
 <!-- JS Fragment -->
 <th:block th:fragment="jsFragment">
-    <script th:src="@{/js/seller-products.js}"></script>
+    <script src="/javascript/seller/seller-products.js"></script>
 </th:block>
 
 <!-- CONTENT Fragment -->
@@ -103,7 +103,7 @@
                         </label>
                         <div class="input-group">
                             <input type="number" id="maxPrice" name="maxPrice" class="form-control text-end"
-                                   placeholder="1000000" min="0" step="1000"
+                                   placeholder="" min="0" step="1000"
                                    th:value="${maxPrice}">
                             <span class="input-group-text">₫</span>
                         </div>
@@ -159,6 +159,11 @@
                                     <td th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'COMMA')} + ' VNĐ'"></td>
 
                                     <td class="text-center">
+                                        <button class="btn btn-sm btn-outline-info me-1"
+                                                th:attr="data-product-id=${product.id()}"
+                                                onclick="openItemModal(this)">
+                                            <i class="fa-solid fa-eye"></i> Xem chi tiết
+                                        </button>
                                         <a class="btn btn-sm btn-outline-primary me-1"
                                            th:href="@{/seller/products/edit/{id}(id=${product.id()})}">
                                             <i class="fa-solid fa-pen"></i>
@@ -202,6 +207,29 @@
             </div>
         </div>
     </div>
+
+    <!-- ITEM DETAIL MODAL -->
+    <!-- ITEM MODAL -->
+    <div class="modal fade" id="itemModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="itemModalLabel">Danh sách Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body" style="max-height: 65vh; overflow-y: auto;">
+                    <div id="itemTableContainer">
+                        <p class="text-center text-muted">Chưa có dữ liệu</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 </section>
 
 </html>
