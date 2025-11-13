@@ -96,6 +96,12 @@
                     </tr>
                     </thead>
                     <tbody>
+                    <!-- Nếu không có đơn hàng -->
+                    <tr th:if="${#lists.isEmpty(orderPage.content)}">
+                        <td colspan="10" class="text-center text-muted py-4">
+                            💤 Bạn không có đơn hàng nào.
+                        </td>
+                    </tr>
                     <tr th:each="order, iStat : ${orderPage.content}">
                         <td th:text="${order.orderId}"></td>
                         <td th:text="${order.productName}"></td>

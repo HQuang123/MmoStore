@@ -21,30 +21,31 @@ import java.util.Map;
 public interface OrderRepository extends JpaRepository<Order, Integer> {
 
     @Query(value = """
-                SELECT 
-                    o.ID AS orderId,
-                    p.Title AS productName,
-                    o.CreateAt AS createAt,
-                    o.Quantity AS quantity,
-                    o.Status AS status,
-                    o.UnitPrice AS unitPrice,       --  mới
-                    o.TotalPrice AS totalPrice,
-                    o.ShopID AS shopId,             --  mới
-                    o.ShopName AS shopName,         --  mới
-                    JSON_ARRAYAGG(i.`Value`) AS itemValues
-                FROM Orders o
-                JOIN Product p ON o.ProductID = p.ID
-                LEFT JOIN Items i ON i.OrderID = o.ID
-                WHERE o.UserID = :userId
-                  AND (:productName IS NULL OR p.Title LIKE CONCAT('%', :productName, '%'))
-                  AND (:startDate IS NULL OR o.CreateAt >= :startDate)
-                  AND (:endDate IS NULL OR o.CreateAt < :endDate)
-                  AND (:status IS NULL OR o.Status = :status)
-                  AND (:minTotal IS NULL OR o.TotalPrice >= :minTotal)
-                  AND (:maxTotal IS NULL OR o.TotalPrice <= :maxTotal)
-                  AND (:orderId IS NULL OR CAST(o.ID AS CHAR) LIKE CONCAT('%', :orderId, '%'))
-                GROUP BY o.ID, p.Title, o.CreateAt, o.Quantity, o.Status, o.TotalPrice
-            """,
+        SELECT 
+            o.ID AS orderId,
+            p.Title AS productName,
+            o.CreateAt AS createAt,
+            o.Quantity AS quantity,
+            o.Status AS status,
+            o.UnitPrice AS unitPrice,
+            o.TotalPrice AS totalPrice,
+            o.ShopID AS shopId,
+            o.ShopName AS shopName,
+            JSON_ARRAYAGG(i.`Value`) AS itemValues
+        FROM Orders o
+        JOIN Product p ON o.ProductID = p.ID
+        LEFT JOIN Items i ON i.OrderID = o.ID
+        WHERE o.UserID = :userId
+          AND (:productName IS NULL OR p.Title LIKE CONCAT('%', :productName, '%'))
+          AND (:startDate IS NULL OR o.CreateAt >= :startDate)
+          AND (:endDate IS NULL OR o.CreateAt < :endDate)
+          AND (:status IS NULL OR o.Status = :status)
+          AND (:minTotal IS NULL OR o.TotalPrice >= :minTotal)
+          AND (:maxTotal IS NULL OR o.TotalPrice <= :maxTotal)
+          AND (:orderId IS NULL OR CAST(o.ID AS CHAR) LIKE CONCAT('%', :orderId, '%'))
+        GROUP BY o.ID, p.Title, o.CreateAt, o.Quantity, o.Status, o.TotalPrice, o.UnitPrice, o.ShopID, o.ShopName
+        ORDER BY o.CreateAt DESC
+    """,
             nativeQuery = true)
     Page<Map<String, Object>> findOrderHistoryByUserIdNative(
             @Param("userId") Long userId,

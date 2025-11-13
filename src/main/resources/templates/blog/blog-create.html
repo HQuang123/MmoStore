@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base :: layout(~{::content}, ~{::cssFragment}, ~{::jsFragment})}">
+
+<!-- CSS fragment -->
+<th:block th:fragment="cssFragment">
+    <link rel="stylesheet" href="/css/blog.css">
+</th:block>
+
+<!-- Content fragment -->
+<th:block th:fragment="content">
+    <div class="container mt-3">
+        <h2>Tạo bài viết mới</h2>
+
+        <form th:action="@{/blog/create}" th:object="${blogPost}" method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label class="form-label">Tiêu đề</label>
+                <input type="text" th:field="*{title}" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Nội dung</label>
+                <textarea th:field="*{content}" class="form-control" rows="5" required></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Hình ảnh (tùy chọn)</label>
+                <input type="file" name="imageFile" id="imageFile" class="form-control" accept="image/*">
+
+                <!-- Xem trước ảnh -->
+                <div class="mt-3">
+                    <img id="previewImage" src="#" alt="Xem trước"
+                         style="display:none; max-width: 300px; height: auto; border-radius:8px;">
+                </div>
+            </div>
+
+            <!-- Chọn category nếu muốn -->
+            <div class="mb-3" th:if="${currentLoggedInUserDetails != null}">
+                <label class="form-label">Chọn loại bài viết</label>
+                <select th:field="*{category.id}" class="form-select">
+                    <!-- Nếu user là seller, hiển thị tất cả categories -->
+                    <option th:each="cat : ${categories}"
+                            th:if="${currentLoggedInUserDetails.role.contains('ROLE_SELLER') or cat.name != 'Advertisement'}"
+                            th:value="${cat.id}" th:text="${cat.name}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="mb-3 mt-3 d-flex gap-2">
+                <button type="submit" class="btn btn-success">Đăng bài</button>
+                <a th:href="@{/blog/blog-view}" class="btn btn-secondary">Hủy</a>
+            </div>
+
+        </form>
+    </div>
+    <script>
+        const imageInput = document.getElementById('imageFile');
+        const previewImage = document.getElementById('previewImage');
+
+        imageInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    previewImage.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            } else {
+                previewImage.src = '#';
+                previewImage.style.display = 'none';
+            }
+        });
+    </script>
+
+</th:block>
+
+<!-- JS fragment -->
+<th:block th:fragment="jsFragment">
+    <script src="/js/blog.js"></script>
+</th:block>
+
+</html>

@@ -10,10 +10,7 @@
     <div class="container mt-5 p-5">
         <div class="card shadow p-4 col-md-6 mx-auto">
             <h3 class="text-center mb-4">Đăng ký bán hàng</h3>
-            <div th:if="${session.errorMsg}"
-                 class="alert alert-danger text-center"
-                 th:text="${session.errorMsg}">
-            </div>
+            <div th:if="${errorMsg}" class="alert alert-danger text-center" th:text="${errorMsg}"></div>
             <form action="/user/seller_register" method="post" enctype="multipart/form-data">
                 <div class="mb-3">
                     <label class="form-label">Tên cửa hàng</label>
@@ -27,8 +24,15 @@
 
                 <div class="mb-3">
                     <label class="form-label">Ảnh cửa hàng</label>
-                    <input type="file" class="form-control" name="shopImage" accept="image/*" required>
+                    <input type="file" class="form-control" name="shopImage" id="shopImage" accept="image/*" required>
+
+                    <!-- Xem trước ảnh -->
+                    <div class="text-center mt-3">
+                        <img id="previewImage" src="#" alt="Xem trước"
+                             style="display:none; width:150px; height:150px; object-fit:cover; border-radius:8px;">
+                    </div>
                 </div>
+
 
                 <!-- 🧾 Điều khoản & cam kết -->
                 <div class="border rounded p-3 bg-light mb-3" style="max-height: 200px; overflow-y: auto;">
@@ -57,10 +61,30 @@
             </form>
         </div>
     </div>
+    <script>
+        const shopImageInput = document.getElementById('shopImage');
+        const previewImage = document.getElementById('previewImage');
+
+        shopImageInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    previewImage.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            } else {
+                previewImage.src = '#';
+                previewImage.style.display = 'none';
+            }
+        });
+    </script>
 </section>
 
-<!-- ✅ Fragment trống để tránh lỗi -->
+<!-- Fragment trống để tránh lỗi -->
 <th:block th:fragment="cssFragment"></th:block>
-<th:block th:fragment="jsFragment"></th:block>
+<th:block th:fragment="jsFragment">
+</th:block>
 </body>
 </html>

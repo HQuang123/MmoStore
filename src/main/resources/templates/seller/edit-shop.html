@@ -18,6 +18,7 @@
             </div>
 
             <div class="card-body">
+                <div th:if="${errorMsg}" class="alert alert-danger text-center" th:text="${errorMsg}"></div>
                 <form th:action="@{/seller/shop/update}" method="post" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label for="shopName" class="form-label">Tên cửa hàng</label>

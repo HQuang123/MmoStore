@@ -64,6 +64,7 @@ public class ProductController {
         model.addAttribute("shop", shop);
         model.addAttribute("relatedProducts", related);
         model.addAttribute("ratings", ratings);
+        model.addAttribute("numberOfAvaiable", productService.getNumberOfAvailable(id));
 
         return "product-detail"; // Trỏ đến file product-detail.html
     }

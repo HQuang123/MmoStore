@@ -18,21 +18,19 @@
 
                     <div class="card-body">
                         <form th:action="@{/user/update}" th:object="${user}" method="post">
-
                             <div class="mb-3">
                                 <label class="form-label"><strong>Họ và tên:</strong></label>
                                 <input type="text" th:field="*{name}" class="form-control" placeholder="Nhập họ và tên của bạn" required>
+                                <div th:if="${#fields.hasErrors('name')}" class="text-danger" th:errors="*{name}"></div>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label"><strong>Số điện thoại:</strong></label>
                                 <input type="text" th:field="*{phoneNumber}" class="form-control" placeholder="Nhập số điện thoại" required>
+                                <div th:if="${#fields.hasErrors('phoneNumber')}" class="text-danger" th:errors="*{phoneNumber}"></div>
                             </div>
 
-                            <div class="text-center mt-4">
-                                <button type="submit" class="btn btn-success">Lưu thay đổi</button>
-                                <a href="/user/detail" class="btn btn-secondary ms-2">Hủy</a>
-                            </div>
+                            <button type="submit" class="btn btn-primary">Cập nhật</button>
                         </form>
                     </div>
                 </div>

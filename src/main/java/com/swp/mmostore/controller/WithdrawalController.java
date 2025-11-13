@@ -91,7 +91,7 @@ public class WithdrawalController {
             }
             //compare amount to withdraw with available balance (real balance - onHold balance)
             if (withdrawal.getAmount().compareTo(user.getBalance()) > 0) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Số dư không đủ");
+                redirectAttributes.addFlashAttribute("errorMsg", "Số dư không đủ");
                 return "redirect:/user/wallet/withdraw"; //return to @GET MAPPing
             }
 
@@ -107,7 +107,7 @@ public class WithdrawalController {
             redirectAttributes.addFlashAttribute("withdrawal", withdrawal);
             return "redirect:/user/wallet/withdraw/confirm";
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi Server !");
+            redirectAttributes.addFlashAttribute("errorMsg", "Lỗi Server !");
             return "redirect:/user/wallet/withdraw";
         }
     }
@@ -127,9 +127,9 @@ public class WithdrawalController {
             }
             Withdrawal withdrawal = withdrawalRepository.findById(withdrawalId).orElse(null);
             WithdrawalOtp withdrawalOtp = withdrawalOtpRepository.findByTokenAndWithdrawal(otp, withdrawal);
-            if (withdrawalOtp == null && withdrawalOtp.isExpired()) {
+            if (withdrawalOtp == null || withdrawalOtp.isExpired()) {
                 redirectAttributes.addFlashAttribute("withdrawal", withdrawal);
-                redirectAttributes.addFlashAttribute("errorMessage", "Ma OTP khong hop le hoac het han");
+                redirectAttributes.addFlashAttribute("errorMsg", "Mã OTP không hợp lệ hoặc hết hạn");
                 return "redirect:/user/wallet/withdraw/confirm";
             }
             //TODO: Implement MQ for withdrawal @ShiroHoang
@@ -137,12 +137,12 @@ public class WithdrawalController {
             // Add request to Kafka queue for processing
             walletProducer.sendWithdrawRequest(user, withdrawal);
 
-            redirectAttributes.addFlashAttribute("successMessage", "Yêu cầu rút tiền nộp thành công.");
+            redirectAttributes.addFlashAttribute("successMsg", "Yêu cầu rút tiền nộp thành công.");
         } catch (Exception ex) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi server: " + ex.getMessage());
+            redirectAttributes.addFlashAttribute("errorMsg", "Lỗi server: " + ex.getMessage());
             return "redirect:/user/wallet/withdraw";
         }
-        return "redirect:/user/wallet/withdraw";
+        return "redirect:/user/wallet";
     }
 
     @PostMapping("/user/wallet/withdraw/resend-otp")
@@ -152,12 +152,12 @@ public class WithdrawalController {
             User user = (User) model.getAttribute("user");
             Withdrawal withdrawal = withdrawalRepository.findById(withdrawalId).orElseThrow(() -> new RuntimeException("Yêu cầu rút tiền không tìm thấy"));
             if (withdrawal.getUser().getUserId() != user.getUserId()) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: Yêu cầu không hợp lệ.");
+                redirectAttributes.addFlashAttribute("errorMsg", "Lỗi: Yêu cầu không hợp lệ.");
                 return "redirect:/user/wallet/withdraw";
             }
             //2. check if unconfirmed
             if (!"Unconfirmed".equalsIgnoreCase(withdrawal.getStatus())) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Yêu cầu này đã được xử lý hoặc hủy bỏ.");
+                redirectAttributes.addFlashAttribute("errorMsg", "Yêu cầu này đã được xử lý hoặc hủy bỏ.");
                 return "redirect:/user/wallet/withdraw";
             }
             // --- Resend Logic ---
@@ -179,12 +179,12 @@ public class WithdrawalController {
             emailService.sendEmailAsync(user.getEmail(), subject, content); // Assuming you use sendEmailAsync
 
             // 4. Redirect back to the confirm page with a success message
-            redirectAttributes.addFlashAttribute("successMessage", "Đã gửi lại mã OTP. Vui lòng kiểm tra email.");
+            redirectAttributes.addFlashAttribute("successMsg", "Đã gửi lại mã OTP. Vui lòng kiểm tra email.");
             redirectAttributes.addFlashAttribute("withdrawal", withdrawal); // Pass the ID back
             return "redirect:/user/wallet/withdraw/confirm";
 
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi server: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMsg", "Lỗi server: " + e.getMessage());
             return "redirect:/user/wallet/withdraw";
         }
 
@@ -284,6 +284,7 @@ public class WithdrawalController {
             event.setStatus("Rejected");
             event.setType(ActionType.Withdraw);
             walletProducer.sendTransactionEvent(event);
+            redirectAttributes.addFlashAttribute("successMsg","Withdrawal #" + withdrawalId + " has been rejected");
             redirectAttributes.addFlashAttribute("successMessage","Withdrawal #" + withdrawalId + " has been rejected");
 
             // add notification for successful approval for user
@@ -293,7 +294,7 @@ public class WithdrawalController {
             );
 
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage","Server error: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMsg","Server error: " + e.getMessage());
         }
         return "redirect:/admin/withdraw";
     }

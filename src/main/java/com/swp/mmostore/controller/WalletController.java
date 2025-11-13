@@ -29,7 +29,7 @@ public class WalletController {
     public void addCommonAttributes(Model model) {
         String email = MockSecurityUtils.getCurrentUserEmail();
         log.info("Current user id: {}", email);
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findActiveByEmail(email);
         Deposit deposit = new Deposit();
         deposit.setUser(user);
         deposit.setActionType(ActionType.Top_up);

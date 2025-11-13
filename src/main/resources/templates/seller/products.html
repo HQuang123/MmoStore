@@ -14,18 +14,18 @@
 
 <!-- JS Fragment -->
 <th:block th:fragment="jsFragment">
-    <script th:src="@{/js/seller-products.js}"></script>
+    <script src="/javascript/seller/seller-products.js"></script>
 </th:block>
 
 <!-- CONTENT Fragment -->
 <section>
-    <div class="container-fluid">
+    <div class="container-fluid seller-layout">
         <div class="row">
             <!-- SIDEBAR -->
-            <div class="col-md-3 col-lg-2 bg-dark text-white vh-100 p-3" id="sidebar">
+            <div id="sidebar" class="col-md-3 col-lg-2">
                 <div class="text-center mb-3">
                     <img th:src="${shop.shopImageUrl}"
-                         alt="Shop Image"
+                         alt="Ảnh cửa hàng"
                          class="rounded-circle"
                          style="width:120px; height:120px; object-fit:cover;">
                 </div>
@@ -35,17 +35,22 @@
                 <ul class="nav flex-column">
                     <li class="nav-item mb-2">
                         <a class="nav-link text-white" th:href="@{/seller/statistic}">
-                            <i class="fa-solid fa-chart-line"></i> Statistic
+                            <i class="fa-solid fa-chart-line"></i> Thống kê
                         </a>
                     </li>
                     <li class="nav-item mb-2">
-                        <a class="nav-link active bg-secondary text-white rounded" th:href="@{/seller/products}">
-                            <i class="fa-solid fa-box"></i> Products
+                        <a class="nav-link bg-secondary text-white rounded active" th:href="@{/seller/products}">
+                            <i class="fa-solid fa-box"></i> Sản phẩm
                         </a>
                     </li>
                     <li class="nav-item mb-2">
                         <a class="nav-link text-white" th:href="@{/seller/orders}">
-                            <i class="fa-solid fa-file-invoice"></i> Orders
+                            <i class="fa-solid fa-file-invoice"></i> Đơn hàng
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white" th:href="@{/seller/shop/edit}">
+                            <i class="fa-solid fa-pen-to-square"></i> Chỉnh sửa thông tin cửa hàng
                         </a>
                     </li>
                 </ul>
@@ -54,13 +59,13 @@
             <!-- MAIN CONTENT -->
             <div class="col-md-9 col-lg-10 p-4" id="page-content">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2><i class="fa-solid fa-boxes-stacked me-2"></i>Manage Products</h2>
+                    <h2><i class="fa-solid fa-boxes-stacked me-2"></i>Quản lí sản phẩm</h2>
                     <div>
                         <a class="btn btn-primary" th:href="@{/seller/products/add}">
-                            <i class="fa-solid fa-plus"></i> Add Product
+                            <i class="fa-solid fa-plus"></i> Thêm loại sản phẩm mới
                         </a>
                         <a class="btn btn-success me-2" th:href="@{/seller/items/create}">
-                            <i class="fa-solid fa-plus"></i> Add Item
+                            <i class="fa-solid fa-plus"></i> Bổ sung sản phẩm tồn kho
                         </a>
                     </div>
                 </div>
@@ -98,7 +103,7 @@
                         </label>
                         <div class="input-group">
                             <input type="number" id="maxPrice" name="maxPrice" class="form-control text-end"
-                                   placeholder="1000000" min="0" step="1000"
+                                   placeholder="" min="0" step="1000"
                                    th:value="${maxPrice}">
                             <span class="input-group-text">₫</span>
                         </div>
@@ -110,7 +115,7 @@
                             <i class="fa-solid fa-filter me-1"></i> Lọc
                         </button>
                         <a th:href="@{/seller/products}" class="btn btn-outline-secondary px-4">
-                            <i class="fa-solid fa-rotate-right me-1"></i> Reset
+                            <i class="fa-solid fa-rotate-right me-1"></i> Làm mới
                         </a>
                     </div>
                 </form>
@@ -122,38 +127,43 @@
                 <!-- PRODUCT LIST TABLE -->
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title mb-3">Your Products</h4>
+                        <h4 class="card-title mb-3">Danh sách sản phẩm</h4>
 
                         <div th:if="${#lists.isEmpty(productList)}">
-                            <p class="text-center text-muted p-3">No products found</p>
+                            <p class="text-center text-muted p-3">Không tìm thấy sản phẩm nào</p>
                         </div>
 
                         <div th:if="${!#lists.isEmpty(productList)}">
                             <table class="table table-hover align-middle">
                                 <thead class="table-light">
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Image</th>
-                                    <th>Name</th>
-                                    <th>Description</th>
-                                    <th>Price</th>
-                                    <th class="text-center">Actions</th>
+<!--                                    <th>ID</th>-->
+                                    <th >Ảnh</th>
+                                    <th>Tên</th>
+                                    <th>Mô tả</th>
+                                    <th>Giá</th>
+                                    <th class="text-center"></th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <tr th:each="product : ${productList}">
-                                    <td th:text="${product.id()}"></td>
+<!--                                    <td th:text="${product.id()}"></td>-->
                                     <td>
-                                        <img th:src="${product.price()}"
+                                        <img th:src="${product.productImageUrl()}"
                                              alt="Product Image"
                                              class="rounded"
                                              style="width:60px; height:60px; object-fit:cover;">
                                     </td>
                                     <td th:text="${product.title}"></td>
                                     <td th:text="${product.description()}"></td>
-                                    <td th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 3, 'COMMA')} + ' VNĐ'"></td>
+                                    <td th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'COMMA')} + ' VNĐ'"></td>
 
                                     <td class="text-center">
+                                        <button class="btn btn-sm btn-outline-info me-1"
+                                                th:attr="data-product-id=${product.id()}"
+                                                onclick="openItemModal(this)">
+                                            <i class="fa-solid fa-eye"></i> Xem chi tiết
+                                        </button>
                                         <a class="btn btn-sm btn-outline-primary me-1"
                                            th:href="@{/seller/products/edit/{id}(id=${product.id()})}">
                                             <i class="fa-solid fa-pen"></i>
@@ -197,6 +207,29 @@
             </div>
         </div>
     </div>
+
+    <!-- ITEM DETAIL MODAL -->
+    <!-- ITEM MODAL -->
+    <div class="modal fade" id="itemModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="itemModalLabel">Danh sách Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body" style="max-height: 65vh; overflow-y: auto;">
+                    <div id="itemTableContainer">
+                        <p class="text-center text-muted">Chưa có dữ liệu</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 </section>
 
 </html>

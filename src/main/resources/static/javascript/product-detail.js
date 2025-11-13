@@ -6,7 +6,7 @@ function openConfirm() {
     document.getElementById("totalValue").textContent = totalPrice.toLocaleString('vi-VN') + 'đ';
     // // Event when click 'yes'
     const confirmBtn = document.getElementById("confirmOrderBtn");
-    confirmBtn.onclick = function() {
+    confirmBtn.onclick = function () {
         createOrder(quantity, totalPrice, productId);
     };
 
@@ -43,3 +43,15 @@ function createOrder(quantity, totalPrice, productId) {
         })
         .catch(err => console.error("Error:", err));
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById('quantity').addEventListener('change', function () {
+        const max = parseInt(document.getElementById('stock').value);
+        console.log(document.getElementById('stock').value);
+        const value = parseInt(this.value);
+        if (value > max) {
+            this.value = max;
+            alert('Số lượng vượt quá hàng tồn kho');
+        }
+    });
+});

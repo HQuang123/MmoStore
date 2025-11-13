@@ -26,15 +26,15 @@
                         </p>
                     </div>
 
-                    <th:block th:if="${errorMessage}">
+                    <th:block th:if="${errorMsg}">
                         <div class="alert alert-danger text-center m-3" role="alert">
-                            [[${errorMessage}]]
+                            [[${errorMsg}]]
                         </div>
                     </th:block>
 
-                    <th:block th:if="${successMessage}">
+                    <th:block th:if="${successMsg}">
                         <div class="alert alert-success text-center m-3" role="alert">
-                            [[${successMessage}]]
+                            [[${successMsg}]]
                         </div>
                     </th:block>
 

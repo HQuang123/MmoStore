@@ -23,19 +23,19 @@
             <tr>
                 <th>Mã Giao Dịch</th>
                 <th>
-                    <a th:href="@{/user/transactions(page=${currentPage}, sort='type,' + (${sortField == 'type' && sortDir == 'ASC'} ? 'DESC' : 'ASC'))}">Loại</a>
+                    <a th:href="@{/user/transactions(page=0, size=${transactionPage.size}, sort='type,' + (${sortField == 'type' && sortDir == 'ASC'} ? 'DESC' : 'ASC'))}">Loại</a>
                 </th>
                 <th>
-                    <a th:href="@{/user/transactions(page=${currentPage}, sort='amount,' + (${sortField == 'amount' && sortDir == 'ASC'} ? 'DESC' : 'ASC'))}">Số tiền</a>
+                    <a th:href="@{/user/transactions(page=0, size=${transactionPage.size}, sort='amount,' + (${sortField == 'amount' && sortDir == 'ASC'} ? 'DESC' : 'ASC'))}">Số tiền</a>
                 </th>
                 <th>
-                    <a th:href="@{/user/transactions(page=${currentPage}, sort='status,' + (${sortField == 'status' && sortDir == 'ASC'} ? 'DESC' : 'ASC'))}">Trạng thái</a>
+                    <a th:href="@{/user/transactions(page=0, size=${transactionPage.size}, sort='status,' + (${sortField == 'status' && sortDir == 'ASC'} ? 'DESC' : 'ASC'))}">Trạng thái</a>
                 </th>
                 <th>
-                    <a th:href="@{/user/transactions(page=${currentPage}, sort='detail,' + (${sortField == 'detail' && sortDir == 'ASC'} ? 'DESC' : 'ASC'))}">Chi tiết</a>
+                    <a th:href="@{/user/transactions(page=0, size=${transactionPage.size}, sort='detail,' + (${sortField == 'detail' && sortDir == 'ASC'} ? 'DESC' : 'ASC'))}">Chi tiết</a>
                 </th>
                 <th>
-                    <a th:href="@{/user/transactions(page=${currentPage}, sort='createAt,' + (${sortField == 'createAt' && sortDir == 'ASC'} ? 'DESC' : 'ASC'))}">Thời gian</a>
+                    <a th:href="@{/user/transactions(page=0, size=${transactionPage.size}, sort='createAt,' + (${sortField == 'createAt' && sortDir == 'ASC'} ? 'DESC' : 'ASC'))}">Thời gian</a>
                 </th>
             </tr>
             </thead>
@@ -60,8 +60,45 @@
             </tbody>
         </table>
 
-        <div class="pagination" th:if="${transactionPage.totalPages > 1}">
+        <nav th:if="${transactionPage.totalPages > 1}" aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+
+                <li class="page-item" th:classappend="${transactionPage.isFirst()} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/user/transactions(
+                           page=${currentPage - 1},
+                           size=${transactionPage.size},
+                           sort=${sortField + ',' + sortDir}
+                       )}">Previous</a>
+                </li>
+
+                <li th:each="pageNum : ${#numbers.sequence(1, transactionPage.totalPages)}"
+                    class="page-item" th:classappend="${pageNum == currentPage + 1} ? 'active'">
+                    <a class="page-link"
+                       th:href="@{/user/transactions(
+                           page=${pageNum - 1},
+                           size=${transactionPage.size},
+                           sort=${sortField + ',' + sortDir}
+                       )}"
+                       th:text="${pageNum}">
+                    </a>
+                </li>
+
+                <li class="page-item" th:classappend="${transactionPage.isLast()} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/user/transactions(
+                           page=${currentPage + 1},
+                           size=${transactionPage.size},
+                           sort=${sortField + ',' + sortDir}
+                       )}">Next</a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="text-center" th:if="${transactionPage.totalPages > 0}">
+            Trang <strong th:text="${currentPage + 1}">1</strong> trên <strong th:text="${transactionPage.totalPages}">1</strong>
         </div>
+
     </div>
 </section>
 </body>

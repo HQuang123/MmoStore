@@ -9,6 +9,7 @@
             rel="stylesheet"
             integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
             crossorigin="anonymous">
+    <link rel="icon" type="image/png" href="https://storage.googleapis.com/mmostore/favicon2.png">
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
           integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
@@ -64,18 +65,23 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item"><a class="nav-link active"
-                                        aria-current="page" href="/"><i class="fa-solid fa-house"></i> Home</a></li>
+                                        aria-current="page" href="/"><i class="fa-solid fa-house"></i> Trang chủ</a></li>
                 <li class="nav-item"><a class="nav-link active"
-                                        aria-current="page" href="/productList">Product</a></li>
+                                        aria-current="page" href="/productList">Sản phẩm</a></li>
                 <li class="nav-item dropdown"><a
                         class="nav-link active dropdown-toggle" href="#" role="button"
-                        data-bs-toggle="dropdown" aria-expanded="false"> Category </a>
-                    <ul class="dropdown-menu">
-                        <li th:each="cat: ${allActiveCategory}"><a class="dropdown-item"
-                                                                   th:href="@{'products?category='+${cat.categoryName}}">[[${cat.categoryName}]]</a>
+                        data-bs-toggle="dropdown" aria-expanded="false"> Danh mục </a>
+                    <ul class="dropdown-menu" style="max-height: 250px; overflow-y: auto;">
+                        <li th:each="category: ${allActiveCategory}"><a class="dropdown-item"
+                                                                   th:href="@{'/productList'(category=${category.categoryId})}">[[${category.name}]]</a>
                         </li>
 
                     </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="/blog/blog-view">
+                        <i class="fa-solid fa-newspaper"></i> Blog
+                    </a>
                 </li>
 
             </ul>
@@ -104,9 +110,9 @@
                 <th:block th:if="${currentLoggedInUserDetails == null}">
                     <li class="nav-item"><a class="nav-link active"
                                             aria-current="page" href="/login"><i
-                            class="fa-solid fa-right-to-bracket"></i> LOGIN</a></li>
+                            class="fa-solid fa-right-to-bracket"></i> Đăng nhập </a></li>
                     <li class="nav-item"><a class="nav-link active"
-                                            aria-current="page" href="/register">REGISTER</a></li>
+                                            aria-current="page" href="/register">Đăng ký</a></li>
 
                 </th:block>
                 <th:block th:if="${currentLoggedInUserDetails != null}">
@@ -185,10 +191,10 @@
                         </ul>
                     </li>
                 </th:block>
-
+                <th:block th:if="${currentLoggedInUserDetails != null}">
                 <li class="nav-item">
                     <a class="nav-link active" aria-current="page" href="/logout">
-                        <i class="fas fa-sign-out-alt"></i> Logout
+                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
                     </a>
                 </li>
                 </th:block>
@@ -200,8 +206,8 @@
 <div class="content-wrapper" th:insert="${content}"></div>
 <!-- start footer -->
 <div class="container-fluid p-1 bg-success text-center text-white" style="margin-top: 0px;">
-    <p class="mt-2"><i><b>Tap hoa SWP391</b></i><br><a th:ref="@{/login}" style="text-decoration:none; color:white;"
-                                                       target="_blank">Nhóm 6</a><br>Copyright &copy; 2024. All rights
+    <p class="mt-2"><i><b>MMO Store</b></i><br><a th:ref="@{/login}" style="text-decoration:none; color:white;"
+                                                       target="_blank">Nhóm 6</a><br>Copyright &copy; 2025. All rights
         Reserved</p>
 </div>
 <script

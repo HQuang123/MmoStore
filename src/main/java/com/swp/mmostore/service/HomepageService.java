@@ -19,15 +19,11 @@ public class HomepageService {
     private ProductRepository productRepository;
 
     public List<Category> getTopSixCategories() {
-        List<Category> listFull = categoryRepository.findAll();
-        if (!listFull.isEmpty() ) {
-            if (listFull.size() > 6) {
-                return listFull.subList(0, 6);
-            } else {
-                return listFull;
-            }
+        List<Category> listFull = categoryRepository.findTop6ByIsDeletedFalseOrderByNameAsc();
+        if(listFull.isEmpty()){
+            return null;
         }
-        return null;
+        return listFull;
     }
 
     public List<Product> getTopTwelveProducts() {

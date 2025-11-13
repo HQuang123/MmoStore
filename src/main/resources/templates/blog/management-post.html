@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="~{base :: layout(~{::content}, ~{::cssFragment}, ~{::jsFragment})}">
+
+    <!-- CSS -->
+    <th:block th:fragment="cssFragment">
+        <link rel="stylesheet" href="/css/blog.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    </th:block>
+
+    <!-- CONTENT -->
+    <th:block th:fragment="content">
+        <div class="container mt-4">
+            <h2 class="mb-4 text-center">Quản lý Blog (Admin)</h2>
+
+            <!-- Flash messages -->
+            <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+
+            <!-- Bộ lọc tìm kiếm -->
+            <form th:action="@{/admin/blog/management-post}" method="get" class="row g-2 mb-3 align-items-center">
+                <div class="col-md-4">
+                    <input type="text" name="title" th:value="${title}" class="form-control" placeholder="Tìm kiếm theo tiêu đề...">
+                </div>
+                <div class="col-md-3">
+                    <select name="category" class="form-select">
+                        <option value="">-- Chọn danh mục --</option>
+                        <option th:each="cat : ${categories}"
+                                th:value="${cat.name}"
+                                th:text="${cat.name}"
+                                th:selected="${cat.name == category}">
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="status" class="form-select">
+                        <option value="">-- Chọn trạng thái --</option>
+                        <option th:value="0" th:selected="${status != null and status==0}">Chờ duyệt</option>
+                        <option th:value="1" th:selected="${status != null and status==1}">Đã duyệt</option>
+                        <option th:value="-1" th:selected="${status != null and status==-1}">Từ chối</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex">
+                    <button type="submit" class="btn btn-primary w-100">Lọc</button>
+                    <a th:href="@{/admin/blog/management-post}" class="btn btn-secondary w-50">Xóa bộ lọc</a>
+                </div>
+
+            </form>
+
+            <!-- Danh sách bài viết -->
+            <div th:each="post : ${postsPage.content}" class="card mb-3">
+                <div class="row g-0">
+                    <!-- Ảnh thumbnail -->
+                    <div class="col-md-2">
+                        <img th:src="${post.imageUrl ?: '/images/profile_img/default.jpg'}"
+                             class="img-fluid rounded-start" alt="Thumbnail">
+                    </div>
+
+                    <div class="col-md-10">
+                        <div class="card-body">
+                            <!-- Tiêu đề và badge trạng thái -->
+                            <h5 class="card-title d-flex justify-content-between align-items-center">
+                                <span th:text="${post.title}"></span>
+                                <span th:switch="${post.status}">
+                                    <span th:case="1" class="badge bg-success">Đã duyệt</span>
+                                    <span th:case="0" class="badge bg-warning">Chờ duyệt</span>
+                                    <span th:case="-1" class="badge bg-danger">Từ chối</span>
+                                </span>
+                            </h5>
+
+                            <!-- Nội dung -->
+                            <p th:text="${post.content}" class="card-text"></p>
+
+                            <!-- Nút hành động -->
+                            <div class="mt-2">
+                                <!-- Chỉ hiện nút duyệt nếu đang chờ duyệt -->
+                                <form th:if="${post.status==0}" th:action="@{/admin/blog/approve/{id}(id=${post.id})}" method="post" class="d-inline">
+                                    <input type="hidden" name="page" th:value="${currentPage}" />
+                                    <input type="hidden" name="title" th:value="${title}" />
+                                    <input type="hidden" name="category" th:value="${category}" />
+                                    <input type="hidden" name="status" th:value="${status}" />
+                                    <button type="submit" class="btn btn-sm btn-success">
+                                        <i class="fa-solid fa-check"></i> Duyệt
+                                    </button>
+                                </form>
+
+                                <!-- Chỉ hiện nút từ chối nếu đang chờ duyệt -->
+                                <form th:if="${post.status==0}" th:action="@{/admin/blog/reject/{id}(id=${post.id})}" method="post" class="d-inline">
+                                    <input type="hidden" name="page" th:value="${currentPage}" />
+                                    <input type="hidden" name="title" th:value="${title}" />
+                                    <input type="hidden" name="category" th:value="${category}" />
+                                    <input type="hidden" name="status" th:value="${status}" />
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="fa-solid fa-ban"></i> Từ chối
+                                    </button>
+                                </form>
+                                <!-- Chỉ hiện nút xóa nếu bài viết đã được duyệt -->
+                                <form th:if="${post.status == 1}" th:action="@{/admin/blog/delete/{id}(id=${post.id})}" method="post" class="d-inline"
+                                      onsubmit="return confirm('Bạn có chắc muốn xóa bài viết này?');">
+                                    <input type="hidden" name="page" th:value="${currentPage}" />
+                                    <input type="hidden" name="title" th:value="${title}" />
+                                    <input type="hidden" name="category" th:value="${category}" />
+                                    <input type="hidden" name="status" th:value="${status}" />
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="fa-solid fa-trash"></i> Xóa
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Không có bài -->
+            <div th:if="${postsPage.content.size() == 0}" class="alert alert-info text-center">
+                Không có bài viết nào.
+            </div>
+
+            <!-- Phân trang -->
+            <nav th:if="${postsPage.totalPages > 1}">
+                <ul class="pagination justify-content-center mt-4">
+                    <!-- Previous -->
+                    <li class="page-item" th:classappend="${currentPage == 1}? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/admin/blog/management-post(
+                    page=${currentPage - 1 < 1 ? 1 : currentPage - 1},
+                    title=${title}, category=${category}, status=${status})}">
+                            Previous
+                        </a>
+                    </li>
+
+                    <!-- Các số trang -->
+                    <li th:each="i : ${#numbers.sequence(1, postsPage.totalPages)}"
+                        class="page-item"
+                        th:classappend="${i == currentPage}? 'active'">
+                        <a class="page-link"
+                           th:href="@{/admin/blog/management-post(
+                    page=${i}, title=${title}, category=${category}, status=${status})}"
+                           th:text="${i}">
+                        </a>
+                    </li>
+
+                    <!-- Next -->
+                    <li class="page-item" th:classappend="${currentPage == postsPage.totalPages}? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/admin/blog/management-post(
+                    page=${currentPage + 1 > postsPage.totalPages ? postsPage.totalPages : currentPage + 1},
+                    title=${title}, category=${category}, status=${status})}">
+                            Next
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </th:block>
+
+    <!-- JS -->
+    <th:block th:fragment="jsFragment">
+        <link rel="stylesheet" href="/css/blog-manager.css">
+    </th:block>
+</th:block>
+</html>
