@@ -224,8 +224,7 @@ public class WithdrawalController {
             String userName = wd.getUser().getName();
             String code = Bank.findCodeForBankName(bankName);
             if (code != null && accountNumber != null && !accountNumber.isBlank()) {
-                String token = "jYp8Yod"; // Your placeholder token
-                String filename = code + "-" + accountNumber + "-" + token + ".jpg";
+                String filename = code + "-" + accountNumber + "-print" + ".png";
                 String accountName = URLEncoder.encode(userName == null ? "" : userName, StandardCharsets.UTF_8);
                 String addInfo = URLEncoder.encode((wd.getId() != null ? ("WD#" + wd.getId()) : ("WD:" + accountNumber)), StandardCharsets.UTF_8);
 
