@@ -12,6 +12,7 @@ import com.swp.mmostore.repository.UserRepository;
 import com.swp.mmostore.service.*;
 import com.swp.mmostore.util.MockSecurityUtils;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +31,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -152,9 +154,20 @@ public class UserController {
     /**
      * Cập nhật thông tin user
      */
+
     @PostMapping("/user/update")
-    public String updateProfile(@ModelAttribute("user") User updatedUser,
-                                RedirectAttributes redirectAttributes) {
+    public String updateProfile(
+            @Valid @ModelAttribute("user") User updatedUser,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes,
+            Model model) {
+
+        if (bindingResult.hasErrors()) {
+            // Trả về trang edit với lỗi validation
+            model.addAttribute("user", updatedUser);
+            return "user_editprofile";
+        }
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
         User existingUser = userService.getUserByEmail(email);
@@ -163,12 +176,14 @@ public class UserController {
             existingUser.setName(updatedUser.getName());
             existingUser.setPhoneNumber(updatedUser.getPhoneNumber());
             userService.updateUser(existingUser);
-            redirectAttributes.addFlashAttribute("successMsg", "Information update success");
+            redirectAttributes.addFlashAttribute("successMsg", "Cập nhật thông tin thành công!");
         } else {
-            redirectAttributes.addFlashAttribute("successMsg", "Information update fail");
+            redirectAttributes.addFlashAttribute("errorMsg", "Cập nhật thông tin thất bại.");
         }
+
         return "redirect:/user/detail";
     }
+
 
     @PostMapping("/user/reset-password")
     @Transactional
@@ -238,6 +253,17 @@ public class UserController {
             return "redirect:/login";
         }
 
+        if (user.getRole().contains("ROLE_SELLER")) {
+            redirectAttributes.addFlashAttribute("errorMsg", "Bạn đã có shop, không thể đăng ký thêm.");
+            return "redirect:/user/seller_register";
+        }
+
+        try {
+            shopFeeService.chargeRegistrationFee(user);
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("errorMsg", e.getMessage());
+            return "redirect:/user/seller_register";
+        }
         // Xử lý ảnh cửa hàng
         String shopImageUrl = "https://storage.googleapis.com/mmostore/default-shop.jpg";
         if (shopImage != null && !shopImage.isEmpty()) {
@@ -251,35 +277,39 @@ public class UserController {
 
         // Tạo shop
         Shop shop = new Shop(name, description, user, shopImageUrl);
-        shopService.save(shop);
 
         try {
-            // Trừ tiền và lưu ShopFee
-            shopFeeService.chargeRegistrationFee(user);
-        } catch (RuntimeException e) {
-            session.setAttribute("errorMsg", e.getMessage());
+            shopService.save(shop);
+        } catch (jakarta.validation.ConstraintViolationException e) {
+            // Gộp tất cả thông báo vi phạm vào một chuỗi
+            String errorMessages = e.getConstraintViolations().stream()
+                    .map(v -> v.getMessage())
+                    .collect(Collectors.joining("<br>"));
+
+            redirectAttributes.addFlashAttribute("errorMsg", errorMessages);
             return "redirect:/user/seller_register";
         }
 
-        // Cập nhật role SELLER
+
+
         if (!user.getRole().contains("ROLE_SELLER")) {
             user.setRole("ROLE_USER,ROLE_SELLER");
             userService.updateUser(user);
         }
 
-        // Cập nhật SecurityContext để role mới có hiệu lực ngay
+        // Cập nhật SecurityContext
         List<GrantedAuthority> authorities = Arrays.stream(user.getRole().split(","))
                 .map(String::trim)
                 .map(r -> r.startsWith("ROLE_") ? r : "ROLE_" + r.toUpperCase())
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
-
         Authentication newAuth = new UsernamePasswordAuthenticationToken(auth.getPrincipal(), auth.getCredentials(), authorities);
         SecurityContextHolder.getContext().setAuthentication(newAuth);
 
         redirectAttributes.addFlashAttribute("successMsg", "Đăng ký cửa hàng thành công! Hãy bắt đầu bán hàng ngay.");
         return "redirect:/seller/statistic";
     }
+
 
 
     @GetMapping("/user/orders")

@@ -48,6 +48,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 public class  SellerController {
@@ -498,18 +499,27 @@ public class  SellerController {
 
             // Nếu có upload ảnh mới thì upload lên GCS
             if (file != null && !file.isEmpty()) {
-                String imageUrl = cloudStorageService.uploadFile(file); // Dịch vụ upload GCS
+                String imageUrl = cloudStorageService.uploadFile(file);
                 currentShop.setShopImageUrl(imageUrl);
             }
 
-            // Lưu lại thông tin vào DB
+            // Lưu lại thông tin vào DB — có thể gây ConstraintViolationException
             shopService.save(currentShop);
 
-            // Thông báo thành công
-            redirectAttributes.addFlashAttribute("successMsg", "Update success");
-        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("successMsg", "Cập nhật thành công!");
+        }
+        catch (jakarta.validation.ConstraintViolationException e) {
+            // Lấy tất cả thông báo lỗi validation
+            String errorMsg = e.getConstraintViolations().stream()
+                    .map(v -> v.getMessage())
+                    .collect(Collectors.joining(", "));
+
+            redirectAttributes.addFlashAttribute("errorMsg", errorMsg);
+            return "seller/edit-shop"; // hoặc trang hiển thị form update
+        }
+        catch (Exception e) {
             e.printStackTrace();
-            redirectAttributes.addFlashAttribute("errorMsg", "Update fail");
+            redirectAttributes.addFlashAttribute("errorMsg", "Cập nhật thất bại, vui lòng thử lại!");
         }
 
         return "redirect:/seller/statistic";
@@ -521,6 +531,7 @@ public class  SellerController {
         // Giả sử product.getItemsJson() trả về JSON dạng List<Map<String, Object>>
         return productService.getItemsAvaiableForSeller(id);
     }
+
 
 
 }

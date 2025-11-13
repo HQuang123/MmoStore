@@ -1,0 +1,69 @@
+/* my-posts.css - chỉ áp dụng cho trang "Bài viết của tôi" */
+
+/* Tiêu đề trang */
+.container h2 {
+    color: #0d6efd;
+    font-weight: 700;
+    margin-bottom: 2rem;
+}
+
+/* Card bài viết */
+.card {
+    border-radius: 12px;
+    border: 1px solid #e3e6f0;
+    padding: 1rem;
+    transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.card-text {
+    color: #495057;
+}
+
+/* Hình ảnh */
+.card img {
+    border-radius: 8px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+/* Nút */
+.btn {
+    border-radius: 8px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.btn:hover {
+    transform: scale(1.05);
+}
+
+
+
+/* Form bình luận */
+.input-group .form-control {
+    border-radius: 8px 0 0 8px;
+}
+
+.input-group .btn {
+    border-radius: 0 8px 8px 0;
+}
+
+/* Pagination */
+.pagination .page-link {
+    color: #495057;
+    border-radius: 8px;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: #fff;
+}

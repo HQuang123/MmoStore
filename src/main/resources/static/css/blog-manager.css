@@ -1,0 +1,82 @@
+/* blog.css */
+
+/* ===== Container ===== */
+.container {
+    max-width: 900px;
+    margin: auto;
+}
+
+/* ===== Card ===== */
+.card {
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card img {
+    object-fit: cover;
+}
+
+/* ===== Card Title & Badge ===== */
+.card-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.badge {
+    font-size: 0.8rem;
+}
+
+/* ===== Buttons ===== */
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+}
+
+.btn-success, .btn-danger, .btn-primary, .btn-secondary {
+    border-radius: 0.3rem;
+}
+
+/* ===== Form Filter ===== */
+form.row.g-2 input.form-control,
+form.row.g-2 select.form-select {
+    height: 38px;
+}
+
+form.row.g-2 .btn {
+    height: 38px;
+}
+
+/* ===== Flash message ===== */
+.alert-success {
+    font-size: 0.95rem;
+    border-radius: 0.3rem;
+}
+
+/* ===== Pagination ===== */
+.pagination .page-item .page-link {
+    border-radius: 0.3rem;
+    padding: 0.4rem 0.7rem;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: #fff;
+}
+
+/* ===== Misc ===== */
+.mt-2 {
+    margin-top: 0.5rem !important;
+}
+
+.mb-2 {
+    margin-bottom: 0.5rem !important;
+}
+
+.mb-3 {
+    margin-bottom: 1rem !important;
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem !important;
+}

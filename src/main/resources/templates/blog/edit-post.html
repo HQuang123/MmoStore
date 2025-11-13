@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="~{base :: layout(~{::content}, ~{::cssFragment}, ~{::jsFragment})}">
+
+    <!-- CSS -->
+    <th:block th:fragment="cssFragment">
+        <link rel="stylesheet" href="/css/blog.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    </th:block>
+
+    <!-- CONTENT -->
+    <th:block th:fragment="content">
+        <div class="container mt-4">
+            <h2 class="mb-4 text-center">Chỉnh sửa bài viết</h2>
+
+            <!-- Flash message -->
+            <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form th:action="@{/blog/edit/{id}(id=${postToEdit.id})}" method="post">
+                        <div class="mb-3">
+                            <label>Tiêu đề</label>
+                            <input type="text" name="title" class="form-control" th:value="${postToEdit.title}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Nội dung</label>
+                            <textarea name="content" class="form-control" rows="5" required
+                                      th:text="${postToEdit.content}"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Ảnh đại diện</label>
+                            <input type="file" name="imageFile" class="form-control">
+                            <div th:if="${postToEdit.imageUrl}">
+                                <img th:src="${postToEdit.imageUrl}" class="img-fluid mt-2" style="max-width: 200px;">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label>Danh mục</label>
+                            <select name="categoryId" class="form-select" required>
+                                <option th:each="cat : ${categories}"
+                                        th:value="${cat.id}"
+                                        th:text="${cat.name}"
+                                        th:selected="${cat.id == postToEdit.category.id}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <a th:href="@{/blog/my-posts}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Hủy
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Lưu thay đổi
+                        </button>
+                    </form>
+                </div>
+        </div>
+    </th:block>
+
+    <!-- JS -->
+    <th:block th:fragment="jsFragment"></th:block>
+
+</th:block>
+</html>
