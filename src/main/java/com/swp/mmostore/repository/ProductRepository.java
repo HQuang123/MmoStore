@@ -16,10 +16,10 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Integer> {
-    @Query("SELECT p FROM Product p order by p.createAt limit 12")
+    @Query("SELECT p FROM Product p where p.isDeleted = false order by p.createAt limit 12")
     public List<Product> getTwelveLastestProduct();
 
-    @Query("select p from Product p join p.category c where c.categoryId in :categoryId")
+    @Query("select p from Product p join p.category c where c.categoryId in :categoryId and c.isDeleted = false and p.isDeleted = false")
     public List<Product> findByCategoryId(@Param("categoryId") List<String> categoryId);
 
     @Query("""
