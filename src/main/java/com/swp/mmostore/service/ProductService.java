@@ -64,7 +64,7 @@ public class ProductService {
             List<String> categoryIds = filterDTO.categories() == null || filterDTO.categories().isEmpty() ? null : filterDTO.categories();
             productList = productRepository.findProductByTitle(filterDTO.keyword(), categoryIds, pageable);
             System.out.println("convit" + productList);
-            total = productRepository.countByKeywordAndCategories(filterDTO.keyword(), filterDTO.categories());
+            total = productRepository.countByKeywordAndCategories(filterDTO.keyword(), categoryIds);
         } else if (filterDTO.categories() == null || filterDTO.categories().isEmpty()) {
             // ⬅️ Case: no category filter → get all
             productList = productRepository.findAllProduct(pageable);
