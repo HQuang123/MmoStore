@@ -28,143 +28,104 @@ public class AdminBlogController {
     @Autowired
     private NotificationService notificationService;
 
-    // Trang danh sách bài viết
     @GetMapping("/management-post")
     public String listPosts(
             @RequestParam(value = "title", required = false) String title,
             @RequestParam(value = "category", required = false) String category,
             @RequestParam(value = "status", required = false) Integer status,
-            @RequestParam(value = "page", defaultValue = "1") int pageParam, // 1-based cho người dùng
-            Model model,
-            @ModelAttribute("successMessage") String successMessage
+            @RequestParam(value = "page", defaultValue = "1") int pageParam,
+            Model model
     ) {
         int pageSize = 4;
-
-        // Chuyển từ page người dùng (1-based) sang page backend (0-based)
         int page = pageParam - 1;
+        if (page < 0) page = 0;
 
-        // Nếu người dùng nhập page < 1 ⇒ quay về trang đầu
-        if (pageParam < 1) {
-            page = 0;
-            pageParam = 1;
-        }
+        // Nếu null, dùng chuỗi rỗng để Thymeleaf không bị null
+        title = (title != null) ? title : "";
+        category = (category != null) ? category : "";
 
-        // Lấy dữ liệu trang hiện tại
-        Page<BlogPost> postsPage = blogAdminService.getPostsForAdmin(title, category, status, page, pageSize);
-
-        // Nếu vượt quá tổng số trang thì về trang cuối
-        if (postsPage.getTotalPages() > 0 && page >= postsPage.getTotalPages()) {
-            page = postsPage.getTotalPages() - 1;
-            pageParam = postsPage.getTotalPages(); // hiển thị đúng số người dùng thấy
-            postsPage = blogAdminService.getPostsForAdmin(title, category, status, page, pageSize);
-        }
+        Page<BlogPost> postsPage = blogAdminService.getPostsForAdmin(
+                title.isEmpty() ? null : title,
+                category.isEmpty() ? null : category,
+                status,
+                page,
+                pageSize
+        );
 
         List<BlogCategory> categories = blogAdminCategoryService.getAllCategories();
 
-
         model.addAttribute("postsPage", postsPage);
-        model.addAttribute("currentPage", pageParam); // hiển thị 1-based
+        model.addAttribute("currentPage", pageParam);
         model.addAttribute("title", title);
         model.addAttribute("category", category);
         model.addAttribute("categories", categories);
         model.addAttribute("status", status);
-        model.addAttribute("successMessage", successMessage);
 
         return "blog/management-post";
     }
 
 
-    // Duyệt bài viết
     @PostMapping("/approve/{id}")
-    public String approvePost(
-            @PathVariable int id,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "title", required = false) String title,
-            @RequestParam(value = "category", required = false) String category,
-            @RequestParam(value = "status", required = false) Integer status,
-            RedirectAttributes redirectAttributes
-    ) {
-        blogAdminService.approvePost(id);
+    public String approvePost(@PathVariable int id, RedirectAttributes redirectAttributes) {
+        BlogPost post = blogAdminService.approvePost(id);
         redirectAttributes.addFlashAttribute("successMessage", "Bài viết đã được duyệt.");
 
-        BlogPost post = blogAdminService.approvePost(id);
-        if (post != null) {
+        if (post != null && post.getUser() != null) {
             User postOwner = post.getUser();
-            if (postOwner != null) {
-                String notifTitle = "Bài viết của bạn đã được duyệt";
-                String notifMsg = "Bài viết \"" + post.getTitle() + "\" của bạn đã được admin duyệt.";
-                notificationService.createNotificationForUser(postOwner.getUserId(), notifTitle, notifMsg);
-            }
+            String notifTitle = "Bài viết của bạn đã được duyệt";
+            String notifMsg = "Bài viết \"" + post.getTitle() + "\" của bạn đã được admin duyệt.";
+            notificationService.createNotificationForUser(postOwner.getUserId(), notifTitle, notifMsg);
         }
 
-        StringBuilder redirectUrl = new StringBuilder("redirect:/admin/blog/management-post?page=" + page);
-        if (title != null && !title.isBlank()) redirectUrl.append("&title=").append(title);
-        if (category != null && !category.isBlank()) redirectUrl.append("&category=").append(category);
-        if (status != null) redirectUrl.append("&status=").append(status);
-
-        return redirectUrl.toString();
+        return "redirect:/admin/blog/management-post";
     }
+
 
     @PostMapping("/reject/{id}")
     public String rejectPost(
             @PathVariable int id,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "title", required = false) String title,
-            @RequestParam(value = "category", required = false) String category,
-            @RequestParam(value = "status", required = false) Integer status,
             RedirectAttributes redirectAttributes
     ) {
-        BlogPost post = blogAdminService.rejectPost(id); // Service setStatus(-1) và trả về post
+        BlogPost post = blogAdminService.rejectPost(id);
         redirectAttributes.addFlashAttribute("successMessage", "Bài viết đã bị từ chối.");
 
-        // --- Tạo thông báo cho người đăng bài ---
-        User postOwner = post.getUser();
-        if (postOwner != null) {
+        if (post != null && post.getUser() != null) {
+            User postOwner = post.getUser();
             String notifTitle = "Bài viết của bạn đã bị từ chối";
             String notifMsg = "Bài viết \"" + post.getTitle() + "\" của bạn đã bị admin từ chối.";
             notificationService.createNotificationForUser(postOwner.getUserId(), notifTitle, notifMsg);
         }
 
-        StringBuilder redirectUrl = new StringBuilder("redirect:/admin/blog/management-post?page=" + page);
-        if (title != null && !title.isBlank()) redirectUrl.append("&title=").append(title);
-        if (category != null && !category.isBlank()) redirectUrl.append("&category=").append(category);
-        if (status != null) redirectUrl.append("&status=").append(status);
-
-        return redirectUrl.toString();
+        return "redirect:/admin/blog/management-post";
     }
+
 
     @PostMapping("/delete/{id}")
     public String deletePost(
             @PathVariable int id,
-            @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "title", required = false) String title,
             @RequestParam(value = "category", required = false) String category,
             @RequestParam(value = "status", required = false) Integer status,
+            @RequestParam(value = "page", defaultValue = "1") int currentPage,
             RedirectAttributes redirectAttributes
     ) {
         BlogPost post = blogAdminService.getPostById(id);
         if (post != null && post.getStatus() == 1) {
-            post.setStatus(-1); // chuyển sang từ chối / vi phạm
+            post.setStatus(-1);
             blogAdminService.save(post);
             redirectAttributes.addFlashAttribute("successMessage", "Bài viết đã được chuyển sang từ chối.");
 
-            // --- TẠO NOTIFICATION CHO NGƯỜI ĐĂNG --- //
-            User postOwner = post.getUser();
-            if (postOwner != null) {
+            if (post.getUser() != null) {
+                User postOwner = post.getUser();
                 String notifTitle = "Bài viết của bạn bị đánh dấu vi phạm";
                 String notifMsg = "Bài viết \"" + post.getTitle() + "\" của bạn đã bị admin đánh dấu vi phạm.";
                 notificationService.createNotificationForUser(postOwner.getUserId(), notifTitle, notifMsg);
             }
         }
 
-        // redirect giữ filter và page
-        StringBuilder redirectUrl = new StringBuilder("redirect:/admin/blog/management-post?page=" + page);
-        if (title != null && !title.isBlank()) redirectUrl.append("&title=").append(title);
-        if (category != null && !category.isBlank()) redirectUrl.append("&category=").append(category);
-        if (status != null) redirectUrl.append("&status=").append(status);
-
-        return redirectUrl.toString();
+        return "redirect:/admin/blog/management-post";
     }
+
 
 
 }

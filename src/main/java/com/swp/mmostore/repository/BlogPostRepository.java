@@ -4,6 +4,7 @@ import com.swp.mmostore.entity.BlogCategory;
 import com.swp.mmostore.entity.BlogPost;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -61,20 +62,26 @@ public interface BlogPostRepository extends JpaRepository<BlogPost, Integer> {
 
 
     // Đếm tất cả bài viết của người dùng theo title và category, chỉ những bài viết active
-    @Query("SELECT COUNT(bp) FROM BlogPost bp WHERE bp.isActive = true AND bp.user = :user " +
+    @Query("SELECT COUNT(bp) FROM BlogPost bp WHERE bp.isActive = true and bp.status!= -1 AND bp.user = :user " +
             "AND (:title IS NULL OR LOWER(bp.title) LIKE LOWER(CONCAT('%', :title, '%'))) " +
             "AND (:category IS NULL OR bp.category.name = :category)")
     long countActivePostsByUser(@Param("user") User user, @Param("title") String title,
                                 @Param("category") String category);
+
+
     Optional<BlogPost> findByIdAndIsActiveTrue(Integer id);
 
+
+
+    @EntityGraph(attributePaths = {"user", "category"})
     @Query("""
-    SELECT b FROM BlogPost b
-    WHERE (:title IS NULL OR LOWER(b.title) LIKE LOWER(CONCAT('%', :title, '%')))
-      AND (:category IS NULL OR b.category.name = :category)
-      AND (:status IS NULL OR b.status = :status)
-    ORDER BY b.createAt DESC
-""")
+        SELECT b FROM BlogPost b
+        WHERE (:title IS NULL OR LOWER(b.title) LIKE LOWER(CONCAT('%', :title, '%')))
+          AND (:category IS NULL OR b.category.name = :category)
+          AND (:status IS NULL OR b.status = :status)
+          AND b.isActive = true
+        ORDER BY b.createAt DESC
+    """)
     Page<BlogPost> searchForAdmin(
             @Param("title") String title,
             @Param("category") String category,
