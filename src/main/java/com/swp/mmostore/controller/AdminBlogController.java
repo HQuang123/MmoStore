@@ -35,8 +35,7 @@ public class AdminBlogController {
             @RequestParam(value = "category", required = false) String category,
             @RequestParam(value = "status", required = false) Integer status,
             @RequestParam(value = "page", defaultValue = "1") int pageParam, // 1-based cho người dùng
-            Model model,
-            @ModelAttribute("successMessage") String successMessage
+            Model model
     ) {
         int pageSize = 4;
 
@@ -68,7 +67,6 @@ public class AdminBlogController {
         model.addAttribute("category", category);
         model.addAttribute("categories", categories);
         model.addAttribute("status", status);
-        model.addAttribute("successMessage", successMessage);
 
         return "blog/management-post";
     }

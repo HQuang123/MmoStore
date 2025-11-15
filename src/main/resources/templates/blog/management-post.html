@@ -14,7 +14,10 @@
             <h2 class="mb-4 text-center">Quản lý Blog (Admin)</h2>
 
             <!-- Flash messages -->
-            <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+            <div th:if="${successMessage != null and #strings.isNotEmpty(successMessage)}"
+                 class="alert alert-success"
+                 th:text="${successMessage}">
+            </div>
 
             <!-- Bộ lọc tìm kiếm -->
             <form th:action="@{/admin/blog/management-post}" method="get" class="row g-2 mb-3 align-items-center">
