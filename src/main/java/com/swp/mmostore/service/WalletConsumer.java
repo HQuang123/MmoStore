@@ -87,13 +87,13 @@ public class WalletConsumer {
         User user = order.getUser();
 
         if (user.getBalance().compareTo(order.getTotalPrice()) < 0) {
-            order.setStatus("Failed");
+            order.setStatus("FAILED");
             orderRepository.save(order);
             throw new RuntimeException("Insufficient balance for user id: " + user.getUserId());
         }
 
         user.setBalance(user.getBalance().subtract(order.getTotalPrice()));
-        order.setStatus("Payed");
+        order.setStatus("PAID");
         orderRepository.save(order);
         userRepository.save(user);
 
@@ -109,7 +109,7 @@ public class WalletConsumer {
         Order order = orderRepository.findById(event.getTransactionId()).orElseThrow();
         User user = order.getUser();
         user.setBalance(user.getBalance().add(order.getTotalPrice())); //likely to cause error due to
-        order.setStatus("Refunded");
+        order.setStatus("REFUNDED");
         userRepository.save(user);
         orderRepository.save(order);
     }

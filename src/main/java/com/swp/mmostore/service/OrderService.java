@@ -8,6 +8,7 @@ import com.swp.mmostore.entity.Order;
 import com.swp.mmostore.entity.Product;
 import com.swp.mmostore.entity.User;
 import com.swp.mmostore.repository.OrderRepository;
+import com.swp.mmostore.repository.ProductRepository;
 import com.swp.mmostore.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageImpl;
@@ -34,13 +35,16 @@ public class OrderService {
 
     private final UserRepository userRepository;
     private final WalletProducer walletProducer;
+    private final ProductRepository productRepository;
 
     public Order createNewOrder(int quantity, double totalPrice, String userEmail, Integer productId) {
         Order order = new Order();
         order.setQuantity(quantity);
         order.setTotalPrice(BigDecimal.valueOf(totalPrice));
-        Product product = new Product();
+        Product product = productRepository.findById(productId).orElse(null);
         product.setProductId(productId);
+        order.setShopName(product.getShop().getName());
+
         order.setProduct(product);
         order.setStatus("PENDING");
         //get user

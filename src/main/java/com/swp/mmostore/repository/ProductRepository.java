@@ -5,6 +5,7 @@ import com.swp.mmostore.dto.ProductSummaryDTO;
 import com.swp.mmostore.entity.Category;
 import com.swp.mmostore.entity.Product;
 import com.swp.mmostore.entity.Shop;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -16,10 +17,10 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Integer> {
-    @Query("SELECT p FROM Product p order by p.createAt limit 12")
+    @Query("SELECT p FROM Product p where p.isDeleted = false order by p.createAt limit 12")
     public List<Product> getTwelveLastestProduct();
 
-    @Query("select p from Product p join p.category c where c.categoryId in :categoryId")
+    @Query("select p from Product p join p.category c where c.categoryId in :categoryId and c.isDeleted = false and p.isDeleted = false")
     public List<Product> findByCategoryId(@Param("categoryId") List<String> categoryId);
 
     @Query("""
@@ -150,6 +151,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
       AND (:category IS NULL OR p.category.name = :category)
       AND (:minPrice IS NULL OR p.price >= :minPrice)
       AND (:maxPrice IS NULL OR p.price <= :maxPrice)
+      and p.isDeleted = false
       GROUP BY p.productId, p.title, p.description, p.price, p.shop.name
 """)
     Page<ProductSummaryDTO> findFilteredProductsByShop(
@@ -184,4 +186,13 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
               AND p.shop.shopId = :shopId
             """)
     long countProductsByShopId(@Param("shopId") Integer shopId);
+
+    @Modifying
+    @Transactional
+    @Query("""
+            update Product p set p.isDeleted = true            
+            WHERE p.isDeleted = false
+              AND p.productId = :productId
+            """)
+    void deleteById(@Param("productId") Integer productId);
 }
