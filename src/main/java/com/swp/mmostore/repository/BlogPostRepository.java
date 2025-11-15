@@ -40,7 +40,7 @@ public interface BlogPostRepository extends JpaRepository<BlogPost, Integer> {
 
     @Query("""
     SELECT p FROM BlogPost p
-    WHERE p.isActive = true
+    WHERE p.isActive = true AND p.status!=-1
       AND p.user = :user
       AND (:title IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :title, '%')))
       AND (:category IS NULL OR LOWER(p.category.name) = LOWER(:category))

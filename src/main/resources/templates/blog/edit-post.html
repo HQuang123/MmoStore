@@ -19,7 +19,10 @@
 
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <form th:action="@{/blog/edit/{id}(id=${postToEdit.id})}" method="post">
+                    <form th:action="@{/blog/edit/{id}(id=${postToEdit.id})}"
+                          method="post"
+                          enctype="multipart/form-data">
+
                         <div class="mb-3">
                             <label>Tiêu đề</label>
                             <input type="text" name="title" class="form-control" th:value="${postToEdit.title}" required>
@@ -32,12 +35,13 @@
                         </div>
 
                         <div class="mb-3">
-                            <label>Ảnh đại diện</label>
+                            <label>Ảnh bài viết</label>
                             <input type="file" name="imageFile" class="form-control">
                             <div th:if="${postToEdit.imageUrl}">
                                 <img th:src="${postToEdit.imageUrl}" class="img-fluid mt-2" style="max-width: 200px;">
                             </div>
                         </div>
+
                         <div class="mb-3">
                             <label>Danh mục</label>
                             <select name="categoryId" class="form-select" required>

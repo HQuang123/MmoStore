@@ -31,6 +31,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -191,7 +192,7 @@ public class  SellerController {
         LocalDateTime endDateTime = endDate != null ? endDate.plusDays(1).atStartOfDay() : null;
 
         // --- Tạo Pageable (Spring index từ 0 nên trừ đi 1) ---
-        int pageSize = 2;
+        int pageSize = 5;
         int currentPageIndex = Math.max(page - 1, 0);
         Pageable pageable = PageRequest.of(currentPageIndex, pageSize, Sort.by("createAt").descending());
 
@@ -477,53 +478,52 @@ public class  SellerController {
     }
 
     @PostMapping("/seller/shop/update")
-    public String updateShopInfo(@ModelAttribute Shop updatedShop,
-                                 @RequestParam(value = "imageFile", required = false) MultipartFile file,
-                                 RedirectAttributes redirectAttributes,
-                                 Principal principal) {
+    public String updateShopInfo(
+            @Valid @ModelAttribute("shop") Shop updatedShop,
+            BindingResult bindingResult,
+            @RequestParam(value = "imageFile", required = false) MultipartFile file,
+            RedirectAttributes redirectAttributes,
+            Principal principal) {
+
+        // Nếu validation lỗi
+        if (bindingResult.hasErrors()) {
+            String errorMsg = bindingResult.getAllErrors().stream()
+                    .map(ObjectError::getDefaultMessage)
+                    .collect(Collectors.joining(", "));
+            redirectAttributes.addFlashAttribute("errorMsg", errorMsg);
+            redirectAttributes.addFlashAttribute("shop", updatedShop);
+
+            return "redirect:/seller/shop/edit";
+        }
+
         try {
-            // Lấy thông tin người dùng hiện tại
             String email = principal.getName();
             User user = userService.getUserByEmail(email);
 
-            // Lấy shop hiện tại của người dùng
             Shop currentShop = shopService.findByUserId(user.getUserId());
             if (currentShop == null) {
-                redirectAttributes.addFlashAttribute("errorMsg", "Không tìm thấy shop của bạn!");
+                redirectAttributes.addFlashAttribute("errorMsg", "Không tìm thấy shop!");
                 return "redirect:/seller/statistic";
             }
 
-            // Cập nhật các trường text
             currentShop.setName(updatedShop.getName());
             currentShop.setDescription(updatedShop.getDescription());
 
-            // Nếu có upload ảnh mới thì upload lên GCS
             if (file != null && !file.isEmpty()) {
                 String imageUrl = cloudStorageService.uploadFile(file);
                 currentShop.setShopImageUrl(imageUrl);
             }
 
-            // Lưu lại thông tin vào DB — có thể gây ConstraintViolationException
             shopService.save(currentShop);
-
             redirectAttributes.addFlashAttribute("successMsg", "Cập nhật thành công!");
         }
-        catch (jakarta.validation.ConstraintViolationException e) {
-            // Lấy tất cả thông báo lỗi validation
-            String errorMsg = e.getConstraintViolations().stream()
-                    .map(v -> v.getMessage())
-                    .collect(Collectors.joining(", "));
-
-            redirectAttributes.addFlashAttribute("errorMsg", errorMsg);
-            return "seller/edit-shop"; // hoặc trang hiển thị form update
-        }
         catch (Exception e) {
-            e.printStackTrace();
-            redirectAttributes.addFlashAttribute("errorMsg", "Cập nhật thất bại, vui lòng thử lại!");
+            redirectAttributes.addFlashAttribute("errorMsg", "Có lỗi xảy ra!");
         }
 
         return "redirect:/seller/statistic";
     }
+
 
     @GetMapping("/seller/products/{id}/items")
     @ResponseBody

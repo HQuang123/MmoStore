@@ -2,8 +2,10 @@ package com.swp.mmostore.controller;
 
 import com.swp.mmostore.entity.BlogCategory;
 import com.swp.mmostore.entity.BlogPost;
+import com.swp.mmostore.entity.User;
 import com.swp.mmostore.service.BlogCategoryService;
 import com.swp.mmostore.service.BlogPostService;
+import com.swp.mmostore.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
@@ -22,6 +24,9 @@ public class AdminBlogController {
 
     @Autowired
     private BlogCategoryService blogAdminCategoryService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     // Trang danh sách bài viết
     @GetMapping("/management-post")
@@ -82,6 +87,16 @@ public class AdminBlogController {
         blogAdminService.approvePost(id);
         redirectAttributes.addFlashAttribute("successMessage", "Bài viết đã được duyệt.");
 
+        BlogPost post = blogAdminService.approvePost(id);
+        if (post != null) {
+            User postOwner = post.getUser();
+            if (postOwner != null) {
+                String notifTitle = "Bài viết của bạn đã được duyệt";
+                String notifMsg = "Bài viết \"" + post.getTitle() + "\" của bạn đã được admin duyệt.";
+                notificationService.createNotificationForUser(postOwner.getUserId(), notifTitle, notifMsg);
+            }
+        }
+
         StringBuilder redirectUrl = new StringBuilder("redirect:/admin/blog/management-post?page=" + page);
         if (title != null && !title.isBlank()) redirectUrl.append("&title=").append(title);
         if (category != null && !category.isBlank()) redirectUrl.append("&category=").append(category);
@@ -90,7 +105,6 @@ public class AdminBlogController {
         return redirectUrl.toString();
     }
 
-    // Từ chối bài viết
     @PostMapping("/reject/{id}")
     public String rejectPost(
             @PathVariable int id,
@@ -100,8 +114,16 @@ public class AdminBlogController {
             @RequestParam(value = "status", required = false) Integer status,
             RedirectAttributes redirectAttributes
     ) {
-        blogAdminService.rejectPost(id); // Service setStatus(-1)
+        BlogPost post = blogAdminService.rejectPost(id); // Service setStatus(-1) và trả về post
         redirectAttributes.addFlashAttribute("successMessage", "Bài viết đã bị từ chối.");
+
+        // --- Tạo thông báo cho người đăng bài ---
+        User postOwner = post.getUser();
+        if (postOwner != null) {
+            String notifTitle = "Bài viết của bạn đã bị từ chối";
+            String notifMsg = "Bài viết \"" + post.getTitle() + "\" của bạn đã bị admin từ chối.";
+            notificationService.createNotificationForUser(postOwner.getUserId(), notifTitle, notifMsg);
+        }
 
         StringBuilder redirectUrl = new StringBuilder("redirect:/admin/blog/management-post?page=" + page);
         if (title != null && !title.isBlank()) redirectUrl.append("&title=").append(title);
@@ -110,7 +132,6 @@ public class AdminBlogController {
 
         return redirectUrl.toString();
     }
-
 
     @PostMapping("/delete/{id}")
     public String deletePost(
@@ -123,9 +144,17 @@ public class AdminBlogController {
     ) {
         BlogPost post = blogAdminService.getPostById(id);
         if (post != null && post.getStatus() == 1) {
-            post.setStatus(-1); // chuyển sang từ chối
+            post.setStatus(-1); // chuyển sang từ chối / vi phạm
             blogAdminService.save(post);
             redirectAttributes.addFlashAttribute("successMessage", "Bài viết đã được chuyển sang từ chối.");
+
+            // --- TẠO NOTIFICATION CHO NGƯỜI ĐĂNG --- //
+            User postOwner = post.getUser();
+            if (postOwner != null) {
+                String notifTitle = "Bài viết của bạn bị đánh dấu vi phạm";
+                String notifMsg = "Bài viết \"" + post.getTitle() + "\" của bạn đã bị admin đánh dấu vi phạm.";
+                notificationService.createNotificationForUser(postOwner.getUserId(), notifTitle, notifMsg);
+            }
         }
 
         // redirect giữ filter và page
