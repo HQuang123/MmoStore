@@ -28,6 +28,12 @@ function createOrder(quantity, totalPrice, productId) {
         })
     })
         .then(data => {
+            if (data.redirected === true) {
+                // user not logged in
+                window.location.href = "/login";  // redirect to login
+                return;
+            }
+
             if (data) {
                 const quantity = parseInt(document.getElementById("quantity").value);
                 const singlePrice = parseFloat(document.getElementById("price").value);
