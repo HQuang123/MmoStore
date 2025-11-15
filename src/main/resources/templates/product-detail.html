@@ -9,6 +9,57 @@
 
     <th:block th:fragment="cssFragment">
         <link rel="stylesheet" href="#">
+        <style>
+            .card {
+                display: flex;
+                flex-direction: column;
+                height: auto;           /* allow card to grow/shrink with content */
+            }
+
+            /* keep images uniform in shape while letting height vary by aspect-ratio */
+            .card-img-top {
+                width: 100%;
+                height: auto;
+                object-fit: cover;
+                display: block;
+                aspect-ratio: 16 / 9;   /* change to 4/3, 1/1, etc., or remove for natural image height */
+            }
+
+            /* body flows naturally and pins the price to the end if you want it always bottom-aligned */
+            .card-body {
+                display: flex;
+                flex-direction: column;
+                gap: 0.35rem;
+                padding: 0.75rem;
+            }
+
+            /* consistent readable line-height for all text */
+            .card-title,
+            .card-text,
+            .fw-bold {
+                line-height: 1.35;
+            }
+
+            /* title and description use normal flow (no clamps) so card height is flexible */
+            .card-title {
+                margin: 0;
+                font-size: 0.95rem;
+                font-weight: 600;
+                overflow: hidden;      /* optional: hides accidental overflow but keeps flexible height */
+            }
+
+            .card-text {
+                margin: 0;
+                color: #6c757d;
+                font-size: 0.85rem;
+            }
+
+            /* keep price visually separated; it will appear after the text naturally */
+            .fw-bold {
+                margin-top: 0.35rem;
+                font-weight: 700;
+            }
+        </style>
     </th:block>
 
     <th:block th:fragment="jsFragment">
