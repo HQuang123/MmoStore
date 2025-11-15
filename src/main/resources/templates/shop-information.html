@@ -5,7 +5,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title th:text="${shop.name}">Shop Details</title>
+    <title th:text="${shop.name}">Chi tiết Cửa hàng</title>
     <th:block th:fragment="cssFragment">
         <link rel="stylesheet" href="/css/shop-information.css">
     </th:block>
@@ -22,7 +22,7 @@
         <div th:if="${shop}">
 
             <div class="shop-header">
-                <h1 class="display-4" th:text="${shop.name}">Shop Name</h1>
+                <h1 class="display-4" th:text="${shop.name}">Tên Cửa hàng</h1>
             </div>
 
             <div class="row g-4">
@@ -34,44 +34,44 @@
                         </div>
                         <div th:unless="${shop.hasImage()}"
                              class="shop-image-container card-img-top d-flex align-items-center justify-content-center text-muted p-5">
-                            <span>No Image Available</span>
+                            <span>Chưa có hình ảnh</span>
                         </div>
 
                         <div class="card-body">
-                            <h5 class="card-title mb-3">Shop Details</h5>
+                            <h5 class="card-title mb-3">Thông tin Cửa hàng</h5>
 
                             <p class="card-text">
-                                <strong>Avg. Product Rating:</strong>
+                                <strong>Đánh giá Sản phẩm (TB):</strong>
                                 <span th:if="${shop.avgRating > 0}">
                                 <span class="rating-star">★</span>
                                 <strong th:text="${#numbers.formatDecimal(shop.avgRating, 1, 1)}">4.5</strong> / 5.0
                             </span>
                                 <span th:unless="${shop.avgRating > 0}" class="text-muted">
-                                No product ratings yet
+                                Chưa có đánh giá sản phẩm
                             </span>
                             </p>
 
                             <p class="card-text">
-                                <strong>Products:</strong>
-                                <span th:text="${shop.productCount}">0</span> items
+                                <strong>Số sản phẩm:</strong>
+                                <span th:text="${shop.productCount}">0</span> sản phẩm
                             </p>
 
                             <p class="card-text">
-                                <strong>Owner:</strong>
-                                <span th:text="${shop.ownerUsername}">Shop Owner</span>
+                                <strong>Chủ sở hữu:</strong>
+                                <span th:text="${shop.ownerUsername}">Chủ cửa hàng</span>
                             </p>
 
                             <p class="card-text" th:if="${shop.createAt}">
-                                <strong>Established:</strong>
+                                <strong>Ngày tham gia:</strong>
                                 <span th:text="${#temporals.format(shop.createAt, 'dd MMMM yyyy')}">
-                                10 January 2024
+                                10 Tháng 1 2024
                             </span>
                             </p>
 
                             <p class="card-text mt-3" th:if="${shop.lastUpdated}">
                                 <small class="text-muted"
-                                       th:text="'Last updated: ' + ${#temporals.format(shop.lastUpdated, 'dd-MM-yyyy HH:mm')}">
-                                    Last updated...
+                                       th:text="'Cập nhật lần cuối: ' + ${#temporals.format(shop.lastUpdated, 'dd-MM-yyyy HH:mm')}">
+                                    Cập nhật lần cuối
                                 </small>
                             </p>
                         </div>
@@ -79,19 +79,17 @@
                 </div>
 
                 <div class="col-lg-8">
-                    <h2>About This Shop</h2>
+                    <h2>Về Cửa hàng này</h2>
 
                     <p class="description-box bg-light p-3 rounded" th:text="${shop.description}">
-                        Shop description goes here. This text is a placeholder
-                        for what will be a detailed description of the shop,
-                        its mission, and the products it sells.
+                        Mô tả cửa hàng ở đây.
                     </p>
 
                     <hr class="my-4">
 
                     <a th:href="@{/shops/{id}/products(id=${shop.shopId})}"
                        class="btn btn-success btn-lg w-100">
-                        View All Products
+                        Xem tất cả Sản phẩm
                         <span class="badge bg-light text-dark ms-2" th:text="${shop.productCount}">0</span>
                     </a>
                 </div>
