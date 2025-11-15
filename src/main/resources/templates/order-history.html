@@ -85,10 +85,8 @@
                     <tr>
                         <th>Mã đơn hàng</th>
                         <th>Tên sản phẩm</th>
-                        <th>Giá đơn vị</th> <!--  Thêm -->
                         <th>Số lượng</th>
                         <th>Tổng cộng</th>
-                        <th>Shop ID</th> <!-- Thêm -->
                         <th>Tên shop</th> <!-- Thêm -->
                         <th>Ngày tạo</th>
                         <th>Trạng thái</th>
@@ -106,14 +104,10 @@
                         <td th:text="${order.orderId}"></td>
                         <td th:text="${order.productName}"></td>
 
-                        <!--  Cột mới: đơn giá -->
-                        <td th:text="${#numbers.formatDecimal(order.unitPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
-
                         <td th:text="${order.quantity}"></td>
                         <td th:text="${#numbers.formatDecimal(order.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
 
                         <!-- Cột mới: Shop ID + Shop Name -->
-                        <td th:text="${order.shopId}"></td>
                         <td th:text="${order.shopName}"></td>
 
                         <td th:text="${#temporals.format(order.createAt, 'dd-MM-yyyy HH:mm')}"></td>

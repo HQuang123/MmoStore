@@ -3,10 +3,7 @@ package com.swp.mmostore.controller;
 
 import com.swp.mmostore.dto.OrderStatisticDTO;
 import com.swp.mmostore.dto.TransactionDTO;
-import com.swp.mmostore.entity.DepositStatus;
-import com.swp.mmostore.entity.Shop;
-import com.swp.mmostore.entity.ShopFee;
-import com.swp.mmostore.entity.User;
+import com.swp.mmostore.entity.*;
 import com.swp.mmostore.repository.ShopFeeRepository;
 import com.swp.mmostore.repository.UserRepository;
 import com.swp.mmostore.service.*;
@@ -387,7 +384,7 @@ public class UserController {
         model.addAttribute("totalPages", totalPages);  // 1-based hiển thị
 
         // render enum Status trong dropdown
-        model.addAttribute("statuses", DepositStatus.values());
+        model.addAttribute("statuses", OrderStatus.values());
         model.addAttribute("selectedStatus", status);
 
         return "order-history";
