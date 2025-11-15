@@ -32,7 +32,7 @@ public class AdminController {
     CategoryService categoryService;
 
     @GetMapping
-    public String viewAdminPage(){
+    public String viewAdminPage() {
         return "admin/admin-dashboard";
     }
 
@@ -165,13 +165,22 @@ public class AdminController {
     public String addCategory(@ModelAttribute("category") Category category,
                               BindingResult result,
                               @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
-                              RedirectAttributes redirectAttributes) throws IOException {
+                              RedirectAttributes redirectAttributes) throws IOException, IllegalArgumentException {
         if (result.hasErrors()) {
             return "admin/category-form";
         }
 
-        categoryService.saveCategory(category, imageFile);
-        redirectAttributes.addFlashAttribute("success", "Category added successfully!");
+        try {
+            categoryService.saveCategory(category, imageFile);
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Tên danh mục bị trùng, xin nhập tên khác!");
+
+            redirectAttributes.addFlashAttribute("category", category);
+
+            return "redirect:/admin/categories/add";
+        }
+
+        redirectAttributes.addFlashAttribute("success", "Thêm danh mục thành công!");
         return "redirect:/admin/categories";
     }
 
@@ -193,14 +202,23 @@ public class AdminController {
                                @ModelAttribute("category") Category category,
                                @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
                                BindingResult result,
-                               RedirectAttributes redirectAttributes) throws IOException {
+                               RedirectAttributes redirectAttributes,
+                               Model model) throws IOException {
         if (result.hasErrors()) {
             return "admin/category-form";
         }
+        try {
+            category.setCategoryId(id);
+            categoryService.saveCategory(category, imageFile);
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Tên danh mục bị trùng, xin nhập tên khác!");
+            redirectAttributes.addFlashAttribute("category", category);
 
-        category.setCategoryId(id);
-        categoryService.saveCategory(category, imageFile);
-        redirectAttributes.addFlashAttribute("success", "Category updated successfully!");
+            return "redirect:/admin/categories/edit/" + id;
+
+        }
+
+        redirectAttributes.addFlashAttribute("success", "Cập nhật danh mục thành công!");
         return "redirect:/admin/categories";
     }
 }

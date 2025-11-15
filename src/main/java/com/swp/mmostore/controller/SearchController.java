@@ -19,23 +19,34 @@ public class SearchController {
     @Autowired
     private CategoryRepository categoryRepository;
 
+    //    @GetMapping("/search")
+//    public String searchProductByTitle(
+//            @RequestParam String query,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "8") int size,
+//            Model model
+//    ) {
+//
+//        FilterDTO filter = new FilterDTO(null, null, null, page, size, query);
+//        Page<ProductSummaryDTO> productPage = productService.findFilteredProduct(filter);
+//
+//        model.addAttribute("productList", productPage.getContent());
+//        model.addAttribute("categoryList", categoryRepository.findAll());
+//        model.addAttribute("keyword", query);
+//        model.addAttribute("totalPages", productPage.getTotalPages());
+//        model.addAttribute("currentPage", page);
+//        return "product-list";
+//    }
     @GetMapping("/search")
-    public String searchProductByTitle(
-            @RequestParam String query,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "8") int size,
+    public String search(
+            @RequestParam(name = "query", required = false) String keyword,
+            @RequestParam(name = "category", required = false) String categoryId,
             Model model
     ) {
-
-        FilterDTO filter = new FilterDTO(null, null, null, page, size, query);
-        Page<ProductSummaryDTO> productPage = productService.findFilteredProduct(filter);
-
-        model.addAttribute("productList", productPage.getContent());
         model.addAttribute("categoryList", categoryRepository.findAll());
-        model.addAttribute("keyword", query);
-        model.addAttribute("totalPages", productPage.getTotalPages());
-        model.addAttribute("currentPage", page);
-        return "product-list";
+        model.addAttribute("searchKeyword", keyword);
+        model.addAttribute("selectedCategory", categoryId);
+        return "product-list"; // ✅ Reuse the same template
     }
 
 }

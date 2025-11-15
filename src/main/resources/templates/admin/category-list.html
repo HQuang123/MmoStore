@@ -18,27 +18,27 @@
 <section class="container mt-4">
     <div class="mb-3">
         <a th:href="@{/admin}" class="btn btn-outline-primary btn-sm">
-            ← Back to Dashboard
+            ← Quay lại
         </a>
     </div>
 
-    <h2 class="mb-4">Category Management</h2>
+    <h2 class="mb-4">Quản lý danh mục</h2>
 
     <!-- Filter + Search -->
     <form method="get" class="d-flex gap-2 mb-3">
         <select name="status" class="form-select form-select-sm w-auto">
-            <option value="" th:selected="${status == null || status == ''}">All Status</option>
+            <option value="" th:selected="${status == null || status == ''}">Tất cả</option>
             <option th:value="active" th:selected="${status == 'active'}">Active</option>
             <option th:value="inactive" th:selected="${status == 'inactive'}">Inactive</option>
         </select>
 
-        <input type="text" name="keyword" th:value="${keyword}" placeholder="Search"
+        <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm"
                class="form-control form-control-sm w-auto">
 
-        <button type="submit" class="btn btn-primary btn-sm">Search</button>
+        <button type="submit" class="btn btn-primary btn-sm">Tìm</button>
 
         <!-- Clear Filters -->
-        <a th:href="@{/admin/categories}" class="btn btn-outline-secondary btn-sm">Clear</a>
+        <a th:href="@{/admin/categories}" class="btn btn-outline-secondary btn-sm">Xóa</a>
     </form>
 
     <!-- 📋 Category Table -->
@@ -50,7 +50,7 @@
     <div class="mb-3 d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Categories</h5>
         <a th:href="@{/admin/categories/add}" class="btn btn-success btn-sm">
-            + Add Category
+            + Thêm danh mục
         </a>
     </div>
 
@@ -58,11 +58,11 @@
         <thead class="table-light">
         <tr>
             <th>ID</th>
-            <th>Image</th>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Status</th>
-            <th>Action</th>
+            <th>Ảnh</th>
+            <th>Tên</th>
+            <th>Mô Tả</th>
+            <th>Trạng Thái</th>
+            <th>Hành Động</th>
         </tr>
         </thead>
         <tbody>
@@ -110,7 +110,7 @@
         <!-- Previous button -->
         <a th:if="${hasPrevious}"
            th:href="@{/admin/categories(page=${currentPage - 1}, keyword=${keyword}, status=${status})}"
-           class="btn btn-outline-primary btn-sm">Previous</a>
+           class="btn btn-outline-primary btn-sm">Trước</a>
 
         <!-- Page numbers -->
         <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
@@ -128,7 +128,7 @@
         <!-- Next button -->
         <a th:if="${hasNext}"
            th:href="@{/admin/categories(page=${currentPage + 1}, keyword=${keyword}, status=${status})}"
-           class="btn btn-outline-primary btn-sm">Next</a>
+           class="btn btn-outline-primary btn-sm">Tiếp</a>
     </div>
 
 </section>

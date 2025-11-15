@@ -1,12 +1,11 @@
 package com.swp.mmostore.repository;
 import com.swp.mmostore.entity.User;
 import com.swp.mmostore.entity.Withdrawal;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
-import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 import java.util.Optional;
 

@@ -1,13 +1,29 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org"
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
       th:replace="~{base::layout(~{::section}, ~{::cssFragment}, ~{::jsFragment})}"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
     <meta charset="UTF-8">
-    <title th:text="'Products from ' + ${shop.name}">Shop Products</title>
+    <title th:text="'Sản phẩm từ ' + ${shop.name}">Sản phẩm của Shop</title>
     <th:block th:fragment="cssFragment">
         <link rel="stylesheet" href="/css/shop-information.css">
+        <style>
+            /* Optional: Ensure images fit nicely in the card */
+            .product-img-container {
+                height: 200px;
+                overflow: hidden;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: #f8f9fa;
+            }
+            .product-img-container img {
+                max-height: 100%;
+                max-width: 100%;
+                object-fit: cover;
+            }
+        </style>
     </th:block>
 
     <th:block th:fragment="jsFragment">
@@ -21,10 +37,10 @@
     <div class="container my-5">
 
         <div th:if="${shop}">
-            <h1 class="display-5" th:text="'Products from ' + ${shop.name}">Shop Name</h1>
+            <h1 class="display-5" th:text="'Sản phẩm từ ' + ${shop.name}">Tên Shop</h1>
             <p>
                 <a th:href="@{/shops/{id}(id=${shop.shopId})}" class="btn btn-sm btn-outline-secondary">
-                    &larr; Back to Shop Profile
+                    &larr; Quay lại trang Shop
                 </a>
             </p>
         </div>
@@ -33,42 +49,49 @@
 
             <div class="col" th:each="product : ${productPage.content}">
                 <div class="card product-card shadow-sm">
-                    <div class="card-img-top bg-secondary text-white text-center p-5">
-                        <span>Product Image</span>
+
+                    <div class="card-img-top product-img-container">
+                        <img th:if="${product.productImageUrl != null}"
+                             th:src="@{${product.productImageUrl}}"
+                             alt="Hình ảnh sản phẩm">
+
+                        <div th:unless="${product.productImageUrl != null}" class="text-muted p-5 text-center">
+                            <span>Chưa có ảnh</span>
+                        </div>
                     </div>
 
                     <div class="card-body">
                         <h5 class="card-title">
                             <a th:href="@{/product/{id}(id=${product.id})}"
                                th:text="${product.title}" class="text-decoration-none">
-                                Product Title
+                                Tên sản phẩm
                             </a>
                         </h5>
 
                         <p class="card-text text-muted"
                            th:text="${#strings.abbreviate(product.description, 100)}">
-                            Short product description...
+                            Mô tả ngắn...
                         </p>
 
                         <div>
-                <span th:if="${product.avgRating > 0}">
-                    <span class="rating-star">★</span>
-                    <strong th:text="${#numbers.formatDecimal(product.avgRating, 1, 1)}">4.5</strong>
-                </span>
+                            <span th:if="${product.avgRating > 0}">
+                                <span class="rating-star" style="color: gold;">★</span>
+                                <strong th:text="${#numbers.formatDecimal(product.avgRating, 1, 1)}">4.5</strong>
+                            </span>
                             <span th:unless="${product.avgRating > 0}" class="text-muted">
-                    No ratings
-                </span>
+                                Chưa có đánh giá
+                            </span>
                         </div>
                     </div>
 
                     <div class="card-footer d-flex justify-content-between align-items-center">
-            <span class="fs-5 fw-bold text-success"
-                  th:text="'$' + ${#numbers.formatDecimal(product.price, 0, 2)}">
-                $99.99
-            </span>
+                        <span class="fs-5 fw-bold text-success"
+                              th:text="${#numbers.formatDecimal(product.price, 0, 'POINT', 0, 'COMMA')} + ' đ'">
+                            99.000 đ
+                        </span>
                         <a th:href="@{/product/{id}(id=${product.id})}"
                            class="btn btn-sm btn-outline-primary">
-                            View Details
+                            Xem chi tiết
                         </a>
                     </div>
                 </div>
@@ -76,17 +99,17 @@
 
             <div class="col-12" th:if="${productPage.empty}">
                 <div class="alert alert-info" role="alert">
-                    This shop doesn't have any products listed yet.
+                    Shop này chưa đăng bán sản phẩm nào.
                 </div>
             </div>
         </div>
 
-        <nav th:if="${productPage.totalPages > 0}" aria-label="Page navigation">
+        <nav th:if="${productPage.totalPages > 0}" aria-label="Phân trang">
             <ul class="pagination justify-content-center mt-4">
                 <li class="page-item" th:classappend="${productPage.first} ? 'disabled'">
                     <a class="page-link"
                        th:href="@{/shops/{id}/products(id=${shop.shopId}, page=${currentPage > 0 ? currentPage - 1 : 0})}">
-                        Previous
+                        Trước
                     </a>
                 </li>
 
@@ -101,7 +124,7 @@
                 <li class="page-item" th:classappend="${productPage.last} ? 'disabled'">
                     <a class="page-link"
                        th:href="@{/shops/{id}/products(id=${shop.shopId}, page=${currentPage + 1})}">
-                        Next
+                        Sau
                     </a>
                 </li>
             </ul>

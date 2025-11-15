@@ -34,12 +34,12 @@ public class GlobalHeaderController {
                 List<Notification> notifications = notificationService.findTop5ByUserOrderByCreateAtDesc(user);
                 long unreadCount = notificationService.countUnreadByUser(user);
 
-                model.addAttribute("notifications", notifications);
+                model.addAttribute("notificationHeader", notifications);
                 model.addAttribute("unreadCount", unreadCount);
             }
         } else {
             // If no user logged in, still prevent null issues
-            model.addAttribute("notifications", List.of());
+            model.addAttribute("notificationHeader", List.of());
             model.addAttribute("unreadCount", 0);
         }
     }

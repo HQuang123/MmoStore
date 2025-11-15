@@ -31,6 +31,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Controller
 @Slf4j
@@ -223,8 +224,7 @@ public class WithdrawalController {
             String userName = wd.getUser().getName();
             String code = Bank.findCodeForBankName(bankName);
             if (code != null && accountNumber != null && !accountNumber.isBlank()) {
-                String token = "jYp8Yod"; // Your placeholder token
-                String filename = code + "-" + accountNumber + "-" + token + ".jpg";
+                String filename = code + "-" + accountNumber + "-print" + ".png";
                 String accountName = URLEncoder.encode(userName == null ? "" : userName, StandardCharsets.UTF_8);
                 String addInfo = URLEncoder.encode((wd.getId() != null ? ("WD#" + wd.getId()) : ("WD:" + accountNumber)), StandardCharsets.UTF_8);
 
@@ -261,7 +261,14 @@ public class WithdrawalController {
             event.setStatus("Approved");
             event.setType(com.swp.mmostore.entity.ActionType.Withdraw);
             walletProducer.sendTransactionEvent(event);
-            //Todo: Duc Anh add notification
+
+            // add notification for successful approval for user
+            if(user != null) {
+                notificationService.createNotificationForUser(
+                        user.getUserId(), "Kết quả rút tiền", "Yêu cầu rút " + wd.getAmount() + " đã được duyệt !"
+                );
+            }
+
             return ResponseEntity.ok(Map.of("message", "Withdrawal approved successfully.", "newStatus", "Approved"));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("error", "Server error: " + e.getMessage()));
@@ -277,6 +284,14 @@ public class WithdrawalController {
             event.setType(ActionType.Withdraw);
             walletProducer.sendTransactionEvent(event);
             redirectAttributes.addFlashAttribute("successMsg","Withdrawal #" + withdrawalId + " has been rejected");
+            redirectAttributes.addFlashAttribute("successMessage","Withdrawal #" + withdrawalId + " has been rejected");
+
+            // add notification for successful approval for user
+            Optional<Withdrawal> withdraw = withdrawalRepository.findById(withdrawalId);
+            withdraw.ifPresent(withdrawal -> notificationService.createNotificationForUser(
+                    withdrawal.getUser().getUserId(), "Kết quả rút tiền", "Yêu cầu rút " + withdrawal.getAmount() + " đã bị từ chối !")
+            );
+
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMsg","Server error: " + e.getMessage());
         }

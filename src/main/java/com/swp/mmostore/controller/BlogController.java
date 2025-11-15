@@ -42,6 +42,9 @@ public class BlogController {
     @Autowired
     private CloudStorageService cloudStorageService;
 
+    @Autowired
+    private NotificationService notificationService;
+
 
     @GetMapping("/blog/blog-view")
     public String viewBlog(
@@ -50,7 +53,7 @@ public class BlogController {
             @RequestParam(value = "page", defaultValue = "1") int page, // 1-based
             Model model
     ) {
-        int pageSize = 2;
+        int pageSize = 4;
 
         title = (title == null || title.isBlank()) ? null : title;
         category = (category == null || category.isBlank()) ? null : category;
@@ -124,7 +127,7 @@ public class BlogController {
                 } catch (IOException e) {
                     e.printStackTrace();
                     redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi tải ảnh lên!");
-                    return "redirect:/blog/blog-view";
+                    return "redirect:/blog/my-posts";
                 }
             }
 
@@ -147,23 +150,103 @@ public class BlogController {
         return "redirect:/blog/blog-view";
     }
 
-
-
     @PostMapping("/blog/comment/{postId}")
     public String addComment(@PathVariable Integer postId,
                              @RequestParam String content,
                              @RequestParam(required = false) Integer parentId,
                              Authentication auth) {
 
-        // Lấy email user đang đăng nhập
+        // Lấy user hiện tại
         String userEmail = auth.getName();
+        User currentUser = userService.getUserByEmail(userEmail);
 
         // Gọi Service thêm comment/reply
-        blogCommentService.addComment(postId, content, userEmail, parentId);
+        BlogComment newComment = blogCommentService.addComment(postId, content, userEmail, parentId);
 
-        // Redirect để reload trang và hiển thị comment
+        // Lấy bài viết
+        BlogPost post = blogPostService.findById(postId);
+        String postTitle = post.getTitle(); // tiêu đề bài viết
+
+        // --- TẠO NOTIFICATION --- //
+
+        // thông báo cho chủ comment cha
+        if (parentId != null) {
+            BlogComment parentComment = blogCommentService.findById(parentId);
+            User parentUser = parentComment.getUser();
+
+            if (parentUser != null && !parentUser.getUserId().equals(currentUser.getUserId())) {
+                String title = "Comment của bạn được trả lời";
+                String msg = "Người dùng " + currentUser.getName() +
+                        " đã trả lời bình luận của bạn trên bài viết: \"" + postTitle + "\"\nNội dung: " + content;
+                notificationService.createNotificationForUser(parentUser.getUserId(), title, msg);
+            }
+        }
+
+        // Thông báo cho chủ bài viết nếu khác currentUser và khác comment cha
+        User postOwner = post.getUser();
+        boolean isParentOwnerDifferent = parentId == null ||
+                !postOwner.getUserId().equals(blogCommentService.findById(parentId).getUser().getUserId());
+
+        if (postOwner != null && !postOwner.getUserId().equals(currentUser.getUserId()) && isParentOwnerDifferent) {
+            String title = "Bài viết của bạn có bình luận mới";
+            String msg = "Người dùng " + currentUser.getName() +
+                    " đã bình luận trên bài viết của bạn: \"" + postTitle + "\"\nNội dung: " + content;
+            notificationService.createNotificationForUser(postOwner.getUserId(), title, msg);
+        }
+
+        // Redirect để reload trang
         return "redirect:/blog/blog-view";
     }
+
+    @PostMapping("/blog/mypost/comment/{postId}")
+    public String addCommentInMyPost(@PathVariable Integer postId,
+                             @RequestParam String content,
+                             @RequestParam(required = false) Integer parentId,
+                             Authentication auth) {
+
+        // Lấy user hiện tại
+        String userEmail = auth.getName();
+        User currentUser = userService.getUserByEmail(userEmail);
+
+        // Gọi Service thêm comment/reply
+        BlogComment newComment = blogCommentService.addComment(postId, content, userEmail, parentId);
+
+        // Lấy bài viết
+        BlogPost post = blogPostService.findById(postId);
+        String postTitle = post.getTitle(); // tiêu đề bài viết
+
+        // --- TẠO NOTIFICATION --- //
+
+        // thông báo cho chủ comment cha
+        if (parentId != null) {
+            BlogComment parentComment = blogCommentService.findById(parentId);
+            User parentUser = parentComment.getUser();
+
+            if (parentUser != null && !parentUser.getUserId().equals(currentUser.getUserId())) {
+                String title = "Comment của bạn được trả lời";
+                String msg = "Người dùng " + currentUser.getName() +
+                        " đã trả lời bình luận của bạn trên bài viết: \"" + postTitle + "\"\nNội dung: " + content;
+                notificationService.createNotificationForUser(parentUser.getUserId(), title, msg);
+            }
+        }
+
+        // Thông báo cho chủ bài viết nếu khác currentUser và khác comment cha
+        User postOwner = post.getUser();
+        boolean isParentOwnerDifferent = parentId == null ||
+                !postOwner.getUserId().equals(blogCommentService.findById(parentId).getUser().getUserId());
+
+        if (postOwner != null && !postOwner.getUserId().equals(currentUser.getUserId()) && isParentOwnerDifferent) {
+            String title = "Bài viết của bạn có bình luận mới";
+            String msg = "Người dùng " + currentUser.getName() +
+                    " đã bình luận trên bài viết của bạn: \"" + postTitle + "\"\nNội dung: " + content;
+            notificationService.createNotificationForUser(postOwner.getUserId(), title, msg);
+        }
+
+        // Redirect để reload trang
+        return "redirect:/blog/my-posts";
+    }
+
+
 
 
 
@@ -251,21 +334,45 @@ public class BlogController {
         return "blog/edit-post"; // tên template Thymeleaf
     }
 
-    // Xử lý submit form edit bài viết
     @PostMapping("/blog/edit/{id}")
     public String updatePost(
             @PathVariable int id,
             @RequestParam String title,
             @RequestParam String content,
             @RequestParam int categoryId,
+            @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
             RedirectAttributes redirectAttributes
     ) {
         try {
-            blogPostService.updatePost(id, title, content, categoryId);
+            BlogPost existingPost = blogPostService.getPostById(id);
+            if (existingPost == null) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Bài viết không tồn tại!");
+                return "redirect:/blog/my-posts";
+            }
+
+            // Cập nhật thông tin cơ bản
+            existingPost.setTitle(title);
+            existingPost.setContent(content);
+            existingPost.setCategory(blogCategoryService.getCategoryById(categoryId));
+
+            //  Nếu người dùng chọn ảnh mới
+            if (imageFile != null && !imageFile.isEmpty()) {
+                try {
+                    String imageUrl = cloudStorageService.uploadFile(imageFile);
+                    existingPost.setImageUrl(imageUrl);
+                } catch (IOException e) {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Lỗi khi tải ảnh lên!");
+                    return "redirect:/blog/my-posts";
+                }
+            }
+
+            blogPostService.saveBlogPost(existingPost);
             redirectAttributes.addFlashAttribute("successMessage", "Cập nhật bài viết thành công!");
+
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Cập nhật bài viết thất bại: " + e.getMessage());
         }
+
         return "redirect:/blog/my-posts";
     }
 

@@ -51,11 +51,11 @@ public class NotificationController {
             return "redirect:/notifications";
         }
 
-        Pageable pageable = PageRequest.of(page, 5); // 10 per page
+        Pageable pageable = PageRequest.of(page, 7); // 7 per page
         Page<Notification> notificationPage = notificationService.findByUserOrderByCreateAtDesc(user, pageable);
 
         if (notificationPage.getTotalPages() > 0 && page >= notificationPage.getTotalPages()) {
-            return "redirect:/admin/users?page=0";
+            return "redirect:/notifications";
         }
 
         if (StringUtils.hasText(status)) {
@@ -65,6 +65,7 @@ public class NotificationController {
         }
 
         model.addAttribute("notifications", notificationPage.getContent());
+        model.addAttribute("status", status);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", notificationPage.getTotalPages());
         return "user/notifications-list";

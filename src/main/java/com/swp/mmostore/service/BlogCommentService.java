@@ -86,4 +86,10 @@ public class BlogCommentService {
     public List<BlogComment> getParentCommentsByPost(BlogPost post) {
         return commentRepository.findByBlogPostAndParentIsNullAndIsActiveTrue(post);
     }
+
+    // Lấy comment theo ID
+    public BlogComment findById(Integer commentId) {
+        return commentRepository.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("Comment not found with ID: " + commentId));
+    }
 }

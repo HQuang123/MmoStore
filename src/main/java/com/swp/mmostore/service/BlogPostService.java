@@ -141,20 +141,27 @@ public class BlogPostService {
         );
     }
 
-    public void rejectPost(Integer id) {
-        BlogPost post = getPostById(id);
-        if (post != null) {
-            post.setStatus(-1); // từ chối
-            blogPostRepository.save(post);
-        }
+
+    // BlogPostService hoặc BlogAdminService
+    public BlogPost rejectPost(int id) {
+        BlogPost post = blogPostRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Bài viết không tồn tại"));
+        post.setStatus(-1); // từ chối
+        return blogPostRepository.save(post); // trả về post để lấy thông tin user
     }
+
+
     // Duyệt bài viết
-    public void approvePost(int id) {
-        blogPostRepository.findById(id).ifPresent(post -> {
+    public BlogPost approvePost(int id) {
+        Optional<BlogPost> optionalPost = blogPostRepository.findById(id);
+        if (optionalPost.isPresent()) {
+            BlogPost post = optionalPost.get();
             post.setStatus(1); // 1 = approved
-            blogPostRepository.save(post);
-        });
+            return blogPostRepository.save(post); // trả về post vừa duyệt
+        }
+        return null; // hoặc ném exception nếu muốn
     }
+
 
     // Xóa bài viết
     public void deletePost(int id) {

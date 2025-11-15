@@ -17,10 +17,10 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Integer> {
-    @Query("SELECT p FROM Product p order by p.createAt limit 12")
+    @Query("SELECT p FROM Product p where p.isDeleted = false order by p.createAt limit 12")
     public List<Product> getTwelveLastestProduct();
 
-    @Query("select p from Product p join p.category c where c.categoryId in :categoryId")
+    @Query("select p from Product p join p.category c where c.categoryId in :categoryId and c.isDeleted = false and p.isDeleted = false")
     public List<Product> findByCategoryId(@Param("categoryId") List<String> categoryId);
 
     @Query("""
@@ -89,46 +89,40 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 
 
     @Query("""
-            SELECT new com.swp.mmostore.dto.ProductSummaryDTO(
-                p.productId, p.title, p.description, p.price, s.name, COALESCE(AVG(r.ratingPoint), 0), p.productImageUrl
-            )
-            FROM Product p
-            LEFT JOIN p.shop s
-            LEFT JOIN p.category c
-            LEFT JOIN p.ratings r
-            WHERE p.isDeleted = false
-              AND (:keyword IS NULL OR TRIM(:keyword) = '' 
-                   OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')))
-              AND (
-                   :categoryIds IS NULL 
-                   OR COALESCE(:categoryIds, NULL) IS NULL 
-                   OR c.categoryId IN :categoryIds
-              )
-            GROUP BY p.productId, p.title, p.description, p.price, p.productImageUrl, s.name
-            """)
+    SELECT 
+        p.productId, 
+        p.title, 
+        p.description, 
+        p.price, 
+        s.name, 
+        COALESCE(AVG(r.ratingPoint), 0), 
+        p.productImageUrl 
+    FROM Product p
+        LEFT JOIN p.shop s
+        LEFT JOIN p.category c
+        LEFT JOIN p.ratings r
+    WHERE p.isDeleted = false
+        AND (:keyword IS NULL OR :keyword = '' OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')))
+        AND (COALESCE(:categoryIds, NULL) IS NULL OR c.categoryId IN :categoryIds)
+    GROUP BY p.productId, p.title, p.description, p.price, s.name, p.productImageUrl
+""")
     List<ProductSummaryDTO> findProductByTitle(
             @Param("keyword") String keyword,
             @Param("categoryIds") List<String> categoryIds,
             Pageable pageable
     );
 
-
     @Query("""
     SELECT COUNT(DISTINCT p.productId)
     FROM Product p
-    LEFT JOIN p.category c
+        LEFT JOIN p.category c
     WHERE p.isDeleted = false
-      AND (:keyword IS NULL OR TRIM(:keyword) = '' 
-           OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')))
-      AND (
-           :categoryId IS NULL 
-           OR COALESCE(:categoryId, NULL) IS NULL 
-           OR c.categoryId IN :categoryId
-      )
-    """)
+        AND (:keyword IS NULL OR :keyword = '' OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')))
+        AND (COALESCE(:categoryIds, NULL) IS NULL OR c.categoryId IN :categoryIds)
+""")
     long countByKeywordAndCategories(
             @Param("keyword") String keyword,
-            @Param("categoryId") List<String> categoryId
+            @Param("categoryIds") List<String> categoryIds
     );
 
     @Query("SELECT COUNT(p) FROM Product p WHERE p.shop.user.userId = :sellerId AND p.isDeleted = false")
@@ -169,7 +163,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             Pageable pageable
     );
 
-        List<Product> findByShop(Shop shop);
+    List<Product> findByShop(Shop shop);
 
     @Query("""
             SELECT new com.swp.mmostore.dto.ProductSummaryDTO(
