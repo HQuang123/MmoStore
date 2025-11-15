@@ -258,22 +258,23 @@ public class UserController {
             return "redirect:/user/seller_register";
         }
 
+        String shopImageUrl = "https://storage.googleapis.com/mmostore/default-shop.jpg";
         try {
             shopFeeService.chargeRegistrationFee(user);
+            // Xử lý ảnh cửa hàng
+            if (shopImage != null && !shopImage.isEmpty()) {
+                try {
+                    shopImageUrl = cloudStorageService.uploadFile(shopImage);
+                } catch (Exception e) {
+                    redirectAttributes.addFlashAttribute("errorMsg", "Lỗi khi upload ảnh cửa hàng");
+                    return "redirect:/user/seller_register";
+                }
+            }
         } catch (RuntimeException e) {
             redirectAttributes.addFlashAttribute("errorMsg", e.getMessage());
             return "redirect:/user/seller_register";
         }
-        // Xử lý ảnh cửa hàng
-        String shopImageUrl = "https://storage.googleapis.com/mmostore/default-shop.jpg";
-        if (shopImage != null && !shopImage.isEmpty()) {
-            try {
-                shopImageUrl = cloudStorageService.uploadFile(shopImage);
-            } catch (Exception e) {
-                session.setAttribute("errorMsg", "Lỗi khi upload ảnh cửa hàng");
-                return "redirect:/user/detail";
-            }
-        }
+
 
         // Tạo shop
         Shop shop = new Shop(name, description, user, shopImageUrl);

@@ -33,7 +33,7 @@
                 </div>
                 <div class="col-md-3 d-flex">
                     <button type="submit" class="btn btn-primary me-2 w-50">Tìm kiếm</button>
-                    <a th:href="@{/blog/blog-view}" class="btn btn-secondary w-50">Clear</a>
+                    <a th:href="@{/blog/blog-view}" class="btn btn-secondary w-50">Xóa Lọc</a>
                 </div>
             </form>
 
@@ -107,7 +107,6 @@
                             <!-- Replies -->
                             <div th:each="reply : ${comment.replies}" class="ms-4 mt-2">
                                 <div class="border-start ps-2 mb-1">
-                                    <strong th:text="${reply.user != null ? reply.user.name : 'Ẩn danh'}"></strong>:
                                     <span th:text="${reply.content}" class="ms-1"></span>
                                     <small class="text-muted ms-2"
                                            th:text="${#temporals.format(reply.createAt, 'dd/MM/yyyy HH:mm')}"></small>
