@@ -62,11 +62,13 @@ public interface BlogPostRepository extends JpaRepository<BlogPost, Integer> {
 
 
     // Đếm tất cả bài viết của người dùng theo title và category, chỉ những bài viết active
-    @Query("SELECT COUNT(bp) FROM BlogPost bp WHERE bp.isActive = true AND bp.user = :user " +
+    @Query("SELECT COUNT(bp) FROM BlogPost bp WHERE bp.isActive = true and bp.status!= -1 AND bp.user = :user " +
             "AND (:title IS NULL OR LOWER(bp.title) LIKE LOWER(CONCAT('%', :title, '%'))) " +
             "AND (:category IS NULL OR bp.category.name = :category)")
     long countActivePostsByUser(@Param("user") User user, @Param("title") String title,
                                 @Param("category") String category);
+
+
     Optional<BlogPost> findByIdAndIsActiveTrue(Integer id);
 
 
