@@ -198,6 +198,55 @@ public class BlogController {
         return "redirect:/blog/blog-view";
     }
 
+    @PostMapping("/blog/mypost/comment/{postId}")
+    public String addCommentInMyPost(@PathVariable Integer postId,
+                             @RequestParam String content,
+                             @RequestParam(required = false) Integer parentId,
+                             Authentication auth) {
+
+        // Lấy user hiện tại
+        String userEmail = auth.getName();
+        User currentUser = userService.getUserByEmail(userEmail);
+
+        // Gọi Service thêm comment/reply
+        BlogComment newComment = blogCommentService.addComment(postId, content, userEmail, parentId);
+
+        // Lấy bài viết
+        BlogPost post = blogPostService.findById(postId);
+        String postTitle = post.getTitle(); // tiêu đề bài viết
+
+        // --- TẠO NOTIFICATION --- //
+
+        // thông báo cho chủ comment cha
+        if (parentId != null) {
+            BlogComment parentComment = blogCommentService.findById(parentId);
+            User parentUser = parentComment.getUser();
+
+            if (parentUser != null && !parentUser.getUserId().equals(currentUser.getUserId())) {
+                String title = "Comment của bạn được trả lời";
+                String msg = "Người dùng " + currentUser.getName() +
+                        " đã trả lời bình luận của bạn trên bài viết: \"" + postTitle + "\"\nNội dung: " + content;
+                notificationService.createNotificationForUser(parentUser.getUserId(), title, msg);
+            }
+        }
+
+        // Thông báo cho chủ bài viết nếu khác currentUser và khác comment cha
+        User postOwner = post.getUser();
+        boolean isParentOwnerDifferent = parentId == null ||
+                !postOwner.getUserId().equals(blogCommentService.findById(parentId).getUser().getUserId());
+
+        if (postOwner != null && !postOwner.getUserId().equals(currentUser.getUserId()) && isParentOwnerDifferent) {
+            String title = "Bài viết của bạn có bình luận mới";
+            String msg = "Người dùng " + currentUser.getName() +
+                    " đã bình luận trên bài viết của bạn: \"" + postTitle + "\"\nNội dung: " + content;
+            notificationService.createNotificationForUser(postOwner.getUserId(), title, msg);
+        }
+
+        // Redirect để reload trang
+        return "redirect:/blog/my-posts";
+    }
+
+
 
 
 
