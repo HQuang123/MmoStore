@@ -27,13 +27,21 @@ function createOrder(quantity, totalPrice, productId) {
             productId: productId
         })
     })
-        .then(response => response.json())
         .then(data => {
             if (data) {
+                const quantity = parseInt(document.getElementById("quantity").value);
+                const singlePrice = parseFloat(document.getElementById("price").value);
+                const totalPrice = quantity * singlePrice;
+
                 const modalConfirm = bootstrap.Modal.getInstance(document.getElementById("confirmModal"));
                 modalConfirm.hide();
-                document.getElementById("orderQuantity").textContent = data.quantity;
-                document.getElementById("orderTotal").textContent = data.totalPrice;
+                document.getElementById("orderQuantity").textContent = quantity.toString();
+                document.getElementById("orderTotal").textContent =
+                    totalPrice.toLocaleString("vi-VN", {
+                        style: "currency",
+                        currency: "VND"
+                    });
+
                 const modalSuccess = new bootstrap.Modal(document.getElementById("successModal"));
                 modalSuccess.show();
             } else {
